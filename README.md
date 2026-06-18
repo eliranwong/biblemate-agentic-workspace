@@ -1,6 +1,6 @@
 # Antigravity Bible Study Agents
 
-Welcome to the **Antigravity Bible Study Agents** ecosystem. This repository is configured specifically as a local workspace extension for the **Google Antigravity** agentic development platform, featuring an integrated team of 9 customized agent personas, 36 standalone exegesis/theology skills, and 36 custom slash commands.
+Welcome to the **Antigravity Bible Study Agents** ecosystem. This repository is configured specifically as a local workspace extension for the **Google Antigravity** agentic development platform, featuring an integrated team of 9 customized agent personas, 38 standalone exegesis/theology skills, and 38 custom slash commands.
 
 This repository works with all antigravity platform, Antigravity, Antigravity IDE, Antigravity CLI. Official downloads at: https://antigravity.google/download
 
@@ -17,11 +17,11 @@ All agentic configurations are self-contained under the `.agents/` folder at the
 │   ├── outline/
 │   ├── sermon/
 │   ├── translate_greek/
-│   └── ... (36 total skills)
+│   └── ... (38 total skills)
 └── workflows/            # Parameterized slash command workflows
     ├── outline.md
     ├── sermon.md
-    └── ... (36 total slash commands)
+    └── ... (38 total slash commands)
 ```
 
 ---
@@ -36,8 +36,8 @@ Because this repository uses the standard Antigravity workspace configuration sc
    ```
 2. **Auto-Discovery**: Antigravity automatically detects the `.agents/` directory at the project root. It will:
    - Load the 9 custom personas from `agents.md` into the agent selection registry.
-   - Register the 35 skills in `.agents/skills/` for progressive disclosure (they will be loaded dynamically into the context when a user request matches their description).
-   - Expose the 35 workflow files in `.agents/workflows/` as native slash commands.
+   - Register the 37 skills in `.agents/skills/` for progressive disclosure (they will be loaded dynamically into the context when a user request matches their description).
+   - Expose the 37 workflow files in `.agents/workflows/` as native slash commands.
 
 3. **Running Slash Commands**: In the Antigravity chat input, type `/` to bring up the commands menu, followed by arguments (e.g. references, topics, or words):
    - `/outline Ephesians 1`
@@ -45,6 +45,29 @@ Because this repository uses the standard Antigravity workspace configuration sc
    - `/translate_greek John 1:1`
 
 For a full reference of all available slash commands and usage examples, see the [Slash Commands Reference Guide](docs/slash_commands.md).
+
+---
+
+## Setting Up a New Repository
+
+To bring these powerful Bible study tools into a brand-new repository, follow these simple setup steps:
+
+1. **Copy the Configuration Folder**:  
+   Copy the `.agents/` folder from the root of this repository into the root of your new project. Google Antigravity will automatically discover the custom personas, skills, and workflows.
+
+2. **Install `biblematedata` (for Bible Database Retrieval)**:  
+   To enable local Scripture database lookups, you need to install the `biblematedata` package and initialize it:
+   ```bash
+   pip install --upgrade biblematedata
+   biblematedata
+   ```
+   *Note: For more details on configuring database files, refer to the official [biblemate repository](https://github.com/eliranwong/biblemate).*
+
+3. **Install `pandoc` (for Document Conversion)**:  
+   To convert your study guides, outlines, and sermons into formats like Microsoft Word (`.docx`), ensure `pandoc` is installed on your system:
+   - **macOS**: `brew install pandoc`
+   - **Windows**: `winget install JohnMacFarlane.Pandoc` (or download the setup installer)
+   - **Linux**: `sudo apt install pandoc` (or equivalent package manager command)
 
 ---
 

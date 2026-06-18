@@ -1,0 +1,15 @@
+---
+name: docx
+description: Convert a specified file to docx format, or export the last response/whole conversation to export/docx.
+---
+
+# Word Document Conversion & Export Skill
+
+## Overview
+This standalone skill enables any agent to perform file conversions to Word (`.docx`) format, or export conversation dialogue to the designated export directory.
+
+## Guidelines & Objectives
+When executing this skill:
+- Always run the python converter script located at `.agents/skills/docx/docx_converter.py` to perform the conversion or export.
+- Execute the script using: `python3 .agents/skills/docx/docx_converter.py "<query>"` where `<query>` is the input prompt or arguments containing the file path or export directives (e.g. `whole`, `conversation`).
+- Present the exact output of the script to the user, confirming the paths and file status of the output.

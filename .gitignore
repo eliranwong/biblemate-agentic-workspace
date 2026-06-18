@@ -1,0 +1,15 @@
+# Python bytecode/cache
+**/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Operating system files
+.DS_Store
+Thumbs.db
+
+# Dynamic exports (only keep README files)
+export/docx/*
+!export/docx/README.md
+export/md/*
+!export/md/README.md
