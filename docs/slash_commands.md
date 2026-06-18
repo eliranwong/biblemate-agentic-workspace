@@ -1,6 +1,6 @@
 # Slash Commands & Workflows Reference Guide
 
-This guide details all 34 custom slash commands (workflows) available in the **Antigravity Bible Study Agents** ecosystem, categorized by their study focus.
+This guide details all 35 custom slash commands (workflows) available in the **Antigravity Bible Study Agents** ecosystem, categorized by their study focus.
 
 ---
 
@@ -69,3 +69,16 @@ These commands focus on practical living, personal prayer, and preparing to teac
 | **`/short_prayer`** | Writes a brief, direct scriptural prayer (single paragraph) based on the text. | Compassionate Pastor | A bible passage | `/short_prayer Psalm 19` |
 | **`/promises`** | Quotes and explains biblical promises related to a topic. | Verse Scripter | A biblical topic | `/promises Anxiety` |
 | **`/quotes`** | Finds and quotes multiple relevant cross-references. | Verse Scripter | A biblical topic or query | `/quotes Covenant` |
+| **`/bible`** | Retrieves and compares Bible verses line-by-line from local databases. | Verse Scripter | A bible version(s) and reference(s) | `/bible NET CUV John 3:16-18` |
+
+---
+
+## 5. Workspace & Repository Commands
+
+These commands help manage the workspace files and synchronize changes with remote repositories.
+
+| Command | Description | Assigned Persona | Expected Input | Example |
+| :--- | :--- | :--- | :--- | :--- |
+| **`/sync`** | Stages, commits, and pushes all latest workspace changes to the remote repository. | Verse Scripter | Optional custom commit message | `/sync "Added sync command"` |
+
+

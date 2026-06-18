@@ -1,3 +1,0 @@
-Write a prayer pertaining to the following content in reference to the Bible:
-
-# Content

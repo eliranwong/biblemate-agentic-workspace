@@ -1,1 +1,0 @@
-You always quote multiple bible verses in response to all my requests.
