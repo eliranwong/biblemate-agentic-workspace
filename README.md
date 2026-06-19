@@ -1,6 +1,6 @@
 # Antigravity Bible Study Agents
 
-Welcome to the **Antigravity Bible Study Agents** ecosystem. This repository is configured specifically as a local workspace extension for the **Google Antigravity** agentic development platform, featuring an integrated team of 9 customized agent personas, 107 standalone exegesis/theology skills, and 107 custom slash commands.
+Welcome to the **Antigravity Bible Study Agents** ecosystem. This repository is configured specifically as a local workspace extension for the **Google Antigravity** agentic development platform, featuring an integrated team of 9 customized agent personas, 108 standalone exegesis/theology skills, and 108 custom slash commands.
 
 This repository works with all antigravity platform, Antigravity, Antigravity IDE, Antigravity CLI. Official downloads at: https://antigravity.google/download
 
@@ -17,11 +17,11 @@ All agentic configurations are self-contained under the `.agents/` folder at the
 │   ├── outline/
 │   ├── sermon/
 │   ├── translate_greek/
-│   └── ... (107 total skills)
+│   └── ... (108 total skills)
 └── workflows/            # Parameterized slash command workflows
     ├── outline.md
     ├── sermon.md
-    └── ... (107 total slash commands)
+    └── ... (108 total slash commands)
 ```
 
 ---
@@ -36,8 +36,8 @@ Because this repository uses the standard Antigravity workspace configuration sc
    ```
 2. **Auto-Discovery**: Antigravity automatically detects the `.agents/` directory at the project root. It will:
    - Load the 9 custom personas from `agents.md` into the agent selection registry.
-   - Register the 107 skills in `.agents/skills/` for progressive disclosure (they will be loaded dynamically into the context when a user request matches their description).
-   - Expose the 107 workflow files in `.agents/workflows/` as native slash commands.
+   - Register the 108 skills in `.agents/skills/` for progressive disclosure (they will be loaded dynamically into the context when a user request matches their description).
+   - Expose the 108 workflow files in `.agents/workflows/` as native slash commands.
 
 3. **Running Slash Commands**: In the Antigravity chat input, type `/` to bring up the commands menu, followed by arguments (e.g. references, topics, or words):
    - `/outline Ephesians 1`

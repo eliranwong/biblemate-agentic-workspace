@@ -318,46 +318,38 @@ examples for use:
 ## Prompt for Creating Lexicon Skill and /lexicon Command
 
 ```
-Now, along a similar line, create a new skill and a new slash command workflow, to retrieve bible lexicon content:
+Now, along a similar line, create a new skill and a new slash command workflow, to retrieve original language or Strong Number lexicon content:
 
 skill name should be simply `lexicon`
 
 slash command should be simply `/lexicon`
 
-lexicon contents are in sqlite format, stored either in `~/biblemate/data/lexicon` or `~/biblemate/data_custom/lexicon`
+lexicon contents are in sqlite format, stored either in `~/biblemate/data/lexicons` or `~/biblemate/data_custom/lexicons`
 
 Note: make sure you don't hardcode lexicon version list available in `~/biblemate/data/lexicon` and `~/biblemate/data_custom/lexicon` , because users can dynamatically add or remove lexicon databases into or from this folder.  Instead of hardcoding a static lexicon version list, you should always check if lexicon version specified is a valid name in those folder.
 
 Remember use home variable instead of hardcoding absolute paths, to make this repository portable.
 
-Valid lexicon filenames are formatted like `l<lexicon_version>.lexicon`, so each lexicon filename starts with `l` followed by the lexicon version abbreviation, then `.lexicon`. for example:
-`lLSG.lexicon`, `lSTR.lexicon`, etc. and each is its own lexicon database.
+Valid lexicon filenames are formatted like `<lexicon_version>.lexicon`, so each lexicon filename starts with the lexicon version abbreviation, then ends with `.lexicon`. for example:
+`SECE.lexicon`, `BDB.lexicon`, `LSJ.lexicon`, etc. and each is its own lexicon database.
 
-retrieve from table `Lexicon`, the `Scripture` column contains the lexicon text content that is intended to be retrieved. 
+work with table `Lexicon` for lexicon entries `Topic` and content `Definition`. 
 
-Note: there may be a challenge for you, some Lexicon table, like the one in `lLSG.lexicon` contains Book, Chapter, and Verse entries, but most of the others have Book, Chapter entries only.  In the latter case, the `Scripture` column contains the lexicon text content for the whole chapter.  You need a further step to retrieve only the relevant verses/verse range sections from the lexicon text content, based on the given verse range.  For example, if verse range is John 3:16-18, and the lexicon text content is for the whole chapter, you need to retrieve only the sections relevant to John 3:16-18.  You should use text processing, and natural language understanding techniques to achieve this goal or any better alternatives.
+`SECE.lexicon` is the default lexicon if no lexicon version is specified
 
-`lLSG.lexicon` is the default lexicon if no lexicon version is specified
+the command `/lexicon` can take both lexicon version(s) and lexicon entries
 
-the command `/lexicon` can take both lexicon version(s) and bible reference(s)
-
-if lexicon version is not specified, `lLSG.lexicon` is the default database for retrieval.  If a specified version, use that version, If more than one version is specified, all specified versions are retrieved for comparison for each given bible reference.
-
-bible references can be single or multiple verse(s), e.g. John 3:16-18; Rm 5-8
-
-bible references can also be a chapter a verse or multiple verse range
+if lexicon version is not specified, `SECE.lexicon` is the default database for retrieval.  If a specified version, use that version, If more than one version is specified, all specified versions are retrieved for comparison for each given entry.
 
 examples for use: 
 
-/lexicon John 3:16 # use `lLSG.lexicon` as default
+/lexicon H148 G2479 # use `SECE.lexicon` as default
 
-/lexicon John 3 # retrieve the whole chapter from the first verse to the last
+/lexicon H148 G2479; G5547; G5590 # retrieve multiple lexicon entries
 
-/lexicon John 3:16-18; Deut 6:4; Rom 5-8 # retrieve multiple lexicon entries for the given verses from different books.
+/lexicon BDB SECE H148 # use `BDB.lexicon` and `SECE.lexicon` for comparison
 
-/lexicon LSG STR John 3:16-18 # use `lLSG.lexicon` and `lSTR.lexicon` for comparison
-
-/lexicon LSG STR John 3:16-18; Deut 6:4; Rom 5-8 # compare `lLSG.lexicon` and `lSTR.lexicon` for the given bible references
+/lexicon BDB SECE H148; H1933-H1935 # compare `BDB.lexicon` and `SECE.lexicon` for the given lexicon entries
 ```
 
 ## Prompt for Creating Xrefs Skill and /xrefs Command
