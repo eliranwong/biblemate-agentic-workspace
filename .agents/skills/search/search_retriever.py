@@ -173,47 +173,37 @@ def main():
         print(f"  - **{OFFICIAL_BOOK_NAMES[b]}:** {book_counts[b]} matches")
     print("\n---\n")
     
-    # Limit maximum rendered verses in output to 100 for safety, but show all in stats
-    display_limit = 100
-    display_coords = sorted_coords[:display_limit]
-    
-    current_book = None
-    current_chapter = None
-    
-    for (b, c, v) in display_coords:
-        # Group by Book and Chapter
-        if b != current_book or c != current_chapter:
-            current_book = b
-            current_chapter = c
-            print(f"\n### {OFFICIAL_BOOK_NAMES[b]} {c}\n")
-            
-        print(f"**{OFFICIAL_BOOK_NAMES[b]} {c}:{v}**")
-        for ver in versions:
-            # Check if this coordinate exists in this version's database
-            # If it matched, we have the text. If not, try to fetch it dynamically
-            text = version_matches[ver].get((b, c, v), None)
-            
-            if text is None:
-                # Coordinate didn't match in this version, let's query the verse to see if it exists
-                db_path = available_versions[ver]
-                try:
-                    conn = sqlite3.connect(db_path)
-                    cursor = conn.cursor()
-                    cursor.execute("SELECT Scripture FROM Verses WHERE Book = ? AND Chapter = ? AND Verse = ?", (b, c, v))
-                    row = cursor.fetchone()
-                    conn.close()
-                    if row:
-                        text = re.sub(r'<[^>]+>', '', row[0]).strip()
-                    else:
-                        text = "(Verse not found)"
-                except:
-                    text = "(Verse not found)"
-                    
-            print(f"- **[{ver}]** {text}")
-        print()
+    # Display matches section by section per version
+    for ver in versions:
+        matches = version_matches[ver]
+        sorted_ver_coords = sorted(matches.keys())
+        print(f"## Version: {ver} ({len(sorted_ver_coords)} matches)\n")
         
-    if len(sorted_coords) > display_limit:
-        print(f"\n*Showing first {display_limit} matches. Use more specific terms to refine your search.*")
+        if not sorted_ver_coords:
+            print("No matches found in this version.\n")
+            print("---\n")
+            continue
+            
+        display_limit = 100
+        display_coords = sorted_ver_coords[:display_limit]
+        
+        current_book = None
+        current_chapter = None
+        
+        for (b, c, v) in display_coords:
+            if b != current_book or c != current_chapter:
+                current_book = b
+                current_chapter = c
+                print(f"\n### {OFFICIAL_BOOK_NAMES[b]} {c}\n")
+                
+            text = matches[(b, c, v)]
+            print(f"**{OFFICIAL_BOOK_NAMES[b]} {c}:{v}**")
+            print(f"- **[{ver}]** {text}\n")
+            
+        if len(sorted_ver_coords) > display_limit:
+            print(f"*Showing first {display_limit} matches for {ver}. Use more specific terms to refine your search.*\n")
+            
+        print("---\n")
 
 if __name__ == "__main__":
     main()
