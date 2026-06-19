@@ -207,6 +207,27 @@ def match_subsequence(q_idx, row_start, rows, q_words):
                 return [i] + rest
     return None
 
+def get_bible_verse_text(book_num, chapter, verse):
+    home = os.path.expanduser('~')
+    bible_paths = [
+        os.path.join(home, 'biblemate', 'data', 'bibles', 'NET.bible'),
+        os.path.join(home, 'biblemate', 'data_custom', 'bibles', 'ESV2016.bible'),
+        os.path.join(home, 'biblemate', 'data', 'bibles', 'KJV.bible')
+    ]
+    for path in bible_paths:
+        if os.path.exists(path):
+            try:
+                conn = sqlite3.connect(path)
+                cursor = conn.cursor()
+                cursor.execute("SELECT Scripture FROM Verses WHERE Book = ? AND Chapter = ? AND Verse = ?", (book_num, chapter, verse))
+                row = cursor.fetchone()
+                conn.close()
+                if row:
+                    return row[0]
+            except Exception:
+                pass
+    return None
+
 def filter_verse_rows(verse_rows, query_phrase):
     q_words = [w.strip() for w in query_phrase.lower().split() if w.strip()]
     if not q_words:
@@ -238,6 +259,51 @@ def filter_verse_rows(verse_rows, query_phrase):
                 matched_rows.append(row)
         return matched_rows
         
+    # 3. Fallback: try positional alignment with English Bible translation
+    if verse_rows:
+        book_num = verse_rows[0]['Book']
+        chapter = verse_rows[0]['Chapter']
+        verse = verse_rows[0]['Verse']
+        text_eng = get_bible_verse_text(book_num, chapter, verse)
+        if text_eng:
+            # Clean and tokenize English text
+            eng_words = [w.strip("(),.?!;:\"'").lower() for w in text_eng.split() if w.strip("(),.?!;:\"'")]
+            
+            # Tokenize morphology translations/glosses
+            morph_words = []
+            for idx, row in enumerate(verse_rows):
+                m_val = ((row['Translation'] or "") + " " + (row['Gloss'] or "")).strip()
+                words = [w.strip("(),.?!;:\"'").lower() for w in m_val.split() if w.strip("(),.?!;:\"'")]
+                morph_words.append((idx, words))
+                
+            # Align query words
+            aligned_indices = set()
+            for qw in q_words:
+                for e_idx, e_w in enumerate(eng_words):
+                    if qw in e_w or e_w in qw:
+                        # Find direct matches first to see what's already mapped
+                        direct_mappings = {}
+                        used_rows = set()
+                        for i, ew in enumerate(eng_words):
+                            for r_idx, m_ws in morph_words:
+                                if r_idx not in used_rows:
+                                    if any(ew in mw or mw in ew for mw in m_ws):
+                                        direct_mappings[i] = r_idx
+                                        used_rows.add(r_idx)
+                                        break
+                                        
+                        if e_idx in direct_mappings:
+                            aligned_indices.add(direct_mappings[e_idx])
+                        else:
+                            # Positional fallback for this specific word
+                            unmapped_rows = [r_idx for r_idx, _ in morph_words if r_idx not in used_rows]
+                            if unmapped_rows:
+                                best_row_idx = min(unmapped_rows, key=lambda r_idx: abs((r_idx / len(verse_rows)) - (e_idx / len(eng_words))))
+                                aligned_indices.add(best_row_idx)
+                                
+            if aligned_indices:
+                return [verse_rows[idx] for idx in sorted(list(aligned_indices))]
+                
     return []
 
 def query_db(db_path, parsed_refs):
@@ -340,7 +406,6 @@ def main():
         print("| Attribute | Value |")
         print("| :--- | :--- |")
         print(f"| **Word / Lexeme** | {row['Word']} / {row['Lexeme']} |")
-        print(f"| **Clause ID** | `{row['ClauseID']}` |")
         print(f"| **Transliteration / Pronunciation** | `{row['Transliteration']}` / `{row['Pronunciation']}` |")
         print(f"| **Lexical Entry** | `{lex_entry}` |")
         print(f"| **Morphology Code** | `{row['MorphologyCode']}` |")
