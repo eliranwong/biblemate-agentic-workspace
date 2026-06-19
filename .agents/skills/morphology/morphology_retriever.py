@@ -336,10 +336,11 @@ def main():
         morph_details = row['Morphology'].strip().rstrip(',')
         lex_entry = row['LexicalEntry'].strip().rstrip(',')
         
-        print(f"### {ref_str} (Word ID: {row['WordID']})")
+        print(f"### {ref_str} (Word ID: {row['WordID']}, Clause ID: {row['ClauseID']})")
         print("| Attribute | Value |")
         print("| :--- | :--- |")
         print(f"| **Word / Lexeme** | {row['Word']} / {row['Lexeme']} |")
+        print(f"| **Clause ID** | `{row['ClauseID']}` |")
         print(f"| **Transliteration / Pronunciation** | `{row['Transliteration']}` / `{row['Pronunciation']}` |")
         print(f"| **Lexical Entry** | `{lex_entry}` |")
         print(f"| **Morphology Code** | `{row['MorphologyCode']}` |")
