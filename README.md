@@ -90,6 +90,23 @@ graph TD
 
 ---
 
+## ⚡ The `/biblemate-super` Command: Dynamic & Goal-Oriented Orchestration
+
+The `/biblemate-super` command (backed by the [.agents/skills/biblemate-super](.agents/skills/biblemate-super) orchestration suite) is the **advanced, adaptive counterpart** to the standard `/biblemate` command. 
+
+While `/biblemate` follows a preset, structured 6-phase framework, `/biblemate-super` is designed for complex, non-standard, or highly specific research tasks that require dynamic planning, custom tools, and strict validation checks.
+
+### Key Differences & Enhancements:
+* 🗺️ **Dynamic Phased Planning**: It does not force a generic template. The agent assesses the request and designs a custom-tailored multi-phase master plan containing custom phases specifically aligned to your objectives.
+* 🎭 **Dynamic Persona Rotation**: Personas are matched to steps based on the specific task (e.g. using `Context Analyst David` for historical Psalms exegesis, `Linguistic Analyst` for original syntax, or `Bible Textual Critic` for translation variants), rather than following a rigid phase-locked rotation.
+* 🎯 **Goal-Oriented Phase Audits**: Every custom phase is initialized with **Clear Phase Goals**. Upon completion of a phase, the **Study Plan & Phase Quality Auditor** persona runs a strict checkpoint review. If goals are not met, the auditor:
+  1. Identifies textual, theological, or practical gaps.
+  2. Prescribes and inserts new follow-up steps (e.g. running the `online` skill to fetch commentary, or doing extra lexically parsed lookups).
+  3. Updates the plan and runs those steps, re-auditing until goals are satisfied before advancing.
+* 🔍 **Flexible Plan Validation**: Validation checks verify that the dynamic plan contains a structured checklist with essential categories covered (Scripture Retrieval, Exegesis, Theology, and Application) rather than enforcing rigid tool inventories.
+
+---
+
 ## 🌟 Key Selling Points & Synergy
 
 This project is the intersection of three powerful domains:
