@@ -13,6 +13,67 @@ Official Antigravity downloads at: https://antigravity.google/download
 
 ---
 
+## 🚀 The `/biblemate` Super-Skill: Orchestrated Bible Study
+
+The `/biblemate` command (backed by the [.agents/skills/biblemate](.agents/skills/biblemate) orchestration suite) is the **super-skill** of this project. While individual slash commands perform specific exegesis tasks (like outline lookups or keyword analyses), `/biblemate` acts as a first-class Biblical scholar and orchestrator, running a fully automated, multi-phase research pipeline to produce publication-quality, deep-dive manuscripts.
+
+### Why it is so powerful for Bible Study:
+* **Phased Workflow**: It guides the AI assistant through 5 rigorous research phases—Planning, local database Data Retrieval, Analysis, Theological Synthesis, and pastoral/evangelistic Application.
+* **Persona Rotation**: It automatically rotates AI personas based on the study phase (e.g., using the *Oxford Scholar* for exegesis, *Cambridge Theologian* for systematic theology, *Billy Graham* for devotions, and *Compassionate Pastor* for first-person prayers) to ensure academic rigor and spiritual depth.
+* **100% Scripture Integrity**: It strictly enforces the local `bible` query skill to fetch all scriptures directly from SQLite databases, completely eliminating AI scripture hallucinations.
+* **Quality Gate Auditing**: It validates the Master Plan against minimum skill requirements for the study type (passage, book, topical, or sermon) and computes a 0–100 quality score, ensuring no thin or shallow outputs are ever accepted.
+* **Unified Synthesized Report**: It merges and synthesizes all intermediate steps into a clean, standalone, relative-linked report containing full scripture quotes, detailed outlines, lexical definitions, and practical application.
+
+### `/biblemate` Workflow Architecture
+
+```mermaid
+graph TD
+    User([User Request]) --> Phase0[Phase 0: Planning & Init]
+    Phase0 --> Plan[Master Study Plan Generated & Validated]
+    
+    Plan --> Phase1[Phase 1: Local Data Retrieval]
+    subgraph Phase 1: Data (Oxford Scholar)
+        Phase1 --> Db1[(Bible Texts)]
+        Phase1 --> Db2[(Greek/Hebrew Original)]
+        Phase1 --> Db3[(Commentaries)]
+        Phase1 --> Db4[(Lexicons & Morphology)]
+        Phase1 --> Db5[(Cross-References)]
+    end
+    
+    Db1 & Db2 & Db3 & Db4 & Db5 --> Phase2[Phase 2: Analysis & Exegesis]
+    subgraph Phase 2: Exegesis (Oxford Scholar)
+        Phase2 --> Outline[Structural Outline]
+        Phase2 --> Keywords[Word Study]
+        Phase2 --> Context[Historical/Cultural Context]
+        Phase2 --> Flow[Thought Flow Progression]
+    end
+    
+    Outline & Keywords & Context & Flow --> Phase3[Phase 3: Theological Synthesis]
+    subgraph Phase 3: Theology (Cambridge Theologian)
+        Phase3 --> Themes[Doctrinal Mapping]
+        Phase3 --> Systematic[Systematic Soteriology]
+        Phase3 --> Canon[Canonical Narrative Fit]
+    end
+    
+    Themes & Systematic & Canon --> Phase4[Phase 4: Devotion & Application]
+    subgraph Phase 4: Heart (Billy Graham & Compassionate Pastor)
+        Phase4 --> Devotion[Devotional Reflection]
+        Phase4 --> Application[Practical Action Steps]
+        Phase4 --> Prayer[Heartfelt Scriptural Prayer]
+    end
+    
+    Devotion & Application & Prayer --> Phase5[Phase 5: Synthesis & Sync]
+    subgraph Phase 5: Report (Content Interpreter)
+        Phase5 --> FinalReport[Unified Final Report]
+        Phase5 --> QualScore[Quality Score Check - 100/100]
+        Phase5 --> GitSync[Git Sync & Push]
+    end
+    
+    FinalReport --> FinalUser([Publication-Quality Study])
+```
+
+---
+
 ## 🌟 Key Selling Points & Synergy
 
 This project is the intersection of three powerful domains:
