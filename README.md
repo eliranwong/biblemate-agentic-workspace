@@ -5,7 +5,7 @@
 > [!NOTE]
 > **Where Rigorous Scholarship Meets Agentic Power:** This repository unites the advanced agentic workflow capability of the **Google Antigravity Platform** with the reliable, time-tested databases of the **[UniqueBible Project](https://github.com/eliranwong/UniqueBible)** and the modular AI exegesis tools of **[BibleMate AI](https://github.com/eliranwong/biblemate)**.
 
-Welcome to the **Antigravity BibleMate Workspace**, a state-of-the-art local agentic study suite configured specifically as an extension for the **Google Antigravity** development platform (compatible with the Antigravity CLI, IDE, and platform). It features an integrated team of 9 customized study personas, 111 standalone exegesis and theology skills, and 111 custom slash commands.
+Welcome to the **Antigravity BibleMate Workspace**, a state-of-the-art local agentic study suite configured specifically as an extension for the **Google Antigravity** development platform (compatible with the Antigravity CLI, IDE, and platform). It features an integrated team of 9 customized study personas, 113 standalone exegesis and theology skills, and 113 custom slash commands.
 
 Whether you are a **pastor preparing a sermon**, a **bible content writer drafting articles**, a **theology student researching ancient manuscripts**, or a **believer deepening your study of the scriptures**, this workspace provides a unified, local-first environment where writing, AI agent assistance, and scholarly databases reside side-by-side in your IDE.
 
@@ -44,11 +44,11 @@ All agentic configurations are self-contained under the `.agents/` folder at the
 │   ├── outline/
 │   ├── sermon/
 │   ├── translate_greek/
-│   └── ... (111 total skills)
+│   └── ... (113 total skills)
 └── workflows/            # Parameterized slash command workflows
     ├── outline.md
     ├── sermon.md
-    └── ... (111 total slash commands)
+    └── ... (113 total slash commands)
 ```
 
 ---
@@ -63,8 +63,8 @@ Because this repository is already configured with the standard Antigravity work
    ```
 2. **Auto-Discovery**: Antigravity automatically detects the `.agents/` directory at the project root. It will:
    - Load the 9 custom personas from `agents.md` into the agent selection registry.
-   - Register the 111 skills in `.agents/skills/` for progressive disclosure.
-   - Expose the 111 workflow files in `.agents/workflows/` as native slash commands.
+   - Register the 113 skills in `.agents/skills/` for progressive disclosure.
+   - Expose the 113 workflow files in `.agents/workflows/` as native slash commands.
 
 3. **Meet Prerequisites**: Ensure you meet all system and platform prerequisites listed in [System Prerequisites](#system-prerequisites).
 
@@ -107,7 +107,13 @@ If you wish to bring these custom Bible study agents and tools into a **differen
 
 1. **Copy Configuration & Preferences (Choose one method)**:
    - **Method A - Git users (Recommended)**: **Fork** this repository on GitHub and `git clone` it. This is highly recommended because when you write your own studies, generate exports, and run the `/sync` command, all changes will be synchronized cleanly to your own personal remote repository.
-   - **Method B - Manual Copy (Zip File)**: Download and unzip [manual_setup.zip](https://github.com/eliranwong/antigravity-biblemate-workspace/raw/main/manual_setup.zip) at the root of your new project. This automatically extracts the `.agents/` and `preferences/` directories. (You can generate or regenerate this zip file at any time by running the `/zip` command).
+   - **Method B - Manual Copy (Zip File)**: Download [manual_setup.zip](https://github.com/eliranwong/antigravity-biblemate-workspace/raw/main/manual_setup.zip) into the root of your new project and extract it:
+      * **Via Terminal (Recommended)**: Run this command in your project root to download, extract, and clean up:
+        ```bash
+        curl -L -O https://github.com/eliranwong/antigravity-biblemate-workspace/raw/main/manual_setup.zip && unzip manual_setup.zip && rm manual_setup.zip
+        ```
+      * **Via GUI (Double-Click)**: If you extract using double-click on macOS, the OS will wrap the contents in a `manual_setup` folder. Simply move the `.agents/` and `preferences/` folders out of it and into your project root.
+      *(You can generate or regenerate this zip file at any time by running the `/zip` command).*
    - **Method C - Manual Copy (Folders)**: Manually copy the `.agents/` and `preferences/` folders from the root of this repository into the root of your new project. Google Antigravity will automatically discover the custom personas, skills, and workflows, while the `preferences/` folder preserves your default database preferences.
 
 2. **Install System Prerequisites**: Ensure you have configured the [System Prerequisites](#system-prerequisites) on your system.
@@ -118,7 +124,7 @@ If you wish to bring these custom Bible study agents and tools into a **differen
 
 You can easily configure your preferred default versions for Bible translation, commentary, and lexicon lookups without modifying any code. To do this, edit the plain text files under the `preferences/` folder at the root of the repository:
 
-- **Bible Default Version**: Set your preference (e.g. `NET`, `KJV`, `ESV2016`) in [preferences/bible.md](preferences/bible.md).
+- **Bible Default Version**: Set your preference (e.g. `NET`, `KJV`, `BSB`) in [preferences/bible.md](preferences/bible.md).
 - **Commentary Default Version**: Set your preference (e.g. `AIC`, `BI`, `BARNES`) in [preferences/commentary.md](preferences/commentary.md).
 - **Lexicon Default Version**: Set your preference (e.g. `SECE`, `BDB`, `Thayer`) in [preferences/lexicon.md](preferences/lexicon.md).
 
@@ -131,6 +137,6 @@ These files are dynamically read by the respective retrievers on every execution
 For in-depth details about the workflows, slash commands, and team structure, please refer to the files under the [docs/](docs) directory:
 
 - **[ai_team_personas.md](docs/ai_team_personas.md)**: Detailed profiles, guidelines, and expertise profiles for each of the 9 custom AI study personas.
-- **[slash_commands.md](docs/slash_commands.md)**: A complete reference guide for all 111 custom slash commands (workflows), organized by study category with syntax examples.
+- **[slash_commands.md](docs/slash_commands.md)**: A complete reference guide for all 113 custom slash commands (workflows), organized by study category with syntax examples.
 - **[README.md (Documentation Index)](docs/README.md)**: Index and overview of repository documentation.
 

@@ -54,6 +54,14 @@ The markdown display show all different versions for a single verse on a single 
 I noted an issue.  Whenever you or agents, specified in [agents.md](.agents/agents.md) , quote bible verse content in their responses.  They use different bible versions, out of their memory, inconsistently.  Can you make sure whenever you or other agents need to quote bible verse content, always use the skill `bible`, so that bible verse content is retrieved from solid local database.
 ```
 
+## Prompt for Creating Original Skill and /original Command
+
+Create a new skill `original` and a new slash command `/original`, that will retrieve the original language of a given Bible verse in Greek or Hebrew, with the full text in the original language.  It is essentially an alias to the `/bible` command, but with default bible version set to OHGB (Open Hebrew Greek Bible).  When users run `/original`, they are essentially running `/bible OHGB`. So the `original` skill is actually the bible skill taking `OHGB` as the first parameter.  All other parameters are passed to the bible skill directly.  You should leverage the `bible` skill to implement the `original` skill.
+
+## Prompt for Creating Interlinear Skill and /interlinear Command
+
+Create a new skill `interlinear` and a new slash command `/interlinear`, that will retrieve the interlinear version of a given Bible verse in Greek or Hebrew, with the full text in the original language.  It is essentially an alias to the `/bible` command, but with default bible version set to OHGBi (Open Hebrew Greek Bible Interlinear).  When users run `/interlinear`, they are essentially running `/bible OHGBi`. So the `interlinear` skill is actually the bible skill taking `OHGBi` as the first parameter.  All other parameters are passed to the bible skill directly.  You should leverage the `bible` skill to implement the `interlinear` skill.
+
 ## Prompt for Creating Search Skill and /search Command
 
 ```

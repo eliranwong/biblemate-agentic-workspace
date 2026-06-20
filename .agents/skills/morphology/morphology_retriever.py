@@ -211,7 +211,7 @@ def get_bible_verse_text(book_num, chapter, verse):
     home = os.path.expanduser('~')
     bible_paths = [
         os.path.join(home, 'biblemate', 'data', 'bibles', 'NET.bible'),
-        os.path.join(home, 'biblemate', 'data_custom', 'bibles', 'ESV2016.bible'),
+        os.path.join(home, 'biblemate', 'data', 'bibles', 'BSB.bible'),
         os.path.join(home, 'biblemate', 'data', 'bibles', 'KJV.bible')
     ]
     for path in bible_paths:
