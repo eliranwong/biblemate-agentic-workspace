@@ -55,6 +55,8 @@ Execute these phases in order. Each phase has mandatory quality gates.
    - Expected output type and depth
 6. **Validate Plan**: Run `--validate-plan` to check that minimum skill coverage is met.
 7. **Create Study Folder**: Run `--init` to create the timestamped study folder and save the initial plan to `000-request_and_study_plan.md`.
+   > [!IMPORTANT]
+   > **Original Request Preservation**: Always write the raw, full, detailed user request to a temporary file (e.g., in the `scratch/` directory) and pass that file path to `--init` instead of trying to pass the request directly as a string argument. This preserves all formatting, bullet points, and constraints without CLI truncation or quoting errors.
 
 ### Phase 1: Data Retrieval (Adopt **Oxford Bible Scholar** persona)
 
@@ -396,3 +398,4 @@ Each phase builds on the previous. Explicitly pass relevant context forward:
 5. **No Shallow Output**: Every step output should be substantial and thorough. If a skill produces a thin result, investigate why and enhance it. A 6-line devotion or a 27-line overview is unacceptable. The final response must be the most substantial document in the study.
 6. **File Naming & Portability**: Follow the `NNN-skill_name.md` convention strictly. Sub-skills use `NNN-skill_name-sub_skill.md`. The pre-final overview uses `NNN-pre_final_overview.md`. The final response uses `NNN-final_response.md`. All links between files MUST be relative (e.g., `[014-pre_final_overview.md](014-pre_final_overview.md)`) and NEVER use absolute paths (e.g., `file:///Users/username/...`) to ensure that the repository remains portable across different devices and operating systems.
 7. **Sync on Completion**: Always run `--git-sync` (or the `sync` skill) at the end if the repository has a remote origin.
+8. **Anti-Truncation via Temporary Files**: When calling any `--init`, `--update-plan`, `--save-step`, `--save-overview`, or `--save-final-response` command, if the input parameter (the request, updated plan, or step content) is long, contains multiple lines, list items, or special characters, **DO NOT** summarize or pass the text directly as a command-line string. Instead, write the text content exactly as-is to a temporary file (e.g., in the `scratch/` directory) and pass that file path to the command. The orchestrator will automatically read from it.

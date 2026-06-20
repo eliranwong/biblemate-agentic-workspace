@@ -287,6 +287,17 @@ def get_workspace_root():
     return os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
 
 
+def _load_if_file(val):
+    """If val is a path to an existing file, read and return its contents. Otherwise, return val."""
+    if val and isinstance(val, str) and os.path.isfile(val):
+        try:
+            with open(val, "r", encoding="utf-8") as f:
+                return f.read().strip()
+        except Exception as e:
+            print(f"Warning: Failed to read from file '{val}': {e}. Using raw value instead.", file=sys.stderr)
+    return val
+
+
 def _clean_name(name, separator="_"):
     cleaned = re.sub(rf"[^a-zA-Z0-9{re.escape(separator)}]", separator, name).lower()
     cleaned = re.sub(rf"{re.escape(separator)}+", separator, cleaned).strip(separator)
@@ -353,6 +364,7 @@ def discover_skills():
 
 
 def init_study(request, title):
+    request = _load_if_file(request)
     workspace_root = get_workspace_root()
     biblemate_dir = os.path.join(workspace_root, "biblemate")
     os.makedirs(biblemate_dir, exist_ok=True)
@@ -420,6 +432,7 @@ def init_study(request, title):
 
 
 def update_plan(folder_path, plan_content):
+    plan_content = _load_if_file(plan_content)
     if not os.path.exists(folder_path):
         print(f"Error: Study folder does not exist at {folder_path}", file=sys.stderr)
         sys.exit(1)
@@ -431,6 +444,7 @@ def update_plan(folder_path, plan_content):
 
 
 def save_step(folder_path, step_number, skill_name, content, sub_skill=None):
+    content = _load_if_file(content)
     if not os.path.exists(folder_path):
         print(f"Error: Study folder does not exist at {folder_path}", file=sys.stderr)
         sys.exit(1)
@@ -480,6 +494,7 @@ def _update_metadata_step(folder_path, skill_name, content_len):
 
 def save_overview(folder_path, step_number, content):
     """Save the pre-final overview file (Phase 5 output)."""
+    content = _load_if_file(content)
     if not os.path.exists(folder_path):
         print(f"Error: Study folder does not exist at {folder_path}", file=sys.stderr)
         sys.exit(1)
@@ -496,6 +511,7 @@ def save_overview(folder_path, step_number, content):
 
 def save_final_response(folder_path, step_number, content):
     """Save the final response file (Phase 6 output) and mark study as complete."""
+    content = _load_if_file(content)
     if not os.path.exists(folder_path):
         print(f"Error: Study folder does not exist at {folder_path}", file=sys.stderr)
         sys.exit(1)
@@ -524,6 +540,7 @@ def save_final_response(folder_path, step_number, content):
 
 def save_report(folder_path, last_step_number, content):
     """DEPRECATED: Use save_overview + save_final_response instead."""
+    content = _load_if_file(content)
     print("DEPRECATION WARNING: --save-report is deprecated. "
           "Use --save-overview and --save-final-response instead.", file=sys.stderr)
     if not os.path.exists(folder_path):
