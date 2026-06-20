@@ -1,5 +1,5 @@
 ---
-name: nt_themes
+name: nt-themes
 description: Analyze the theological and doctrinal themes of a New Testament passage.
 ---
 

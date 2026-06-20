@@ -1,5 +1,5 @@
 ---
-name: translate_hebrew
+name: translate-hebrew
 description: Translate, transliterate, and provide word-by-word mapping of a Hebrew bible verse.
 ---
 

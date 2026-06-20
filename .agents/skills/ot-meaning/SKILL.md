@@ -1,5 +1,5 @@
 ---
-name: ot_meaning
+name: ot-meaning
 description: Explain the core spiritual meaning of an Old Testament passage.
 ---
 

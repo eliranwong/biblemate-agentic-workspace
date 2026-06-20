@@ -1,5 +1,5 @@
 ---
-name: ot_context
+name: ot-context
 description: Provide historical, cultural, and situational context for an Old Testament passage.
 ---
 

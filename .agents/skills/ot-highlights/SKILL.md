@@ -1,5 +1,5 @@
 ---
-name: ot_highlights
+name: ot-highlights
 description: Outline key highlights, major events, and summaries for an Old Testament passage.
 ---
 

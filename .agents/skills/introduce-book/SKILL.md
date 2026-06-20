@@ -1,5 +1,5 @@
 ---
-name: introduce_book
+name: introduce-book
 description: Produce a comprehensive introduction, historical background, and overview of a bible book.
 ---
 

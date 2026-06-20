@@ -1,5 +1,5 @@
 ---
-name: nt_meaning
+name: nt-meaning
 description: Explain the core spiritual meaning of a New Testament passage.
 ---
 

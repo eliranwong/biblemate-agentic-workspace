@@ -1,5 +1,5 @@
 ---
-name: short_prayer
+name: short-prayer
 description: Draft a short, direct scriptural prayer (one paragraph) based on a passage.
 ---
 

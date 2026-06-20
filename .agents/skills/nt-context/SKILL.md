@@ -1,5 +1,5 @@
 ---
-name: nt_context
+name: nt-context
 description: Provide historical, cultural, and situational context for a New Testament passage.
 ---
 

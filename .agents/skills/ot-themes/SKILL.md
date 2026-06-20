@@ -1,5 +1,5 @@
 ---
-name: ot_themes
+name: ot-themes
 description: Analyze the theological and doctrinal themes of an Old Testament passage.
 ---
 

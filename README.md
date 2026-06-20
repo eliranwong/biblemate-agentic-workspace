@@ -27,7 +27,7 @@ By integrating the tools and retrievers of **[BibleMate AI](https://github.com/e
 Leveraging the **Google Antigravity platform**, these tools are exposed natively in your developer environment:
 * **Automatic Workspace Loading**: Simply open this workspace, and Antigravity will automatically load and register the entire team of agents, exegesis skills, and custom slash commands.
 * **Inline Composition**: Write your study guides, sermons, or articles in the IDE while conversing with specialized agents in the side panel.
-* **Slash Commands**: Execute complex workflows (e.g. `/sermon Romans 8:28` or `/translate_greek John 1:1`) with simple, parameterized commands.
+* **Slash Commands**: Execute complex workflows (e.g. `/sermon Romans 8:28` or `/translate-greek John 1:1`) with simple, parameterized commands.
 
 
 ---
@@ -43,7 +43,7 @@ All agentic configurations are self-contained under the `.agents/` folder at the
 ├── skills/               # Standalone, modular exegesis and study skills
 │   ├── outline/
 │   ├── sermon/
-│   ├── translate_greek/
+│   ├── translate-greek/
 │   └── ... (113 total skills)
 └── workflows/            # Parameterized slash command workflows
     ├── outline.md
@@ -71,7 +71,7 @@ Because this repository is already configured with the standard Antigravity work
 4. **Running Slash Commands**: In the Antigravity chat input, type `/` to bring up the commands menu, followed by arguments (e.g. references, topics, or words):
    - `/outline Ephesians 1`
    - `/sermon Romans 8:28`
-   - `/translate_greek John 1:1`
+   - `/translate-greek John 1:1`
 
 For a full reference of all available slash commands and usage examples, see the [Slash Commands Reference Guide](docs/slash_commands.md).
 

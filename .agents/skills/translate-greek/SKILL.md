@@ -1,5 +1,5 @@
 ---
-name: translate_greek
+name: translate-greek
 description: Translate, transliterate, and provide word-by-word mapping of a Greek bible verse.
 ---
 

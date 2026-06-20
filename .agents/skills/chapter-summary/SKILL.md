@@ -1,5 +1,5 @@
 ---
-name: chapter_summary
+name: chapter-summary
 description: Generate a detailed summary, structure, and theological interpretation of a bible chapter.
 ---
 
