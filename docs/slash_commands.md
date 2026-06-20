@@ -1,6 +1,6 @@
 # Slash Commands & Workflows Reference Guide
 
-This guide details all 110 custom slash commands (workflows) available in the **Antigravity Bible Study Agents** ecosystem, categorized by their study focus.
+This guide details all 111 custom slash commands (workflows) available in the **Antigravity Bible Study Agents** ecosystem, categorized by their study focus.
 
 ---
 
@@ -53,6 +53,7 @@ These commands synthesize the systematic doctrines, theological messages, and wo
 | **`/topic`** | Performs an in-depth topical study from Genesis to Revelation. | Cambridge Theologian | A biblical topic or word | `/topic Justification` |
 | **`/perspective`** | Evaluates a secular article, quote, or idea from a biblical worldview. | Biblical Content Interpreter | A contemporary quote or text | `/perspective "The meaning of life is what you make it"` |
 | **`/summary`** | Summarizes text in reference to biblical principles. | Cambridge Theologian | Any text or passage | `/summary [Paste text]` |
+| **`/online`** | Searches, fetches, and integrates real-time online data (scholarly articles, legislation, testimonies, archaeology) for biblical study. | Biblical Content Interpreter | A research topic or query | `/online "religious freedom legislation affecting churches 2026"` |
 
 ---
 
