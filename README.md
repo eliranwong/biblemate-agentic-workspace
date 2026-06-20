@@ -1,7 +1,7 @@
 # Antigravity BibleMate Workspace
 
 > [!NOTE]
-> **Where Rigorous Scholarship Meets Agentic Power:** This repository unites the advanced agentic workflow capability of the **Google Antigravity Platform** with the reliable, time-tested databases of the **[UniqueBible Project](https://github.com/eliranwong/UniqueBible)** and the modular AI exegesis tools of **[BibleMate](https://github.com/eliranwong/biblemate)**.
+> **Where Rigorous Scholarship Meets Agentic Power:** This repository unites the advanced agentic workflow capability of the **Google Antigravity Platform** with the reliable, time-tested databases of the **[UniqueBible Project](https://github.com/eliranwong/UniqueBible)** and the modular AI exegesis tools of **[BibleMate AI](https://github.com/eliranwong/biblemate)**.
 
 Welcome to the **Antigravity BibleMate Workspace**, a state-of-the-art local agentic study suite configured specifically as an extension for the **Google Antigravity** development platform (compatible with the Antigravity CLI, IDE, and platform). It features an integrated team of 9 customized study personas, 110 standalone exegesis and theology skills, and 110 custom slash commands.
 
@@ -23,9 +23,10 @@ By integrating the tools and retrievers of **[BibleMate AI](https://github.com/e
 
 ### 3. Integrated Developer Environment (Google Antigravity)
 Leveraging the **Google Antigravity platform**, these tools are exposed natively in your developer environment:
-* **Zero Registration**: Simply open this workspace to register the entire team of agents, exegesis skills, and custom slash commands.
+* **Automatic Workspace Loading**: Simply open this workspace, and Antigravity will automatically load and register the entire team of agents, exegesis skills, and custom slash commands.
 * **Inline Composition**: Write your study guides, sermons, or articles in the IDE while conversing with specialized agents in the side panel.
 * **Slash Commands**: Execute complex workflows (e.g. `/sermon Romans 8:28` or `/translate_greek John 1:1`) with simple, parameterized commands.
+
 
 ---
 
@@ -52,7 +53,7 @@ All agentic configurations are self-contained under the `.agents/` folder at the
 
 ## Quick Start & Auto-Discovery
 
-Because this repository is already configured with the standard Antigravity workspace schema, there is **zero manual configuration or agent registration required** to load the custom personas, skills, and workflows when you open this project folder in your IDE.
+Because this repository is already configured with the standard Antigravity workspace schema, the custom personas, skills, and workflows are **automatically discovered and registered locally** in your workspace when you open this project folder in your IDE.
 
 1. **Open Workspace**: Open the workspace root directory in your Antigravity-integrated IDE (such as Cursor or VS Code configured with the Antigravity extension) or run the CLI inside this directory:
    ```bash
@@ -63,7 +64,7 @@ Because this repository is already configured with the standard Antigravity work
    - Register the 110 skills in `.agents/skills/` for progressive disclosure.
    - Expose the 110 workflow files in `.agents/workflows/` as native slash commands.
 
-3. **Meet System Prerequisites**: To run local Scripture database lookups and document conversions, please make sure the [System Prerequisites](#system-prerequisites) are installed on your machine.
+3. **Meet Prerequisites**: Ensure you meet all system and platform prerequisites listed in [System Prerequisites](#system-prerequisites).
 
 4. **Running Slash Commands**: In the Antigravity chat input, type `/` to bring up the commands menu, followed by arguments (e.g. references, topics, or words):
    - `/outline Ephesians 1`
@@ -76,7 +77,7 @@ For a full reference of all available slash commands and usage examples, see the
 
 ## System Prerequisites
 
-To utilize the core capabilities of the local Bible study tools (such as database lookups and document exports), you must ensure the following dependencies are installed on your system:
+To utilize the core capabilities of the local Bible study tools (such as database lookups and document exports), you must ensure the following dependencies are configured on your system:
 
 1. **Local Bible Databases (`biblematedata`)**:  
    To enable local Scripture database lookups, you need to install the `biblematedata` package and initialize it:
@@ -91,6 +92,10 @@ To utilize the core capabilities of the local Bible study tools (such as databas
    - **macOS**: `brew install pandoc`
    - **Windows**: `winget install JohnMacFarlane.Pandoc` (or download the setup installer)
    - **Linux**: `sudo apt install pandoc` (or equivalent package manager command)
+
+3. **Google Antigravity / AI Subscription**:  
+   To run model inference for the agents and exegesis workflows, make sure you have set up your Google Antigravity account and configured your API key or model plan within the IDE (refer to the [Google Antigravity Documentation](https://antigravity.google/docs)).
+
 
 ---
 
