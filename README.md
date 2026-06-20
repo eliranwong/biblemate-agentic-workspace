@@ -5,7 +5,7 @@
 > [!NOTE]
 > **Where Rigorous Scholarship Meets Agentic Power:** This repository unites the advanced agentic workflow capability of the **Google Antigravity Platform** with the reliable, time-tested databases of the **[UniqueBible Project](https://github.com/eliranwong/UniqueBible)** and the modular AI exegesis tools of **[BibleMate AI](https://github.com/eliranwong/biblemate)**.
 
-Welcome to the **Antigravity BibleMate Workspace**, a state-of-the-art local agentic study suite configured specifically as an extension for the **Google Antigravity** development platform (compatible with the Antigravity CLI, IDE, and platform). It features an integrated team of 10 customized study personas, 114 standalone exegesis and theology skills, and 114 custom slash commands.
+Welcome to the **Antigravity BibleMate Workspace**, a state-of-the-art local agentic study suite configured specifically as an extension for the **Google Antigravity** development platform (compatible with the Antigravity CLI, IDE, and platform). It features an integrated team of 13 customized study personas, 115 standalone exegesis and theology skills, and 115 custom slash commands.
 
 Whether you are a **pastor preparing a sermon**, a **bible content writer drafting articles**, a **theology student researching ancient manuscripts**, or a **believer deepening your study of the scriptures**, this workspace provides a unified, local-first environment where writing, AI agent assistance, and scholarly databases reside side-by-side in your IDE.
 
@@ -121,11 +121,11 @@ All agentic configurations are self-contained under the `.agents/` folder at the
 │   ├── outline/
 │   ├── sermon/
 │   ├── translate-greek/
-│   └── ... (114 total skills)
+│   └── ... (115 total skills)
 └── workflows/            # Parameterized slash command workflows
     ├── outline.md
     ├── sermon.md
-    └── ... (114 total slash commands)
+    └── ... (115 total slash commands)
 ```
 
 ---
@@ -139,9 +139,9 @@ Because this repository is already configured with the standard Antigravity work
    agy
    ```
 2. **Auto-Discovery**: Antigravity automatically detects the `.agents/` directory at the project root. It will:
-   - Load the 10 custom personas from `agents.md` into the agent selection registry.
-   - Register the 114 skills in `.agents/skills/` for progressive disclosure.
-   - Expose the 114 workflow files in `.agents/workflows/` as native slash commands.
+   - Load the 13 custom personas from `agents.md` into the agent selection registry.
+   - Register the 115 skills in `.agents/skills/` for progressive disclosure.
+   - Expose the 115 workflow files in `.agents/workflows/` as native slash commands.
 
 3. **Meet Prerequisites**: Ensure you meet all system and platform prerequisites listed in [System Prerequisites](#system-prerequisites).
 

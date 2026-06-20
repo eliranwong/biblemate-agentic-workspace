@@ -1,6 +1,6 @@
 ## The AI Team Personas
 
-The ecosystem configures a team of 12 specialized personas defined in [.agents/agents.md](.agents/agents.md):
+The ecosystem configures a team of 13 specialized personas defined in [.agents/agents.md](.agents/agents.md):
 - **Billy Graham Persona**: Warm, earnest, direct evangelistic speaker.
 - **Context Analyst David**: Specializes in historical-emotional analysis of the Psalms and David's life.
 - **Biblical Content Interpreter**: Evaluates contemporary culture and articles from a Gospel-focused worldview.
