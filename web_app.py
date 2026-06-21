@@ -283,26 +283,39 @@ class BibleMateApp:
                 response_text = ""
                 async for chunk in response:
                     response_text += chunk
-                    response_card.clear()
-                    with response_card:
-                        ui.markdown(response_text).classes('text-slate-100 dark:text-slate-100')
+                    try:
+                        response_card.clear()
+                        with response_card:
+                            ui.markdown(response_text).classes('text-current')
+                    except RuntimeError:
+                        # Client disconnected or page reloaded, stop streaming
+                        break
                 
                 # Double check final text
-                final_text = await response.text()
-                if final_text and len(final_text) > len(response_text):
-                    response_card.clear()
-                    with response_card:
-                        ui.markdown(final_text).classes('text-slate-100 dark:text-slate-100')
+                try:
+                    final_text = await response.text()
+                    if final_text and len(final_text) > len(response_text):
+                        response_card.clear()
+                        with response_card:
+                            ui.markdown(final_text).classes('text-current')
+                except RuntimeError:
+                    pass
                         
         except Exception as e:
-            response_card.clear()
-            with response_card:
-                ui.label(f"Execution Error: {str(e)}").classes('text-rose-400 font-semibold')
+            try:
+                response_card.clear()
+                with response_card:
+                    ui.label(f"Execution Error: {str(e)}").classes('text-rose-400 font-semibold')
+            except RuntimeError:
+                pass
         finally:
             self.active_agent_running = False
-            self.progress_container.set_visibility(False)
-            # Refresh file tree to show newly created output files
-            self.refresh_file_tree()
+            try:
+                self.progress_container.set_visibility(False)
+                # Refresh file tree to show newly created output files
+                self.refresh_file_tree()
+            except RuntimeError:
+                pass
 
     def add_chat_bubble(self, text: str, sent: bool, italic: bool = False):
         align_class = "justify-end" if sent else "justify-start"
