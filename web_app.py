@@ -384,7 +384,7 @@ class BibleMateApp:
             response_card = self.add_chat_bubble("Preparing agents and skills...", sent=False, italic=True)
             
             # Configure prompt
-            system_rules = "You are Antigravity BibleMate, a highly capable biblical study agent."
+            system_rules = "You are BibleMate AI, a highly capable biblical study agent."
             if self.selected_persona != 'Auto':
                 system_rules += f"\n\nAdopt the following persona instructions:\n{PERSONAS_MAP[self.selected_persona]}"
             else:
@@ -493,7 +493,7 @@ class BibleMateApp:
             with ui.row().classes('items-center gap-3'):
                 ui.button(icon='menu', on_click=lambda: self.left_drawer.toggle()).props('flat round').classes('text-slate-700 dark:text-slate-200')
                 ui.icon('menu_book', size='md').classes('text-indigo-600 dark:text-indigo-400')
-                ui.label('Antigravity BibleMate').classes('text-lg font-bold tracking-wide text-slate-900 dark:text-white')
+                ui.label('BibleMate AI').classes('text-lg font-bold tracking-wide text-slate-900 dark:text-white')
             
             with ui.row().classes('items-center gap-4'):
                 # New Conversation button
