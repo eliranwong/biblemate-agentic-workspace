@@ -96,6 +96,8 @@ These commands help manage the workspace files and synchronize changes with remo
 | Command | Description | Assigned Persona | Expected Input | Example |
 | :--- | :--- | :--- | :--- | :--- |
 | **`/biblemate`** | Runs a fully automated BibleMate AI study, orchestrating multiple study skills and tools to complete a detailed theological or exegetical request. | Biblical Content Interpreter | Detailed study request | `/biblemate "Write a sermon and exegesis on John 3:16"` |
+| **`/biblemate-super`** | Runs a dynamically planned, multi-phase BibleMate study with dynamic audit checkpoints and quality scoring after each phase. | Study Plan & Phase Quality Auditor | Detailed study request | `/biblemate-super "In-depth study of Romans 3:21-26"` |
+| **`/image`** | Generates a Bible-related image using the Antigravity AI image generation tool, saving it with a timestamped filename to `images/`. | Verse Scripter | A description of the image to generate | `/image The Good Shepherd in golden light` |
 | **`/data`** | Lists all available versions of Bibles, commentaries, or lexicons by dynamically scanning storage folders. | Verse Scripter | Resource type (`bible`, `commentary`, or `lexicon`) | `/data bible` |
 | **`/sync`** | Stages, commits, and pushes all latest workspace changes to the remote repository. | Verse Scripter | Optional custom commit message | `/sync "Added sync command"` |
 | **`/md`** | Converts a file to markdown, or exports the last response/conversation to export/md. | Verse Scripter | Optional file path or export keyword (e.g., 'whole', 'conversation') | `/md export/docx/README.md` or `/md whole` |

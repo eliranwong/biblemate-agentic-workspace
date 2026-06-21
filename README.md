@@ -145,6 +145,33 @@ All agentic configurations are self-contained under the `.agents/` folder at the
 
 ---
 
+## 🌐 Standalone Web Application
+
+In addition to the native Antigravity IDE integration, this workspace ships with a **self-contained browser-based web application** ([`web_app.py`](web_app.py)) built with [NiceGUI](https://nicegui.io). It lets you run the full suite of BibleMate AI agents, monitor live execution, browse generated study reports, and view AI-generated biblical images — all from any modern web browser on your local machine.
+
+### Key Features
+
+- **Chat Workspace** — submit study requests and receive beautifully rendered Markdown responses streamed in real time
+- **Live Agent Console** — watch the agent's thinking monologue, active tool calls, and system logs as they happen
+- **Stop Button** — cancel any running agent mid-execution with one click
+- **File Tree & Document Reader** — browse and open saved Markdown study outputs and AI-generated images directly in the browser
+- **Image Generation (`/image`)** — generate Bible-related images on demand; files are saved to `images/` with a timestamped filename
+- **Settings Drawer** — switch AI models (Gemini 3.5 Flash/Pro, 2.0 Flash, 1.5 Pro/Flash), select a persona, or enforce a specific skill
+- **Dark / Light Mode** — fully themeable UI
+
+### Quick Launch
+
+```bash
+pip install google-antigravity nicegui Pillow
+python3 web_app.py
+```
+
+Then open **[http://localhost:33377](http://localhost:33377)** in your browser.
+
+> **Full setup guide:** [`docs/standalone_web_app.md`](docs/standalone_web_app.md)
+
+---
+
 ## Quick Start & Auto-Discovery
 
 Because this repository is already configured with the standard Antigravity workspace schema, the custom personas, skills, and workflows are **automatically discovered and registered locally** in your workspace when you open this project folder in your IDE.
@@ -235,9 +262,10 @@ These files are dynamically read by the respective retrievers on every execution
 
 ## Documentation
 
-For in-depth details about the workflows, slash commands, and team structure, please refer to the files under the [docs/](docs) directory:
+For in-depth details about the web app, workflows, slash commands, and team structure, please refer to the files under the [docs/](docs) directory:
 
+- **[standalone_web_app.md](docs/standalone_web_app.md)**: Complete setup and usage guide for the standalone NiceGUI web application (`web_app.py`), including installation, slash commands, image generation, settings, and troubleshooting.
 - **[ai_team_personas.md](docs/ai_team_personas.md)**: Detailed profiles, guidelines, and expertise profiles for each of the 10 custom AI study personas.
-- **[slash_commands.md](docs/slash_commands.md)**: A complete reference guide for all 114 custom slash commands (workflows), organized by study category with syntax examples.
+- **[slash_commands.md](docs/slash_commands.md)**: A complete reference guide for all 114+ custom slash commands (workflows), organized by study category with syntax examples.
 - **[README.md (Documentation Index)](docs/README.md)**: Index and overview of repository documentation.
 
