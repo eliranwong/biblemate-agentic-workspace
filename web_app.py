@@ -787,7 +787,7 @@ class BibleMateApp:
                                 if matches and autocomplete_menu:
                                     autocomplete_menu.clear()
                                     with autocomplete_menu:
-                                        for cmd in matches[:10]:
+                                        for cmd in matches:
                                             ui.menu_item(cmd, on_click=lambda c=cmd: select_command(c)).classes('text-xs font-mono py-1 px-3')
                                     autocomplete_menu.open()
                                 elif autocomplete_menu:
@@ -802,7 +802,7 @@ class BibleMateApp:
                             on_change=handle_input_change
                         ).props('outlined autogrow rows=2 input-class="text-slate-900 dark:text-slate-100"').classes('w-full rounded-xl text-slate-900 dark:text-slate-100')
                         
-                        autocomplete_menu = ui.menu().props('fit no-parent-event anchor="top left" self="bottom left"')
+                        autocomplete_menu = ui.menu().props('fit no-parent-event no-focus no-refocus anchor="top left" self="bottom left"').classes('max-h-60 overflow-y-auto')
                 
                     # Inline async sender bound to Client context to avoid RuntimeError
                     async def on_send_click():
