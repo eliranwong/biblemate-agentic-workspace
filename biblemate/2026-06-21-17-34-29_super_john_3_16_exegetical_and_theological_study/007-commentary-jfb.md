@@ -1,0 +1,9 @@
+### John (JFB)
+
+**John 3:16**
+[Commentary for Verse(s) 16]:
+For God so loved the world, that he gave his only begotten Son, that whosoever believeth in him should not perish, but have everlasting life.
+
+For God so loved the world, that he gave his only begotten Son, that whosoever believeth in him should not perish, but have everlasting life. Who shall speak or write worthily of such a verse? What proclamation of the Gospel has been so oft on the lips of missionaries and preachers in every age since it was first uttered-what has sent such thrilling sensations through millions of mankind-what has been honoured to bring such multitudes to the feet of Christ-what to kindle in the cold and selfish breasts of mortals the fires of self-sacrificing love to mankind, as these words of transparent simplicity yet overpowering majesty have done? The picture embraces several distinct compartments. First, we have the object of regard, "THE WORLD" [ ton (G3588) kosmon (G2889)] - in its widest sense, ready to "perish:" Next, "THE LOVE OF GOD" to that perishing world-measured by, and only measurable and conceivable by, the gift which it drew forth from Him-He so loved the world, that He gave," etc.: Then, THE GIFT itself, He so loved the world, that He gave His Only Begotten Son; or, in the language of the apostle, He "spared not His own Son" (Rom 8:32): Further, THE FRUIT of this stupendous gift-negatively, in deliverance from impending perdition, that they "might not perish;" and positively, in the bestowal of "everlasting life:" and finally, THE MODE in which all takes effect-simply by "believing on the Son of God." How would Nicodemus' narrow Judaism become invisible in the blaze of this Sun of righteousness seen rising on "the world" with healing in His wings! 
+
+---
