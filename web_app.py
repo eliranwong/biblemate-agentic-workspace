@@ -329,6 +329,16 @@ class BibleMateApp:
                             rel_path = os.path.relpath(full_file_path, start=WORKSPACE_DIR)
                             parts = rel_path.split(os.sep)
                             add_to_tree(parts[1:], folder_node['children'], rel_path)
+
+        def sort_nodes(nodes_list, reverse=False):
+            nodes_list.sort(key=lambda x: x['label'], reverse=reverse)
+            for node in nodes_list:
+                if 'children' in node:
+                    child_reverse = node['id'].startswith('biblemate')
+                    sort_nodes(node['children'], reverse=child_reverse)
+
+        # Sort the folder tree: top-level is alphabetical, items under biblemate are reversed (newest first)
+        sort_nodes(nodes, reverse=False)
         return nodes
 
     def handle_file_select(self, node_id: str):
