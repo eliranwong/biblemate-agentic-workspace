@@ -60,7 +60,7 @@ graph TD
     end
 
     Db1 & Db2 & Db3 & Db4 & Db5 --> Phase2["Phase 2: Analysis & Exegesis"]
-    subgraph Phase2_Sub ["Phase 2: Exegesis (Biblical Scholar)"]
+    subgraph Phase2_Sub ["Phase 2: Exegesis (OT & NT Bible Scholar)"]
         Phase2 --> Outline["Structural Outline"]
         Phase2 --> Keywords["Word Study"]
         Phase2 --> Context["Historical/Cultural Context"]
@@ -68,21 +68,21 @@ graph TD
     end
 
     Outline & Keywords & Context & Flow --> Phase3["Phase 3: Theological Synthesis"]
-    subgraph Phase3_Sub ["Phase 3: Theology (Theologian)"]
+    subgraph Phase3_Sub ["Phase 3: Theology (Biblical & Systematic Theologian)"]
         Phase3 --> Themes["Doctrinal Mapping"]
         Phase3 --> Systematic["Systematic Soteriology"]
         Phase3 --> Canon["Canonical Narrative Fit"]
     end
 
     Themes & Systematic & Canon --> Phase4["Phase 4: Devotion & Application"]
-    subgraph Phase4_Sub ["Phase 4: Heart (Compassionate Pastor)"]
+    subgraph Phase4_Sub ["Phase 4: Heart (Passionate Evangelist & Compassionate Pastor)"]
         Phase4 --> Devotion["Devotional Reflection"]
         Phase4 --> Application["Practical Action Steps"]
         Phase4 --> Prayer["Heartfelt Scriptural Prayer"]
     end
 
     Devotion & Application & Prayer --> Phase5["Phase 5: Pre-Final Overview"]
-    subgraph Phase5_Sub ["Phase 5: Overview (Content Interpreter)"]
+    subgraph Phase5_Sub ["Phase 5: Overview (Biblical Content Interpreter)"]
         Phase5 --> Survey["Survey All Study Outputs"]
         Phase5 --> GapCheck["Gap Analysis & Content Mapping"]
         Phase5 --> QualScore["Quality Score Check"]
