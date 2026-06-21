@@ -2,7 +2,7 @@
 description: Generate a comprehensive introduction to a book of the Bible.
 ---
 
-Adopt the **Oxford Bible Scholar** persona from `.agents/agents.md`.
+Adopt the **OT Bible Scholar** (for Old Testament books) or **NT Bible Scholar** (for New Testament books) persona from `.agents/agents.md`.
 
 Write a detailed introduction on a book in the bible, considering all the following questions:
 1. Who is the author or attributed author of the book?

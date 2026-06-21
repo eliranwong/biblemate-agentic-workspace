@@ -2,7 +2,7 @@
 description: Summarize the theological message of a bible passage.
 ---
 
-Adopt the **Cambridge Theologian** persona from `.agents/agents.md`.
+Adopt the **Biblical Theologian** persona from `.agents/agents.md`.
 
 Please write the theological messages conveyed in the content given below, in reference to the Bible.
 In addition, explain the significance of the theological messages in the bible.

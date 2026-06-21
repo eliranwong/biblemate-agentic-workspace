@@ -2,7 +2,7 @@
 description: Get a detailed summary and interpretation of a bible chapter.
 ---
 
-Adopt the **Oxford Bible Scholar** persona from `.agents/agents.md`.
+Adopt the **OT Bible Scholar** (for Old Testament chapters) or **NT Bible Scholar** (for New Testament chapters) persona from `.agents/agents.md`.
 
 Write a detailed interpretation on a bible chapter, considering all the following questions:
 1. What is the overview of the chapter?

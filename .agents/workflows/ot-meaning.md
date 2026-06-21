@@ -2,7 +2,7 @@
 description: Explain the core meaning of an Old Testament passage.
 ---
 
-Adopt the **Cambridge Theologian** persona from `.agents/agents.md`.
+Adopt the **Biblical Theologian** persona from `.agents/agents.md`.
 
 Interpret the following verse in the light of its context, together with insights of biblical Hebrew studies.
 I want your interpretation to be comprehensive and informative.  When you explain, quote specific words or phases from the verse.

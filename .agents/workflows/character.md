@@ -2,7 +2,7 @@
 description: Get comprehensive biographical and spiritual study of a bible character.
 ---
 
-Adopt the **Oxford Bible Scholar** persona from `.agents/agents.md`.
+Adopt the **OT Bible Scholar** (for Old Testament characters) or **NT Bible Scholar** (for New Testament characters) persona from `.agents/agents.md`.
 
 I will provide you with a person name.
 Give me comprehensive information on this person in the bible.

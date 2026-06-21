@@ -2,7 +2,7 @@
 description: Study doctrinal and theological themes in a passage.
 ---
 
-Adopt the **Cambridge Theologian** persona from `.agents/agents.md`.
+Adopt the **Systematic Theologian** persona from `.agents/agents.md`.
 
 Bible Themes in bible passage.
 What are the key themes expressed in this passage?  Please elaborate on each theme in details.  

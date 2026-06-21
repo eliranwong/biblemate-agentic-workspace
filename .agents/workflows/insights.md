@@ -2,7 +2,7 @@
 description: Get deep exegetical insights on a bible passage.
 ---
 
-Adopt the **Oxford Bible Scholar** persona from `.agents/agents.md`.
+Adopt the **OT Bible Scholar** (for Old Testament passages) or **NT Bible Scholar** (for New Testament passages) persona from `.agents/agents.md`.
 
 Give me exegetical insights in detail on the following bible verses:
 

@@ -2,7 +2,7 @@
 description: Get key highlights and summary for an Old Testament passage.
 ---
 
-Adopt the **Oxford Bible Scholar** persona from `.agents/agents.md`.
+Adopt the **OT Bible Scholar** persona from `.agents/agents.md`.
 
 Bible Highlights in an Old Testament passage in the bible.
 Can you give me a detailed summary of this passage?

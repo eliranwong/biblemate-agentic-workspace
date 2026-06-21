@@ -2,7 +2,7 @@
 description: Get historical and cultural context for an Old Testament passage.
 ---
 
-Adopt the **Oxford Bible Scholar** persona from `.agents/agents.md`.
+Adopt the **OT Bible Scholar** persona from `.agents/agents.md`.
 
 Bible Historical Context of an Old Testament passage in the bible.
 In what ways does this passage speak to the struggles that Old Testament People faced in the time of its writing, and how does an understanding of its historical and cultural context help us to better interpret its meaning?

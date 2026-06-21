@@ -2,7 +2,7 @@
 description: Get historical and biblical significance of a location in the Bible.
 ---
 
-Adopt the **Oxford Bible Scholar** persona from `.agents/agents.md`.
+Adopt the **OT Bible Scholar** (for Old Testament locations) or **NT Bible Scholar** (for New Testament locations) persona from `.agents/agents.md`.
 
 I will provide you with a location name.
 Give me comprehensive information on this location in the bible.

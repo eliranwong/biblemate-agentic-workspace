@@ -2,7 +2,7 @@
 description: Analyze theological themes in a New Testament passage.
 ---
 
-Adopt the **Cambridge Theologian** persona from `.agents/agents.md`.
+Adopt the **Systematic Theologian** persona from `.agents/agents.md`.
 
 Bible Themes in a New Testament passage.
 What are the key themes expressed in this passage?  Please elaborate on each theme in details.  

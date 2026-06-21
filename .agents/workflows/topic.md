@@ -2,7 +2,7 @@
 description: Perform an in-depth topical study of a bible subject.
 ---
 
-Adopt the **Cambridge Theologian** persona from `.agents/agents.md`.
+Adopt the **Biblical Theologian** persona from `.agents/agents.md`.
 
 Write about the following topic in reference to the Bible.
 In addition, explain the significance of the topic in the bible.

@@ -2,7 +2,7 @@
 description: Get biblical canonical context of a book, chapter, or passage.
 ---
 
-Adopt the **Oxford Bible Scholar** persona from `.agents/agents.md`.
+Adopt the **OT Bible Scholar** (for Old Testament passages/books) or **NT Bible Scholar** (for New Testament passages/books) persona from `.agents/agents.md`.
 
 Bible Canonical Context of a bible book / chapter / passage.
 How is this book / chapter / passage connected or linked with other books in the Bible?

@@ -5,7 +5,7 @@
 > [!NOTE]
 > **Where Rigorous Scholarship Meets Agentic Power:** This repository unites the advanced agentic workflow capability of the **Google Antigravity Platform** with the reliable, time-tested databases of the **[UniqueBible Project](https://github.com/eliranwong/UniqueBible)** and the modular AI exegesis tools of **[BibleMate AI](https://github.com/eliranwong/biblemate)**.
 
-Welcome to the **Antigravity BibleMate Workspace**, a state-of-the-art local agentic study suite configured specifically as an extension for the **Google Antigravity** development platform (compatible with the Antigravity CLI, IDE, and platform). It features an integrated team of 13 customized study personas, 115 standalone exegesis and theology skills, and 115 custom slash commands.
+Welcome to the **Antigravity BibleMate Workspace**, a state-of-the-art local agentic study suite configured specifically as an extension for the **Google Antigravity** development platform (compatible with the Antigravity CLI, IDE, and platform). It features an integrated team of 15 customized study personas, 115 standalone exegesis and theology skills, and 115 custom slash commands.
 
 Whether you are a **pastor preparing a sermon**, a **bible content writer drafting articles**, a **theology student researching ancient manuscripts**, or a **believer deepening your study of the scriptures**, this workspace provides a unified, local-first environment where writing, AI agent assistance, and scholarly databases reside side-by-side in your IDE.
 
@@ -37,7 +37,7 @@ The `/biblemate` command (backed by the [.agents/skills/biblemate](.agents/skill
 
 ### Why it is so powerful for Bible Study:
 * **Phased Workflow**: It guides the AI assistant through 5 rigorous research phases—Planning, local database Data Retrieval, Analysis, Theological Synthesis, and pastoral/evangelistic Application.
-* **Persona Rotation**: It automatically rotates AI personas based on the study phase (e.g., using the *Oxford Scholar* for exegesis, *Cambridge Theologian* for systematic theology, *Billy Graham* for devotions, and *Compassionate Pastor* for first-person prayers) to ensure academic rigor and spiritual depth.
+* **Persona Rotation**: It automatically rotates AI personas based on the study phase (e.g., using the *OT Bible Scholar* / *NT Bible Scholar* for exegesis, *Biblical Theologian* / *Systematic Theologian* for theology, *Passionate Evangelist* for devotions, and *Compassionate Pastor* for first-person prayers) to ensure academic rigor and spiritual depth.
 * **100% Scripture Integrity**: It strictly enforces the local `bible` query skill to fetch all scriptures directly from SQLite databases, completely eliminating AI scripture hallucinations.
 * **Quality Gate Auditing**: It validates the Master Plan against minimum skill requirements for the study type (passage, book, topical, or sermon) and computes a 0–100 quality score, ensuring no thin or shallow outputs are ever accepted.
 * **Iterative Final Response**: After producing a pre-final overview that surveys all study outputs, it adopts the *Master Biblical Writer* persona and runs an iterative Draft→Integrate→Audit→Revise writing loop (minimum 2 cycles) to produce a comprehensive, standalone, publication-quality final response that directly answers the original request.
@@ -181,7 +181,7 @@ Because this repository is already configured with the standard Antigravity work
    agy
    ```
 2. **Auto-Discovery**: Antigravity automatically detects the `.agents/` directory at the project root. It will:
-   - Load the 13 custom personas from `agents.md` into the agent selection registry.
+   - Load the 15 custom personas from `agents.md` into the agent selection registry.
    - Register the 115 skills in `.agents/skills/` for progressive disclosure.
    - Expose the 115 workflow files in `.agents/workflows/` as native slash commands.
 
@@ -265,7 +265,7 @@ These files are dynamically read by the respective retrievers on every execution
 For in-depth details about the web app, workflows, slash commands, and team structure, please refer to the files under the [docs/](docs) directory:
 
 - **[standalone_web_app.md](docs/standalone_web_app.md)**: Complete setup and usage guide for the standalone NiceGUI web application (`web_app.py`), including installation, slash commands, image generation, settings, and troubleshooting.
-- **[ai_team_personas.md](docs/ai_team_personas.md)**: Detailed profiles, guidelines, and expertise profiles for each of the 10 custom AI study personas.
+- **[ai_team_personas.md](docs/ai_team_personas.md)**: Detailed profiles, guidelines, and expertise profiles for each of the 15 custom AI study personas.
 - **[slash_commands.md](docs/slash_commands.md)**: A complete reference guide for all 114+ custom slash commands (workflows), organized by study category with syntax examples.
 - **[README.md (Documentation Index)](docs/README.md)**: Index and overview of repository documentation.
 

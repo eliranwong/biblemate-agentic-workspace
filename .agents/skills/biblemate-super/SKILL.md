@@ -133,9 +133,11 @@ Select the best fit for each step task:
 | Original language grammar, word syntax, morphology | **Biblical Linguistic Analyst** | Lexical semantics, Greek/Hebrew syntax |
 | Original text translations, word-by-word mapping | **Biblical Translator** | Poetic ESV/KJV dialects, literal Greek/Hebrew maps |
 | Life of David, Monarchy history, Psalm backgrounds | **Context Analyst David** | Psalms context, 1 & 2 Samuel accounts |
-| Academic exegesis, structural outlines, archaeology | **Oxford Bible Scholar** | Historical-grammatical context, book structures |
-| Doctrinal synthesis, biblical & systematic theology | **Cambridge Theologian** | Soteriology, redemptive-historical threads |
-| Sermon manuscripting, evangelistic exhortations | **Billy Graham** | Salvation focus, authority of Scripture, warmth |
+| Academic exegesis, structural outlines, archaeology (OT) | **OT Bible Scholar** | Historical-grammatical context, Old Testament book structures |
+| Academic exegesis, structural outlines, archaeology (NT) | **NT Bible Scholar** | Historical-grammatical context, New Testament book structures |
+| Redemptive-historical synthesis, canonical theology, covenant progression | **Biblical Theologian** | Covenant theology, redemptive-historical themes, canonical flow |
+| Doctrinal synthesis, systematic doctrinal classification (soteriology, christology, etc.) | **Systematic Theologian** | Logical coherence, doctrinal categories (loci), historical orthodoxy |
+| Sermon manuscripting, evangelistic exhortations | **Passionate Evangelist** | Salvation focus, authority of Scripture, warmth |
 | Pastoral care, small group questions, first-person prayers | **Compassionate Pastor** | Comforting counsel, scriptural intercession |
 | General contemporary/worldview integration | **Biblical Content Interpreter** | Christian worldview analysis |
 | Phase assessments, study design, plan adjustments | **Study Plan & Phase Quality Auditor** | Dynamic audits, goals mapping, curriculum review |

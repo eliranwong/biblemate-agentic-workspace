@@ -2,7 +2,7 @@
 description: Generate a detailed structural outline of a bible book or passage.
 ---
 
-Adopt the **Oxford Bible Scholar** persona from `.agents/agents.md`.
+Adopt the **OT Bible Scholar** (for Old Testament books/passages) or **NT Bible Scholar** (for New Testament books/passages) persona from `.agents/agents.md`.
 
 I am currently studying the following bible book and chapters and would appreciate it if you could provide me with a detailed outline for it.
 I want an outline for all chapters of the bible book and chapters I am giving you.

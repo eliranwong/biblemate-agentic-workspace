@@ -71,7 +71,7 @@ Retrieve raw data from local databases. These skills are independent and CAN run
 
 **After completing this phase**: Save each output using `--save-step`. Audit the results — if any skill returned empty or incomplete data, investigate why (wrong reference format? missing database?) and retry or note the gap.
 
-### Phase 2: Analysis & Exegesis (Adopt **Oxford Bible Scholar** persona)
+### Phase 2: Analysis & Exegesis (Adopt **OT Bible Scholar** (for OT) or **NT Bible Scholar** (for NT) persona)
 
 These skills depend on Phase 1 outputs. Run them with the context from Phase 1:
 
@@ -85,21 +85,21 @@ These skills depend on Phase 1 outputs. Run them with the context from Phase 1:
 
 **After completing this phase**: Save outputs, audit quality, and **update the Master Study Plan** if new insights suggest additional study avenues. Use `--update-plan`.
 
-### Phase 3: Theological Synthesis (Adopt **Cambridge Theologian** persona)
+### Phase 3: Theological Synthesis (Adopt **Biblical Theologian** and **Systematic Theologian** personas)
 
 These skills synthesize the analytical work into theological understanding:
 
-- `themes` or `ot-themes` or `nt-themes` — Doctrinal and theological theme mapping
-- `theology` — Core theological message synthesis
-- `meaning` or `ot-meaning` or `nt-meaning` — Core spiritual meaning
-- `insights` — Deep exegetical, literary, and spiritual insights
-- `canon` — How this passage fits in the canonical narrative
+- `themes` or `ot-themes` or `nt-themes` — Doctrinal and theological theme mapping (Systematic Theologian)
+- `theology` — Core theological message synthesis (Biblical Theologian)
+- `meaning` or `ot-meaning` or `nt-meaning` — Core spiritual meaning (Biblical Theologian)
+- `insights` — Deep exegetical, literary, and spiritual insights (Biblical / Systematic Theologian)
+- `canon` — How this passage fits in the canonical narrative (Biblical Theologian)
 
 **Context Passing**: These skills should draw on the exegetical findings from Phase 2 and the raw data from Phase 1. Explicitly reference cross-references, keyword insights, and commentary observations when building theological arguments.
 
 **After completing this phase**: Save outputs, audit for theological depth and accuracy. The theology should be robust, not surface-level.
 
-### Phase 4: Application & Devotion (Adopt **Billy Graham** persona for devotion/application, **Compassionate Pastor** for prayers)
+### Phase 4: Application & Devotion (Adopt **Passionate Evangelist** persona for devotion/application, **Compassionate Pastor** for prayers)
 
 - `application` — Practical life applications
 - `devotion` — Devotional reflection with pastoral prayer
@@ -328,10 +328,10 @@ Leverage the personas defined in `.agents/agents.md` for different phases. Each 
 | Phase | Persona | Reason |
 |-------|---------|--------|
 | Phase 0 (Planning) | *Default / Biblical Content Interpreter* | Broad knowledge for comprehensive planning |
-| Phase 1 (Data Retrieval) | *Oxford Bible Scholar* | Rigorous, academic approach to textual data |
-| Phase 2 (Analysis) | *Oxford Bible Scholar* | Historical-grammatical exegesis expertise |
-| Phase 3 (Theology) | *Cambridge Theologian* | Systematic and biblical theology depth |
-| Phase 4 (Application) | *Billy Graham* (devotion/application) / *Compassionate Pastor* (prayer) | Heart-level warmth and gospel clarity |
+| Phase 1 (Data Retrieval) | *OT Bible Scholar* / *NT Bible Scholar* | Rigorous, academic approach to textual data |
+| Phase 2 (Analysis) | *OT Bible Scholar* / *NT Bible Scholar* | Historical-grammatical exegesis expertise |
+| Phase 3 (Theology) | *Biblical Theologian* / *Systematic Theologian* | Tracing redemptive history (Biblical) and structuring systematic doctrines (Systematic) |
+| Phase 4 (Application) | *Passionate Evangelist* (devotion/application) / *Compassionate Pastor* (prayer) | Heart-level warmth and gospel clarity |
 | Phase 5 (Pre-Final Overview) | *Biblical Content Interpreter* | Broad integration, gap analysis, content mapping |
 | Phase 6 (Final Response) | *Master Biblical Writer* | Publication-quality iterative writing and refinement |
 | Phase 7 (Sync) | *Default* | File management and git operations |

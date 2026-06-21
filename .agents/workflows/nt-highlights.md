@@ -2,7 +2,7 @@
 description: Get key highlights and summary for a New Testament passage.
 ---
 
-Adopt the **Oxford Bible Scholar** persona from `.agents/agents.md`.
+Adopt the **NT Bible Scholar** persona from `.agents/agents.md`.
 
 Bible Highlights in a New Testament passage in the bible.
 Can you give me a detailed summary of this passage?
