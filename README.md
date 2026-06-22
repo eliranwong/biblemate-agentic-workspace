@@ -127,21 +127,19 @@ While `/biblemate` follows a preset, structured 6-phase framework, `/biblemate-s
 
 ## Directory Structure
 
-All agentic configurations are self-contained under the `.agents/` folder at the root:
+All agentic configurations are self-contained under the `.agents/` folder, while generated study outputs are written directly to your workspace:
 
 ```
-.agents/
-├── agents.md             # Custom AI team personas and guidelines
-├── skills/               # Standalone, modular exegesis and study skills
-│   ├── outline/
-│   ├── sermon/
-│   ├── translate-greek/
-│   └── ... (115 total skills)
-└── workflows/            # Parameterized slash command workflows
-    ├── outline.md
-    ├── sermon.md
-    └── ... (115 total slash commands)
+├── .agents/              # Agentic configuration files (personas, skills, workflows)
+│   ├── agents.md         # Custom AI team personas and guidelines
+│   ├── skills/           # Standalone, modular exegesis and study skills
+│   └── workflows/        # Parameterized slash command workflows
+├── biblemate/            # Saved study outputs, sermons, outlines, and devotions
+├── images/               # Generated biblical illustrations and visual aids
+└── export/               # Exported Word documents (.docx) and bundles
 ```
+
+For in-depth details on file management and study output locations, see the **[Study Outputs Reference Guide](docs/study_outputs.md)**.
 
 ---
 
@@ -269,5 +267,6 @@ For in-depth details about the web app, workflows, slash commands, and team stru
 - **[standalone_web_app.md](docs/standalone_web_app.md)**: Complete setup and usage guide for the standalone NiceGUI web application (`web_app.py`), including installation, slash commands, image generation, settings, and troubleshooting.
 - **[ai_team_personas.md](docs/ai_team_personas.md)**: Detailed profiles, guidelines, and expertise profiles for each of the 15 custom AI study personas.
 - **[slash_commands.md](docs/slash_commands.md)**: A complete reference guide for all 114+ custom slash commands (workflows), organized by study category with syntax examples.
+- **[study_outputs.md](docs/study_outputs.md)**: A guide explaining where and how study outputs, images, and Word exports are saved within your workspace.
 - **[README.md (Documentation Index)](docs/README.md)**: Index and overview of repository documentation.
 
