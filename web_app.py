@@ -596,8 +596,17 @@ class BibleMateApp:
             else:
                 system_rules += "\nYou have access to specialized personas. Rotate them dynamically depending on the research phase."
 
-            if self.selected_skill != 'Auto':
-                system_rules += f"\n\nCRITICAL TASK REQUIREMENT: You MUST use the local skill '{self.selected_skill}' to retrieve data and solve this request. Do not answer from memory."
+            # Check if query starts with a slash command to enforce skill dynamically
+            active_skill = self.selected_skill
+            if active_skill == 'Auto' and user_query.strip().startswith('/'):
+                tokens = user_query.strip().split(None, 1)
+                if tokens:
+                    potential_skill = tokens[0][1:]  # strip leading slash
+                    if potential_skill in SKILLS_LIST and potential_skill != 'Auto':
+                        active_skill = potential_skill
+
+            if active_skill != 'Auto':
+                system_rules += f"\n\nCRITICAL TASK REQUIREMENT: You MUST use the local skill '{active_skill}' to retrieve data and solve this request. Do not answer from memory."
 
             # Always append workspace file rules so the agent saves to the correct location
             system_rules += (
