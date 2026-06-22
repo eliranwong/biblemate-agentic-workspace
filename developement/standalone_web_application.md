@@ -14,24 +14,29 @@ The web application provides a responsive, web-based control center for running 
 ## Key Features & UI Layout
 
 1. **Responsive Flex Grid**: Adapts dynamically to desktop, tablet, and mobile browsers.
-2. **Left Drawer (Collapsible Saved Studies Tree)**:
-   - Displays files in the [biblemate/](file:///Users/admin/dev/antigravity-biblemate-workspace/biblemate) and [export/](file:///Users/admin/dev/antigravity-biblemate-workspace/export) folders recursively.
-   - Shows only Markdown files (`.md`).
-   - Includes a **Refresh** button to update the tree dynamically when new study outputs are created.
-   - Selecting a file automatically loads it and switches the user to the **Document Reader** tab.
+2. **Left Drawer (Collapsible Workspace Tree)**:
+   - Displays files recursively in folders: [biblemate/](file:///Users/admin/dev/antigravity-biblemate-workspace/biblemate), [export/](file:///Users/admin/dev/antigravity-biblemate-workspace/export), [images/](file:///Users/admin/dev/antigravity-biblemate-workspace/images), and [docs/](file:///Users/admin/dev/antigravity-biblemate-workspace/docs).
+   - Dynamically filters Markdown (`.md`), images (`.png`, `.jpg`, `.jpeg`), and Word (`.docx`) documents.
+   - Clicking `.md` or images loads them in the Document Reader, while clicking `.docx` files triggers an instant client download.
+   - **Refresh Button**: Dynamically reloads the sidebar file tree to display new files.
+   - **🗑 Delete Button (Red)**: Context-aware delete button. Securely restricts folder/file deletion to nested folders. All `README.md` files (case-insensitive) and the `docs/` documentation directory/files are explicitly protected from deletion.
+   - **📥 Export Button (Blue)**: Shows only when a Markdown (`*.md`) file is selected. Invokes `pandoc` asynchronously to compile it to a Word document inside `export/docx/`, prefixed with a `YYYY-MM-DD-HH-MM-SS_` timestamp.
 3. **Right Drawer (Settings Panel)**:
-   - **AI Model**: Selection dropdown (defaults to `Gemini 3.5 Flash (High)`).
-   - **Active Persona**: Dynmically parsed from [.agents/agents.md](file:///Users/admin/dev/antigravity-biblemate-workspace/.agents/agents.md) on startup. Defaults to `Auto`.
-   - **Enforced Skill**: Dynamically scanned from [.agents/skills/](file:///Users/admin/dev/antigravity-biblemate-workspace/.agents/skills) directories on startup. Defaults to `Auto`.
-4. **Chat Panel (Multi-line Input)**:
-   - A multi-line textarea allowing long-form study prompt submissions.
+   - **AI Model**: Selection dropdown mapping to active Gemini API models.
+   - **Active Persona**: Dynamically parsed from [.agents/agents.md](file:///Users/admin/dev/antigravity-biblemate-workspace/.agents/agents.md) on startup.
+   - **Enforced Skill**: Dynamically scanned from [.agents/skills/](file:///Users/admin/dev/antigravity-biblemate-workspace/.agents/skills) directories on startup.
+4. **Chat Panel (Interactive Input)**:
+   - **Autocomplete Dropdown**: When Enforced Skill is `'Auto'` and user types `/`, a scrollable dropdown suggestions menu displays matching command names in real time. Clicking a command inserts it with a trailing space and focuses the textarea.
+   - **Keyboard Shortcuts**: Pressing `Ctrl+S` (or `Cmd+S` on Mac) while typing inside the textarea triggers the send action immediately and blocks default browser Save As dialogs.
    - Chat bubbles render output in clean, formatted Markdown.
-5. **Agent Progress Console**:
+5. **Dynamic Skill Enforcement**:
+   - When the Settings dropdown is set to `'Auto'` and the query starts with a matched slash command (e.g. `/meaning`, `/character`, `/bible`, etc.), the app extracts the command and enforces it dynamically as the critical task requirement for the agent.
+6. **Agent Progress Console**:
    - Submitting a query activates a real-time monitor panel.
    - **Thinking Monologue**: Displays the agent's internal thoughts and reasoning in real time.
-   - **Executed Tools/Skills**: Displays the active command-line script running under the hood (e.g. `bible_retriever.py` or `commentary_retriever.py`) and its raw terminal output.
+   - **Executed Tools/Skills**: Displays the active command-line script running under the hood and its raw terminal output.
    - **System Logs**: A dark retro terminal window showing logging events.
-6. **Auto-Approve Policy**:
+7. **Auto-Approve Policy**:
    - Integrates the Antigravity `policy.allow_all()` hook to allow the agent to run the python SQLite retrievers autonomously without prompting the user.
 
 ---
@@ -39,10 +44,11 @@ The web application provides a responsive, web-based control center for running 
 ## Getting Started
 
 ### 1. Prerequisites
-Ensure you have the required dependencies:
+Ensure you have the required dependencies installed:
 ```bash
-pip install google-antigravity nicegui
+pip install google-antigravity nicegui Pillow
 ```
+Also ensure `pandoc` is installed on your system to enable Word exports.
 
 ### 2. Run the Web Application
 Execute the script from the root of the workspace:
@@ -52,9 +58,3 @@ python3 web_app.py
 
 Open your browser and navigate to:
 [http://localhost:33377](http://localhost:33377)
-
-## Follow up
-
-The UI looks nice, except, when I type my request in the request field, my entered text is white in colour against white backgrounds, which makes my typing invisible unless I select it manually with a mouse.
-
-The agent is not running, I just tried with a simple request: John 3:16, always spinning with the message `Agent Running - Live Execution Pipeline`, no result at all.
