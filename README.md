@@ -5,7 +5,7 @@
 > [!NOTE]
 > **Where Rigorous Scholarship Meets Agentic Power:** This repository unites the advanced agentic workflow capability of the **Google Antigravity Platform** with the reliable, time-tested databases of the **[UniqueBible Project](https://github.com/eliranwong/UniqueBible)** and the modular AI exegesis tools of **[BibleMate AI](https://github.com/eliranwong/biblemate)**.
 
-Welcome to the **Antigravity BibleMate Workspace**, a state-of-the-art local agentic study suite configured specifically as an extension for the **Google Antigravity** development platform (compatible with the Antigravity CLI, IDE, and platform). It features an integrated team of 15 customized study personas, 120 standalone exegesis and theology skills, and 120 custom slash commands.
+Welcome to the **Antigravity BibleMate Workspace**, a state-of-the-art local agentic study suite configured specifically as an extension for the **Google Antigravity** development platform (compatible with the Antigravity CLI, IDE, and platform). It features an integrated team of 15 customized study personas, 121 standalone exegesis and theology skills, and 121 custom slash commands.
 
 Whether you are a **pastor preparing a sermon**, a **bible content writer drafting articles**, a **theology student researching ancient manuscripts**, or a **believer deepening your study of the scriptures**, this workspace provides a unified, local-first environment where writing, AI agent assistance, and scholarly databases reside side-by-side in your IDE.
 
@@ -188,10 +188,10 @@ Because this repository is already configured with the standard Antigravity work
    ```
 2. **Auto-Discovery**: Antigravity automatically detects the `.agents/` directory at the project root. It will:
    - Load the 15 custom personas from `agents.md` into the agent selection registry.
-   - Register the 120 skills in `.agents/skills/` for progressive disclosure.
-   - Expose the 120 workflow files in `.agents/workflows/` as native slash commands.
+   - Register the 121 skills in `.agents/skills/` for progressive disclosure.
+   - Expose the 121 workflow files in `.agents/workflows/` as native slash commands.
 
-3. **Meet Prerequisites**: Ensure you meet all system and platform prerequisites listed in [System Prerequisites](#system-prerequisites).
+3. **Meet Prerequisites**: Ensure you meet all system and platform prerequisites listed in [System Prerequisites](#system-prerequisites)
 
 4. **Running Slash Commands**: In the Antigravity chat input, type `/` to bring up the commands menu, followed by arguments (e.g. references, topics, or words):
    - `/outline Ephesians 1`

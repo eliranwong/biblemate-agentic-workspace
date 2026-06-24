@@ -57,6 +57,7 @@ These commands synthesize the systematic doctrines, theological messages, and wo
 | **`/ot-themes`** | Conducts a systematic thematic study of an OT passage. | Systematic Theologian | An OT passage | `/ot-themes Isaiah 53` |
 | **`/nt-themes`** | Conducts a systematic thematic study of a NT passage. | Systematic Theologian | A NT passage | `/nt-themes 1 John 4` |
 | **`/topics`** | Retrieves topical outlines, classification structures, and verse reference lists for Bible topics. | Systematic Theologian / Biblical Theologian | A biblical topic or word | `/topics Justification` |
+| **`/parallels`** | Retrieves parallel passages and analyzes their similarities, differences, authorial emphasis, and practical applications. | Biblical Theologian / NT Bible Scholar / OT Bible Scholar | A bible event or topic | `/parallels "Hannah's Song"` |
 | **`/perspective`** | Evaluates a secular article, quote, or idea from a biblical worldview. | Biblical Content Interpreter | A contemporary quote or text | `/perspective "The meaning of life is what you make it"` |
 | **`/summary`** | Summarizes text in reference to biblical principles. | Biblical Theologian | Any text or passage | `/summary [Paste text]` |
 | **`/online`** | Searches, fetches, and integrates real-time online data (scholarly articles, legislation, testimonies, archaeology) for biblical study. | Biblical Content Interpreter | A research topic or query | `/online "religious freedom legislation affecting churches 2026"` |

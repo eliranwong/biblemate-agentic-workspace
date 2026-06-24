@@ -22,7 +22,7 @@ MINIMUM_COVERAGE = {
     "passage": {
         "required": ["bible", "original", "keywords", "commentary", "xrefs", "themes", "insights"],
         "recommended": ["lexicon", "morphology", "flow", "application", "devotion", "prayer",
-                         "interlinear", "ot-context", "nt-context", "chronology", "names", "locations"],
+                         "interlinear", "ot-context", "nt-context", "chronology", "names", "locations", "parallels"],
     },
     "book": {
         "required": ["bible", "introduce-book", "outline", "canon", "themes"],
@@ -30,7 +30,7 @@ MINIMUM_COVERAGE = {
     },
     "topical": {
         "required": ["topics", "quotes", "search", "themes", "bible"],
-        "recommended": ["keywords", "lexicon", "promises", "perspective", "application"],
+        "recommended": ["keywords", "lexicon", "promises", "perspective", "application", "parallels"],
     },
     "sermon": {
         "required": ["bible", "commentary", "keywords", "sermon", "application", "prayer"],
