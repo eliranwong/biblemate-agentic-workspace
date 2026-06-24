@@ -26,10 +26,10 @@ MINIMUM_COVERAGE = {
     },
     "book": {
         "required": ["bible", "introduce-book", "outline", "canon", "themes"],
-        "recommended": ["flow", "ot-context", "nt-context", "character", "chapter-summary", "chronology", "locations"],
+        "recommended": ["flow", "ot-context", "nt-context", "characters", "chapter-summary", "chronology", "locations"],
     },
     "topical": {
-        "required": ["topic", "quotes", "search", "themes", "bible"],
+        "required": ["topics", "quotes", "search", "themes", "bible"],
         "recommended": ["keywords", "lexicon", "promises", "perspective", "application"],
     },
     "sermon": {
@@ -530,7 +530,7 @@ def validate_plan(folder_path, study_type=None):
             "desc": "Recommended to have analytical steps like word studies, commentary checks, cross-references, original language lookups, chronology, biblical names, or locations analysis."
         },
         "Theological Synthesis": {
-            "skills": ["themes", "theology", "meaning", "canon", "insights", "topic"],
+            "skills": ["themes", "theology", "meaning", "canon", "insights", "topics"],
             "passed": False,
             "desc": "Recommended to have synthesis steps evaluating doctrinal themes, theological messages, or exegetical insights."
         },

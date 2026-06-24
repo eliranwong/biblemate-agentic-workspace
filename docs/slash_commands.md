@@ -39,6 +39,7 @@ These commands locate the scripture within its historical-cultural setting and i
 | **`/ot-highligths`** | *Compatibility duplicate of `/ot-highlights`.* | OT Bible Scholar | An OT passage | `/ot-highligths Genesis 15` |
 | **`/chronology`** | Expounds biblical timelines and event dates using local chronology datasets. | OT Bible Scholar (OT) / NT Bible Scholar (NT) | A chronological event, king, or character name | `/chronology Solomon reign` |
 | **`/locations`** | Retrieves geographical coordinates, map links, and descriptions of a Bible location. | OT Bible Scholar (OT) / NT Bible Scholar (NT) / Biblical Linguistic Analyst | A bible location name | `/locations Jerusalem` |
+| **`/characters`** | Retrieves dictionary data, relations, paternal ancestry, and biographical details of Bible characters. | OT Bible Scholar (OT) / NT Bible Scholar (NT) / Biblical Linguistic Analyst | A bible character name | `/characters Amasai` |
 
 ---
 
@@ -55,7 +56,7 @@ These commands synthesize the systematic doctrines, theological messages, and wo
 | **`/themes`** | Conducts a systematic thematic study of a passage. | Systematic Theologian | A bible passage | `/themes Romans 8` |
 | **`/ot-themes`** | Conducts a systematic thematic study of an OT passage. | Systematic Theologian | An OT passage | `/ot-themes Isaiah 53` |
 | **`/nt-themes`** | Conducts a systematic thematic study of a NT passage. | Systematic Theologian | A NT passage | `/nt-themes 1 John 4` |
-| **`/topic`** | Performs an in-depth topical study from Genesis to Revelation. | Biblical Theologian | A biblical topic or word | `/topic Justification` |
+| **`/topics`** | Retrieves topical outlines, classification structures, and verse reference lists for Bible topics. | Systematic Theologian / Biblical Theologian | A biblical topic or word | `/topics Justification` |
 | **`/perspective`** | Evaluates a secular article, quote, or idea from a biblical worldview. | Biblical Content Interpreter | A contemporary quote or text | `/perspective "The meaning of life is what you make it"` |
 | **`/summary`** | Summarizes text in reference to biblical principles. | Biblical Theologian | Any text or passage | `/summary [Paste text]` |
 | **`/online`** | Searches, fetches, and integrates real-time online data (scholarly articles, legislation, testimonies, archaeology) for biblical study. | Biblical Content Interpreter | A research topic or query | `/online "religious freedom legislation affecting churches 2026"` |

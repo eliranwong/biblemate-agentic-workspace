@@ -232,7 +232,7 @@ Use `--save-final-response` to save the final deliverable as `NNN-final_response
 | `outline` | Structural outline |
 | `ot-context` / `nt-context` | Historical and cultural context |
 | `ot-highlights` / `nt-highlights` | Key highlights and summaries |
-| `character` | Biblical character biographical study |
+| `characters` | Biblical character biographical study |
 | `locations` | Coordinates, maps, etymological details, and historical/geographical/theological significance of Bible locations |
 | `chronology` | Timeline and historical chronological study |
 | `names` | Study of personal/place name meanings |
@@ -244,7 +244,7 @@ Use `--save-final-response` to save the final deliverable as `NNN-final_response
 | `theology` | Core theological message |
 | `meaning` / `ot-meaning` / `nt-meaning` | Core spiritual meaning |
 | `canon` | Canonical context and narrative fit |
-| `topic` | In-depth topical study |
+| `topics` | In-depth topical study |
 
 ### Synthesis Skills (Phase 4 — produce application outputs)
 | Skill | Purpose |
@@ -298,7 +298,7 @@ Select skills based on the classified study type. **Required** skills must appea
 |----------|-------------|
 | `bible` (key passages) | `flow` |
 | `introduce-book` | `ot-context` or `nt-context` |
-| `outline` | `character` |
+| `outline` | `characters` |
 | `canon` | `locations` |
 | `themes` | `chapter-summary` (key chapters) |
 | — | `chronology` |
@@ -308,7 +308,7 @@ Select skills based on the classified study type. **Required** skills must appea
 
 | Required | Recommended |
 |----------|-------------|
-| `topic` | `keywords` |
+| `topics` | `keywords` |
 | `quotes` | `lexicon` |
 | `search` | `promises` |
 | `themes` | `perspective` |

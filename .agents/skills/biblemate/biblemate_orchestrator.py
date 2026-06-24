@@ -26,10 +26,10 @@ MINIMUM_COVERAGE = {
     },
     "book": {
         "required": ["bible", "introduce-book", "outline", "canon", "themes"],
-        "recommended": ["flow", "ot-context", "nt-context", "character", "chapter-summary", "chronology", "locations"],
+        "recommended": ["flow", "ot-context", "nt-context", "characters", "chapter-summary", "chronology", "locations"],
     },
     "topical": {
-        "required": ["topic", "quotes", "search", "themes", "bible"],
+        "required": ["topics", "quotes", "search", "themes", "bible"],
         "recommended": ["keywords", "lexicon", "promises", "perspective", "application"],
     },
     "sermon": {
