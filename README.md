@@ -252,6 +252,11 @@ If you wish to bring these custom Bible study agents and tools into a **differen
 
 2. **Install System Prerequisites**: Ensure you have configured the [System Prerequisites](#system-prerequisites) on your system.
 
+### How to Update
+To update your workspace with the latest agent configurations, skills, and command definitions:
+* **For Git users (Method A)**: Simply run `git pull` in your terminal to fetch and merge the latest updates from the upstream repository.
+* **For Manual users (Method B or C)**: Simply redo the manual download (downloading and extracting the fresh `manual_setup.zip`) or re-copy the `.agents/` and `preferences/` directories into your repository root, overwriting the existing folders.
+
 ---
 
 ## Preferences & Customization
