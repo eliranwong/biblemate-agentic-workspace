@@ -221,6 +221,165 @@ def html_to_markdown(html):
             
     return "\n".join(cleaned_lines).strip()
 
+def find_best_person_id(cursor, code, name):
+    try:
+        code_num = int(code[2:])
+    except ValueError:
+        return None
+
+    # First check if code_num has the matching name in PEOPLE
+    cursor.execute("SELECT distinct Name FROM PEOPLE WHERE PersonID = ?", (code_num,))
+    row = cursor.fetchone()
+    if row and name.lower() in row[0].lower():
+        return code_num
+
+    # Otherwise, search PEOPLE for all PersonIDs with the matching name
+    names_to_try = [name]
+    if '/' in name:
+        names_to_try.extend([n.strip() for n in name.split('/')])
+    
+    candidates = set()
+    for n in names_to_try:
+        cursor.execute("SELECT distinct PersonID FROM PEOPLE WHERE Name LIKE ?", (f"%{n}%",))
+        for r in cursor.fetchall():
+            candidates.add(r[0])
+            
+    if not candidates:
+        return code_num
+        
+    best_id = min(candidates, key=lambda x: abs(x - code_num))
+    return best_id
+
+def get_relationship_tree(people_db_path, code, name):
+    if not code.startswith('BP'):
+        return ""
+    if not os.path.exists(people_db_path):
+        return ""
+        
+    try:
+        conn = sqlite3.connect(people_db_path)
+        c = conn.cursor()
+        
+        person_id = find_best_person_id(c, code, name)
+        if not person_id:
+            conn.close()
+            return ""
+            
+        c.execute("SELECT distinct Name, Sex FROM PEOPLE WHERE PersonID = ?", (person_id,))
+        p_row = c.fetchone()
+        if not p_row:
+            conn.close()
+            return ""
+        main_name, main_sex = p_row
+        
+        def get_person_info(pid):
+            c.execute("SELECT distinct Name, Sex FROM PEOPLE WHERE PersonID = ?", (pid,))
+            r = c.fetchone()
+            if r:
+                return r[0], r[1]
+            return None, None
+            
+        def get_direct_relations(pid):
+            c.execute("SELECT RelatedPersonID, Relationship FROM PEOPLERELATIONSHIP WHERE PersonID = ? AND Relationship != '[Reference]'", (pid,))
+            relations = []
+            for r_id, rel_label in c.fetchall():
+                r_name, r_sex = get_person_info(r_id)
+                if not r_name:
+                    continue
+                
+                c.execute("SELECT Relationship FROM PEOPLERELATIONSHIP WHERE PersonID = ? AND RelatedPersonID = ?", (r_id, pid))
+                rev_row = c.fetchone()
+                if rev_row and rev_row[0] != '[Reference]':
+                    label = rev_row[0]
+                else:
+                    label = get_fallback_label(r_sex, rel_label)
+                
+                relations.append({
+                    'id': r_id,
+                    'name': r_name,
+                    'sex': r_sex,
+                    'label': label
+                })
+            return relations
+            
+        def get_fallback_label(sex, rel):
+            rel = rel.lower()
+            if 'father' in rel or 'mother' in rel:
+                return 'Son' if sex == 'M' else 'Daughter'
+            if 'son' in rel or 'daughter' in rel:
+                return 'Father' if sex == 'M' else 'Mother'
+            if 'husband' in rel:
+                return 'Wife'
+            if 'wife' in rel or 'concubine' in rel:
+                return 'Husband'
+            if 'brother' in rel or 'sister' in rel:
+                return 'Brother' if sex == 'M' else 'Sister'
+            return rel.capitalize()
+            
+        rel1 = get_direct_relations(person_id)
+        if not rel1:
+            conn.close()
+            return ""
+            
+        categories = {
+            'Parents': [],
+            'Spouse': [],
+            'Siblings': [],
+            'Children': [],
+            'Others': []
+        }
+        
+        for r in rel1:
+            lbl = r['label'].lower()
+            if 'father' in lbl or 'mother' in lbl:
+                categories['Parents'].append(r)
+            elif 'wife' in lbl or 'husband' in lbl or 'spouse' in lbl or 'concubine' in lbl:
+                categories['Spouse'].append(r)
+            elif 'brother' in lbl or 'sister' in lbl:
+                categories['Siblings'].append(r)
+            elif 'son' in lbl or 'daughter' in lbl or 'child' in lbl:
+                categories['Children'].append(r)
+            else:
+                categories['Others'].append(r)
+                
+        lines = []
+        lines.append(f"\n### Family & Relationship Tree\n")
+        lines.append("```")
+        lines.append(f"{main_name} ({main_sex}, Code: `BP{person_id}`)")
+        
+        visited = {person_id}
+        
+        non_empty_cats = [(k, v) for k, v in categories.items() if v]
+        for idx, (cat_name, members) in enumerate(non_empty_cats):
+            is_last_cat = (idx == len(non_empty_cats) - 1)
+            cat_prefix = "└── " if is_last_cat else "├── "
+            lines.append(f"{cat_prefix}{cat_name}")
+            
+            child_indent = "    " if is_last_cat else "│   "
+            for m_idx, m in enumerate(members):
+                is_last_member = (m_idx == len(members) - 1)
+                member_prefix = "└── " if is_last_member else "├── "
+                lines.append(f"{child_indent}{member_prefix}{m['label']}: {m['name']} ({m['sex']}, Code: `BP{m['id']}`)")
+                visited.add(m['id'])
+                
+                rel2 = get_direct_relations(m['id'])
+                rel2 = [r2 for r2 in rel2 if r2['id'] not in visited]
+                if rel2:
+                    sub_indent = child_indent + ("    " if is_last_member else "│   ")
+                    for r2_idx, r2 in enumerate(rel2):
+                        is_last_r2 = (r2_idx == len(rel2) - 1)
+                        r2_prefix = "└── " if is_last_r2 else "├── "
+                        lines.append(f"{sub_indent}{r2_prefix}{r2['label']}: {r2['name']} ({r2['sex']}, Code: `BP{r2['id']}`)")
+                        visited.add(r2['id'])
+                        
+        lines.append("```")
+        conn.close()
+        return "\n".join(lines) + "\n"
+        
+    except Exception as e:
+        print(f"Warning building relationship tree: {e}", file=sys.stderr)
+        return ""
+
 def main():
     if len(sys.argv) < 2:
         print("Usage: python3 characters_query.py <character_name>", file=sys.stderr)
@@ -261,6 +420,12 @@ def main():
             else:
                 md.append(f"\n**Entry Code**: `{code}`\n")
             md.append(entry_md)
+            
+            db_dir = os.path.dirname(db_path)
+            people_db_path = os.path.join(db_dir, 'biblePeople.data')
+            tree_md = get_relationship_tree(people_db_path, code, best_match)
+            if tree_md:
+                md.append(tree_md)
             
         conn.close()
     except Exception as e:

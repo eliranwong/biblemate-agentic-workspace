@@ -255,7 +255,7 @@ Use `--save-final-response` to save the final deliverable as `NNN-final_response
 | `prayer` / `short-prayer` | Scriptural prayers (first person) |
 | `questions` | Small group discussion questions |
 | `chapter-summary` | Chapter-level summary |
-| `introduce-book` | Book introduction and overview |
+| `book-analysis` | Book introduction and overview |
 | `perspective` | Biblical worldview on contemporary content |
 | `promises` | Biblical promises for a topic |
 | `quotes` | Relevant verse collection on a topic |
@@ -297,7 +297,7 @@ Select skills based on the classified study type. **Required** skills must appea
 | Required | Recommended |
 |----------|-------------|
 | `bible` (key passages) | `flow` |
-| `introduce-book` | `ot-context` or `nt-context` |
+| `book-analysis` | `ot-context` or `nt-context` |
 | `outline` | `characters` |
 | `canon` | `locations` |
 | `themes` | `chapter-summary` (key chapters) |

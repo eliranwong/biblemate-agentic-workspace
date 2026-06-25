@@ -25,7 +25,7 @@ MINIMUM_COVERAGE = {
                          "interlinear", "ot-context", "nt-context", "chronology", "names", "locations", "parallels"],
     },
     "book": {
-        "required": ["bible", "introduce-book", "outline", "canon", "themes"],
+        "required": ["bible", "book-analysis", "outline", "canon", "themes"],
         "recommended": ["flow", "ot-context", "nt-context", "characters", "chapter-summary", "chronology", "locations"],
     },
     "topical": {

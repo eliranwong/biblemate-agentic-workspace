@@ -29,7 +29,7 @@ These commands locate the scripture within its historical-cultural setting and i
 
 | Command | Description | Assigned Persona | Expected Input | Example |
 | :--- | :--- | :--- | :--- | :--- |
-| **`/introduce-book`** | Generates a comprehensive scholarly introduction to a bible book. | OT Bible Scholar (OT) / NT Bible Scholar (NT) | A bible book | `/introduce-book Philippians` |
+| **`/book-analysis`** | Generates a comprehensive scholarly introduction to a bible book. | OT Bible Scholar (OT) / NT Bible Scholar (NT) | A bible book | `/book-analysis Philippians` |
 | **`/chapter-summary`** | Generates a detailed chapter interpretation, structure, and exegesis. | OT Bible Scholar (OT) / NT Bible Scholar (NT) | A bible chapter | `/chapter-summary John 3` |
 | **`/canon`** | Explains how a text connects to the grand storyline and covenants of Scripture. | OT Bible Scholar (OT) / NT Bible Scholar (NT) | A book, chapter, or passage | `/canon Genesis 12:1-3` |
 | **`/ot-context`** | Provides historical-cultural context for an Old Testament passage. | OT Bible Scholar | An OT passage | `/ot-context Exodus 3` |
