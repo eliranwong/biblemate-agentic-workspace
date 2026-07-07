@@ -1,6 +1,7 @@
 import os
 import sys
-import subprocess
+import urllib.request
+import zipfile
 
 def main():
     # Get workspace root dynamically
@@ -19,30 +20,42 @@ def main():
         print("Error: The workspace folder is 'antigravity-biblemate-workspace'. Update command is not allowed to run in the source repository to prevent overwriting files.")
         sys.exit(1)
         
-    print(f"Conditions met. Running update command in workspace: {repo_root}")
+    print(f"Conditions met. Running update in workspace: {repo_root}")
     
-    # Command to run:
-    # curl -L -O https://github.com/eliranwong/antigravity-biblemate-workspace/raw/main/manual_setup.zip && unzip -o manual_setup.zip && rm manual_setup.zip && mkdir -p biblemate notes images export
-    cmd = (
-        "curl -L -O https://github.com/eliranwong/antigravity-biblemate-workspace/raw/main/manual_setup.zip "
-        "&& unzip -o manual_setup.zip "
-        "&& rm manual_setup.zip "
-        "&& mkdir -p biblemate notes images export"
-    )
+    url = "https://github.com/eliranwong/antigravity-biblemate-workspace/raw/main/manual_setup.zip"
+    zip_path = os.path.join(repo_root, 'manual_setup.zip')
     
     try:
-        # Run command with repo_root as the current working directory
-        result = subprocess.run(cmd, shell=True, cwd=repo_root, check=True, capture_output=True, text=True)
-        print("Update command completed successfully!")
-        if result.stdout:
-            print(result.stdout)
-    except subprocess.CalledProcessError as e:
-        print(f"Error executing update command (exit code {e.returncode}):")
-        if e.stdout:
-            print("Standard Output:\n", e.stdout)
-        if e.stderr:
-            print("Standard Error:\n", e.stderr)
-        sys.exit(e.returncode)
+        # Download
+        print(f"Downloading setup archive from {url}...")
+        urllib.request.urlretrieve(url, zip_path)
+        print("Download complete.")
+        
+        # Extract using python's built-in zipfile to prevent wrapping folder issues and ensure silent overwrite
+        print(f"Extracting archive to {repo_root}...")
+        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+            zip_ref.extractall(repo_root)
+        print("Extraction complete. Existing configuration files overwritten successfully.")
+        
+        # Create necessary directories
+        print("Creating workspace directories...")
+        for folder in ['biblemate', 'notes', 'images', 'export']:
+            folder_path = os.path.join(repo_root, folder)
+            os.makedirs(folder_path, exist_ok=True)
+        print("Workspace directories created/verified.")
+        print("Update completed successfully!")
+        
+    except Exception as e:
+        print(f"Error during update process: {e}", file=sys.stderr)
+        sys.exit(1)
+    finally:
+        # Clean up zip file if it exists
+        if os.path.exists(zip_path):
+            try:
+                os.remove(zip_path)
+                print("Cleaned up manual_setup.zip.")
+            except Exception as clean_err:
+                print(f"Warning: Could not remove temporary zip file: {clean_err}", file=sys.stderr)
 
 if __name__ == '__main__':
     main()
