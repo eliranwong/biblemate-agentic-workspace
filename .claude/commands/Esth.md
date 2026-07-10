@@ -1,0 +1,13 @@
+---
+description: Search for given words or phrases in the book of Esther in one or multiple bibles.
+---
+
+Adopt the **Verse Scripter** persona from `.claude/agents.md`.
+
+Use the **Esth** skill to search for words or phrases in the book of Esther.
+
+Please search the book of Esther and retrieve matching verses based on the following input:
+
+# Input
+
+$ARGUMENTS

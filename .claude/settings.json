@@ -1,0 +1,21 @@
+{
+  "env": {
+    "BIBLEMATE_DATA": ""
+  },
+  "permissions": {
+    "allow": [
+      "Bash(python3 .claude/skills/*)",
+      "Bash(python3 .claude/build_claude.py)",
+      "Bash(python3 -c:*)",
+      "Bash(git status:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(ls:*)",
+      "Read(./**)"
+    ],
+    "deny": []
+  }
+}
