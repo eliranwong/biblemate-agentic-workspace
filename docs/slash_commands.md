@@ -128,7 +128,7 @@ These utility commands manage resource versions, convert format types, and synch
 | **`/sync`** | Stages, commits, and pushes all latest workspace changes to the remote repository. | Verse Scripter | Optional custom commit message | `/sync "Added sync command"` |
 | **`/md`** | Converts a file to markdown, or exports the last response/conversation to export/md. | Verse Scripter | Optional file path or export keyword (e.g., 'whole', 'conversation') | `/md export/docx/README.md` or `/md whole` |
 | **`/docx`** | Converts a file to Word docx format, or exports the last response/conversation to export/docx. | Verse Scripter | Optional file path or export keyword (e.g., 'whole', 'conversation') | `/docx README.md` or `/docx whole` |
-| **`/zip`** | Creates a `manual_setup.zip` file in the root directory containing `.agents/` and `preferences/` folders for manual setup. | Verse Scripter | None | `/zip` |
+| **`/zip`** | Creates a `manual_setup.zip` file in the root directory containing `.agents/`, `preferences/`, and `.claude/` folders for manual setup. | Verse Scripter | None | `/zip` |
 | **`/update`** | Downloads and applies the manual setup zip to initialize workspace directories. | Verse Scripter | None | `/update` |
 
 

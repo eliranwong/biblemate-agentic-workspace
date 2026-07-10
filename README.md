@@ -5,7 +5,17 @@
 > [!NOTE]
 > **Where Rigorous Scholarship Meets Agentic Power:** This repository unites the advanced agentic workflow capability of the **Google Antigravity Platform** with the reliable, time-tested databases of the **[UniqueBible Project](https://github.com/eliranwong/UniqueBible)** and the modular AI exegesis tools of **[BibleMate AI](https://github.com/eliranwong/biblemate)**.
 
-Welcome to the **Antigravity BibleMate Workspace**, a state-of-the-art local agentic study suite configured specifically as an extension for the **Google Antigravity** development platform (compatible with the Antigravity CLI, IDE, and platform). It features an integrated team of 15 customized study personas, 124 standalone exegesis and theology skills, and 124 custom slash commands.
+Welcome to the **Antigravity BibleMate Workspace**, a state-of-the-art local agentic study suite configured as an extension for the **Google Antigravity** development platform (compatible with the Antigravity CLI, IDE, and platform). It features an integrated team of 15 customized study personas, 124 standalone exegesis and theology skills, and 124 custom slash commands.
+
+> [!TIP]
+> **Optional bonus for Claude Code users.** Beyond the primary Google Antigravity
+> experience, this workspace *also* ships a parallel, self-contained **Claude Code**
+> ecosystem under `.claude/` — the same 15 personas, 124 skills, and 124 slash
+> commands, generated from `.agents/`. It is a completely **optional add-on**: you
+> can ignore `.claude/` entirely and use the workspace purely on Antigravity, or use
+> **either** platform **or** **both** interchangeably against a single shared
+> workspace and shared local Bible databases. See
+> [Claude Code Equivalent Ecosystem (Optional Bonus)](#-claude-code-equivalent-ecosystem-optional-bonus) below.
 
 Whether you are a **pastor preparing a sermon**, a **bible content writer drafting articles**, a **theology student researching ancient manuscripts**, or a **believer deepening your study of the scriptures**, this workspace provides a unified, local-first environment where writing, AI agent assistance, and scholarly databases reside side-by-side in your IDE.
 
@@ -129,13 +139,22 @@ While `/biblemate` follows a preset, structured 6-phase framework, `/biblemate-s
 
 ## Directory Structure
 
-All agentic configurations are self-contained under the `.agents/` folder, while generated study outputs are written directly to your workspace:
+All agentic configurations are self-contained under the `.agents/` folder (for the Antigravity platform), with an **optional, parallel Claude Code** ecosystem under `.claude/` (see [below](#-claude-code-equivalent-ecosystem-optional-bonus)), while generated study outputs are written directly to your shared workspace:
 
 ```
-├── .agents/              # Agentic configuration files (personas, skills, workflows)
+├── .agents/              # Antigravity agentic config (personas, skills, workflows)
 │   ├── agents.md         # Custom AI team personas and guidelines
 │   ├── skills/           # Standalone, modular exegesis and study skills
 │   └── workflows/        # Parameterized slash command workflows
+├── .claude/              # Claude Code equivalent ecosystem (self-contained, portable)
+│   ├── build_claude.py   # Regenerates .claude/ from .agents/ + preferences/
+│   ├── settings.json     # Permissions + env (BIBLEMATE_DATA) for Claude Code
+│   ├── agents.md         # Combined persona reference (paths ported to .claude)
+│   ├── preferences/      # Default bible/commentary/lexicon version files
+│   ├── skills/           # 124 Claude Code Agent Skills (one per .agents/skills/)
+│   ├── commands/         # 124 slash commands (one per .agents/workflows/)
+│   └── agents/           # 15 subagents (one per persona in agents.md)
+├── preferences/          # Shared default version preferences (bible/commentary/lexicon)
 ├── biblemate/            # Saved study outputs, sermons, outlines, and devotions
 ├── images/               # Generated biblical illustrations and visual aids
 ├── notes/                # User-created notes, subfolders, and documents
@@ -143,6 +162,102 @@ All agentic configurations are self-contained under the `.agents/` folder, while
 ```
 
 For in-depth details on file management and study output locations, see the **[Study Outputs Reference Guide](docs/study_outputs.md)**.
+
+
+---
+
+## 🤖 Claude Code Equivalent Ecosystem (Optional Bonus)
+
+> [!NOTE]
+> This section is **entirely optional**. The Google Antigravity integration under
+> `.agents/` is the primary experience and requires nothing from `.claude/`. The
+> Claude Code ecosystem below is an **additional choice** provided as a bonus for
+> users who prefer to run BibleMate through [Claude Code](https://claude.com/claude-code)
+> instead of — or alongside — Antigravity. If you do not use Claude Code, you can
+> safely ignore everything in `.claude/`.
+
+In addition to the native Google Antigravity integration, this workspace ships an
+**optional, parallel, self-contained BibleMate ecosystem for [Claude Code](https://claude.com/claude-code)**
+under `.claude/`. It is generated directly from `.agents/` + `preferences/`, so
+it mirrors the Antigravity ecosystem one-to-one: the same **15 personas**, the same
+**124 skills**, and the same **124 slash commands**, all using **relative paths**
+only (no hardcoded absolute paths), so the workspace stays portable.
+
+### One workspace, two ecosystems
+
+The Antigravity (`.agents/`) and Claude Code (`.claude/`) ecosystems **coexist**
+in a single repository and share the same local Bible databases, the same
+`preferences/` defaults, and the same `biblemate/` study output directory. You
+can use **either** platform or **both** interchangeably:
+
+| | Antigravity | Claude Code |
+| :-- | :-- | :-- |
+| Config dir | `.agents/` | `.claude/` |
+| Personas | `agents.md` (single file) | `.claude/agents/<slug>.md` (subagents) + `.claude/agents.md` |
+| Skills | `.agents/skills/<name>/SKILL.md` | `.claude/skills/<name>/SKILL.md` |
+| Slash commands | `.agents/workflows/<name>.md` | `.claude/commands/<name>.md` |
+| Runtime data | `~/biblemate/data` (or `BIBLEMATE_DATA`) | `~/biblemate/data` (or `BIBLEMATE_DATA`) |
+| Study outputs | `biblemate/` | `biblemate/` |
+
+Because both read from the same SQLite databases and write to the same
+`biblemate/` folder, a study started on one platform can be continued or
+re-opened on the other.
+
+### Using BibleMate with Claude Code
+
+1. **Install Claude Code** if you have not already (CLI, desktop app, or IDE
+   extension). The `.claude/` ecosystem is auto-discovered when you open this
+   workspace as your project root.
+2. **Install the shared database** (one-off, same as Antigravity):
+   ```bash
+   pip install --upgrade biblematedata
+   biblematedata
+   ```
+3. **Run any slash command** exactly as you would on Antigravity — Claude Code
+   registers the same names: `/bible`, `/sermon`, `/devotion`, `/biblemate`,
+   `/biblemate-super`, `/translate-greek`, `/Gen` (book search), `/data`,
+   `/sync`, etc. For example:
+   ```
+   /bible NET John 3:16
+   /sermon Romans 8:28
+   /translate-greek John 1:1
+   ```
+4. **Scripture integrity & output saving** are enforced the same way as on
+   Antigravity: skills fetch every verse from the local SQLite databases via
+   `python3 .claude/skills/bible/bible_retriever.py "..."` (never from memory),
+   and study outputs are saved to `biblemate/` with a `YYYY-MM-DD-HH-MM-SS_`
+   timestamp prefix.
+
+### Portability (no absolute paths)
+
+The `.claude/` ecosystem is fully self-contained and portable:
+
+- All skill scripts and their bundled data files are **copied inside
+  `.claude/skills/`** — the skills and commands do not depend on any files
+  outside the `.claude/` directory.
+- Runtime Bible data resolves in this order:
+  1. the `BIBLEMATE_DATA` environment variable (point it anywhere), else
+  2. `~/biblemate` (the standard install location).
+  Override it in [`.claude/settings.json`](.claude/settings.json) (`env.BIBLEMATE_DATA`)
+  if your data lives elsewhere.
+- Default bible/commentary/lexicon versions are read from
+  [`.claude/preferences/`](.claude/preferences), a copy of the shared
+  [`preferences/`](preferences) folder.
+
+### Regenerating or refreshing `.claude/`
+
+The Claude Code ecosystem is produced by a generator script. Re-run it after
+editing `.agents/` or `preferences/` to keep `.claude/` in sync (idempotent;
+only rewrites `skills/`, `commands/`, `agents/`, `preferences/`, and `agents.md`
+under `.claude/`):
+
+```bash
+python3 .claude/build_claude.py
+```
+
+From within Claude Code you can also run the tailored `/update` command, which
+refreshes the bundled `.agents/` + `preferences/` source from the remote
+`manual_setup.zip` and then regenerates `.claude/`.
 
 
 ---
@@ -272,9 +387,9 @@ If you wish to bring these custom Bible study agents and tools into a **differen
           ```cmd
           curl.exe -L -O https://github.com/eliranwong/antigravity-biblemate-workspace/raw/main/manual_setup.zip && tar -xf manual_setup.zip && del manual_setup.zip && md biblemate notes images export
           ```
-      * **Via GUI (Double-Click)**: If you extract using double-click on macOS, the OS will wrap the contents in a `manual_setup` folder. Simply move the `.agents/` and `preferences/` folders out of it and into your project root.
+      * **Via GUI (Double-Click)**: If you extract using double-click on macOS, the OS will wrap the contents in a `manual_setup` folder. Simply move the `.agents/`, `preferences/`, and `.claude/` folders out of it and into your project root.
       *(You can generate or regenerate this zip file at any time by running the `/zip` command).*
-   - **Method C - Manual Copy (Folders)**: Manually copy the `.agents/` and `preferences/` folders from the root of this repository into the root of your new project. Google Antigravity will automatically discover the custom personas, skills, and workflows, while the `preferences/` folder preserves your default database preferences.
+   - **Method C - Manual Copy (Folders)**: Manually copy the `.agents/`, `preferences/`, and `.claude/` folders from the root of this repository into the root of your new project. Google Antigravity will automatically discover the custom personas, skills, and workflows, while the `preferences/` folder preserves your default database preferences, and `.claude/` preserves your Claude Code configs.
 
 2. **Install System Prerequisites**: Ensure you have configured the [System Prerequisites](#system-prerequisites) on your system.
 
@@ -283,7 +398,7 @@ To update your workspace with the latest agent configurations, skills, and comma
 * **For Git users (Method A)**: Simply run `git pull` in your terminal to fetch and merge the latest updates from the upstream repository.
 * **For Manual users (Method B or C)**:
   * **Via Slash Command (macOS/Linux only)**: Run the `/update` command in the chat interface. This automatically downloads the latest `manual_setup.zip`, extracts it, and creates required workspace directories.
-  * **Via Terminal**: Simply redo the manual download (downloading and extracting the fresh `manual_setup.zip`) or re-copy the `.agents/` and `preferences/` directories into your repository root, overwriting the existing folders.
+  * **Via Terminal**: Simply redo the manual download (downloading and extracting the fresh `manual_setup.zip`) or re-copy the `.agents/`, `preferences/`, and `.claude/` directories into your repository root, overwriting the existing folders.
 
 ---
 

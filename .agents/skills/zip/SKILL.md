@@ -1,12 +1,12 @@
 ---
 name: zip
-description: Create manual_setup.zip containing .agents/ and preferences/ folders for manual repository setup.
+description: Create manual_setup.zip containing .agents/, preferences/, and .claude/ folders for manual repository setup.
 ---
 
 # Zip Archive Skill
 
 ## Overview
-This skill packages the `.agents/` configuration and `preferences/` directories into a single `manual_setup.zip` file at the repository root. This archive provides users with a convenient way to manually import the customized AI team personas, skills, workflows, and database preferences into their own new repositories.
+This skill packages the `.agents/` configuration, `preferences/`, and `.claude/` directories into a single `manual_setup.zip` file at the repository root. This archive provides users with a convenient way to manually import the customized AI team personas, skills, workflows, database preferences, and Claude Code configurations into their own new repositories.
 
 ## Guidelines & Objectives
 When executing this skill:

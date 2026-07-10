@@ -23,7 +23,7 @@ def main():
     print("Creating manual_setup.zip...")
     
     # Folders to zip
-    folders_to_zip = ['.agents', 'preferences']
+    folders_to_zip = ['.agents', 'preferences', '.claude']
     
     try:
         with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
@@ -44,7 +44,7 @@ def main():
                         zipf.write(file_path, arcname)
                         
         print(f"Successfully created manual_setup.zip at: {zip_path}")
-        print("This zip file includes the '.agents/' and 'preferences/' folders, offering users an easy way to set up manually.")
+        print("This zip file includes the '.agents/', 'preferences/', and '.claude/' folders, offering users an easy way to set up manually.")
         
         # Git integration: Add, commit, and push if it's a git repository
         git_dir = os.path.join(REPO_ROOT, '.git')
