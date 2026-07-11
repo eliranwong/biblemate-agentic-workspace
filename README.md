@@ -7,7 +7,7 @@
 > | Platform | Config | Status |
 > | :-- | :-- | :-- |
 > | **[Google Antigravity](https://antigravity.google/download)** | `.agents/` | Original ecosystem |
-> | **[Claude Code](https://claude.com/claude-code)** | `.claude/` | Full parallel port (same 15 personas, 124 skills, 124 slash commands) |
+> | **[Claude Code](https://claude.com/claude-code)** | `.claude/` | Full parallel port (same 15 personas, 125 skills, 125 slash commands) |
 > | **[Grok Build](https://docs.x.ai/build/overview)** (xAI) | `.grok/` + `AGENTS.md` | Full parallel port (same personas, skills, and commands) |
 >
 > Use **any one** or **any combination** against a single shared workspace and the
@@ -21,14 +21,14 @@
 > [!NOTE]
 > **Where Rigorous Scholarship Meets Agentic Power:** This repository unites advanced agentic workflow capability (originally built for the **Google Antigravity Platform**, now also available for **Claude Code** and **Grok Build**) with the reliable, time-tested databases of the **[UniqueBible Project](https://github.com/eliranwong/UniqueBible)** and the modular AI exegesis tools of **[BibleMate AI](https://github.com/eliranwong/biblemate)**.
 
-Welcome to the **BibleMate Agentic Workspace**, a state-of-the-art local agentic study suite. It began as an extension for the **Google Antigravity** development platform (CLI, IDE, and platform) and now ships equivalent, self-contained ecosystems for **Claude Code** and **Grok Build** as well. It features an integrated team of 15 customized study personas, 124 standalone exegesis and theology skills, and 124 custom slash commands—shared names and study outputs across platforms.
+Welcome to the **BibleMate Agentic Workspace**, a state-of-the-art local agentic study suite. It began as an extension for the **Google Antigravity** development platform (CLI, IDE, and platform) and now ships equivalent, self-contained ecosystems for **Claude Code** and **Grok Build** as well. It features an integrated team of 15 customized study personas, 125 standalone exegesis and theology skills, and 125 custom slash commands—shared names and study outputs across platforms.
 
 > [!TIP]
 > **Optional multi-platform add-ons.** Beyond the original Google Antigravity
 > experience under `.agents/`, this workspace ships parallel, self-contained
 > ecosystems for **[Claude Code](https://claude.com/claude-code)** (`.claude/`) and
 > **[Grok Build](https://docs.x.ai/build/overview)** (`.grok/`) — each with the
-> same 15 personas, 124 skills, and 124 slash commands. Both are **optional**:
+> same 15 personas, 125 skills, and 125 slash commands. Both are **optional**:
 > ignore them and use Antigravity alone, or use **any combination** of the three
 > platforms interchangeably against a single shared workspace and shared local
 > Bible databases. See
@@ -173,15 +173,15 @@ All agentic configurations are self-contained under the `.agents/` folder (for t
 │   ├── settings.json     # Permissions + env (BIBLEMATE_DATA) for Claude Code
 │   ├── agents.md         # Combined persona reference (paths ported to .claude)
 │   ├── preferences/      # Default bible/commentary/lexicon version files
-│   ├── skills/           # 124 Claude Code Agent Skills (one per .agents/skills/)
-│   ├── commands/         # 124 slash commands (one per .agents/workflows/)
+│   ├── skills/           # 125 Claude Code Agent Skills (one per .agents/skills/)
+│   ├── commands/         # 125 slash commands (one per .agents/workflows/)
 │   └── agents/           # 15 subagents (one per persona in agents.md)
 ├── .grok/                # Grok Build equivalent ecosystem (self-contained, portable)
 │   ├── build_grok.py     # Regenerates .grok/ from .claude/ (Claude paths → Grok)
 │   ├── agents.md         # Combined persona reference (paths ported to .grok)
 │   ├── preferences/      # Default bible/commentary/lexicon version files
-│   ├── skills/           # 124 Grok skills + scripts (slash commands + auto-invoke)
-│   ├── commands/         # 124 slash command workflows
+│   ├── skills/           # 125 Grok skills + scripts (slash commands + auto-invoke)
+│   ├── commands/         # 125 slash command workflows
 │   ├── agents/           # 15 agent definitions (spawn_subagent types)
 │   └── personas/         # 15 persona overlays (.toml) for Grok subagents
 ├── AGENTS.md             # Grok Build project rules (scripture integrity, save rules)
@@ -211,7 +211,7 @@ In addition to the native Google Antigravity integration, this workspace ships a
 **optional, parallel, self-contained BibleMate ecosystem for [Claude Code](https://claude.com/claude-code)**
 under `.claude/`. It is generated directly from `.agents/` + `preferences/`, so
 it mirrors the Antigravity ecosystem one-to-one: the same **15 personas**, the same
-**124 skills**, and the same **124 slash commands**, all using **relative paths**
+**125 skills**, and the same **125 slash commands**, all using **relative paths**
 only (no hardcoded absolute paths), so the workspace stays portable.
 
 ### One workspace, three ecosystems
@@ -310,7 +310,7 @@ ecosystem for [Grok Build](https://docs.x.ai/build/overview)** under `.grok/`.
 It is generated from the Claude Code tree (`.claude/`) by
 [`python3 .grok/build_grok.py`](.grok/build_grok.py), with paths and tool names
 adapted to Grok standards. It mirrors the other platforms one-to-one: the same
-**15 personas**, the same **124 skills**, and the same **124 slash commands**,
+**15 personas**, the same **125 skills**, and the same **125 slash commands**,
 using **relative paths** only so the workspace stays portable.
 
 Full usage guide: **[docs/grok_build_ecosystem.md](docs/grok_build_ecosystem.md)**.

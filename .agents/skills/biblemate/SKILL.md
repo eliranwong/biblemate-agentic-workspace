@@ -266,6 +266,7 @@ Use `--save-final-response` to save the final deliverable as `NNN-final_response
 | `book-analysis` | Book introduction and overview |
 | `perspective` | Biblical worldview on contemporary content |
 | `promises` | Biblical promises for a topic |
+| `testimony` | Verified real-life or missionary testimonies with background and fact-checking sources |
 | `quotes` | Relevant verse collection on a topic |
 
 ### Utility Skills

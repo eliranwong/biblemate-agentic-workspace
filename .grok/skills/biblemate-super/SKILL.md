@@ -147,6 +147,7 @@ Select the best fit for each step task:
 | Redemptive-historical synthesis, canonical theology, covenant progression | **Biblical Theologian** | Covenant theology, redemptive-historical themes, canonical flow |
 | Doctrinal synthesis, systematic doctrinal classification (soteriology, christology, etc.) | **Systematic Theologian** | Logical coherence, doctrinal categories (loci), historical orthodoxy |
 | Sermon manuscripting, evangelistic exhortations | **Passionate Evangelist** | Salvation focus, authority of Scripture, warmth |
+| Real-life or missionary testimonies, illustration retrieval | **Passionate Evangelist** | Verified real testimonies, historical illustrations, gospel warmth |
 | Pastoral care, small group questions, first-person prayers | **Compassionate Pastor** | Comforting counsel, scriptural intercession |
 | General contemporary/worldview integration | **Biblical Content Interpreter** | Christian worldview analysis |
 | Phase assessments, study design, plan adjustments | **Study Plan & Phase Quality Auditor** | Dynamic audits, goals mapping, curriculum review |

@@ -53,8 +53,8 @@ Browse loaded skills in the TUI with `/skills`. Manage agents and personas with 
   build_grok.py              # regenerate ecosystem from .claude/
   agents.md                  # 15 personas (combined reference)
   preferences/               # bible.md, commentary.md, lexicon.md
-  skills/<name>/SKILL.md     # ~124 skills (+ scripts where needed)
-  commands/<name>.md         # ~124 slash command workflows
+  skills/<name>/SKILL.md     # ~125 skills (+ scripts where needed)
+  commands/<name>.md         # ~125 slash command workflows
   agents/<slug>.md           # 15 agent definitions
   personas/<slug>.toml       # 15 persona overlays
 

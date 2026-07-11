@@ -489,3 +489,7 @@ Important for your reasoning: The words or phrases provided by users may not exa
 
 If the queries and bible references does not make sense at all, clarify with user and ask for clarification.
 ```
+
+## Prompt for creating testimony skill
+
+Create a new skill `testimony` and a new slash command workflow `/testimony`, to write testimony in response to users input.  For example, it could be a testimony fit for a sermon or encouragement. At the best of your reasonings, response with testimoney that best can best resolve users inputs.  The testimony must be real.  It must not be fake or fabricated.  It could be real life example that you find with online researches.  It can also be a real example or testimony from real missionary history. In addition to the testimony writing, give full background details and sources about the testimony.  Ideally, there are ways users can fact check about the testimony.

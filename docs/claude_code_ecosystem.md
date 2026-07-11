@@ -63,8 +63,8 @@ Browse loaded skills and commands by typing `/` in the prompt. Subagents are sur
   settings.json              # permissions + env for the workspace
   agents.md                  # 15 personas (combined reference)
   preferences/               # bible.md, commentary.md, lexicon.md
-  skills/<name>/SKILL.md     # ~124 skills (+ scripts where needed)
-  commands/<name>.md         # ~124 slash command workflows
+  skills/<name>/SKILL.md     # ~125 skills (+ scripts where needed)
+  commands/<name>.md         # ~125 slash command workflows
   agents/<slug>.md           # 15 subagent definitions
 
 CLAUDE.md                    # Claude Code project rules (repo root)

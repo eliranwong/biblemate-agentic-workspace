@@ -22,7 +22,7 @@ MINIMUM_COVERAGE = {
     "passage": {
         "required": ["bible", "original", "keywords", "commentary", "xrefs", "themes", "insights"],
         "recommended": ["lexicon", "morphology", "flow", "application", "devotion", "prayer",
-                         "interlinear", "ot-context", "nt-context", "chronology", "names", "locations", "parallels"],
+                         "interlinear", "ot-context", "nt-context", "chronology", "names", "locations", "parallels", "testimony"],
     },
     "book": {
         "required": ["bible", "book-analysis", "outline", "canon", "themes"],
@@ -30,11 +30,11 @@ MINIMUM_COVERAGE = {
     },
     "topical": {
         "required": ["topics", "quotes", "search", "themes", "bible"],
-        "recommended": ["keywords", "lexicon", "promises", "perspective", "application", "parallels"],
+        "recommended": ["keywords", "lexicon", "promises", "perspective", "application", "parallels", "testimony"],
     },
     "sermon": {
         "required": ["bible", "commentary", "keywords", "sermon", "application", "prayer"],
-        "recommended": ["insights", "themes", "original", "flow", "questions", "devotion", "chronology", "names", "locations"],
+        "recommended": ["insights", "themes", "original", "flow", "questions", "devotion", "chronology", "names", "locations", "testimony"],
     },
 }
 
@@ -55,6 +55,7 @@ MIN_CONTENT_LENGTH = {
     "names": 600,
     "daily-read": 500,
     "locations": 800,
+    "testimony": 1000,
     "default": 400,
 }
 

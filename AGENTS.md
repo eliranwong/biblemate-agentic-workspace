@@ -19,8 +19,8 @@ all live under `.grok/` and use only relative paths, so the workspace is portabl
   build_grok.py            # regenerates the .grok ecosystem from .claude
   agents.md                # combined persona reference (paths ported to .grok)
   preferences/             # default bible/commentary/lexicon version files
-  skills/<name>/SKILL.md   # ~124 skills (Grok Agent Skills + slash commands)
-  commands/<name>.md       # ~124 slash command workflows
+  skills/<name>/SKILL.md   # ~125 skills (Grok Agent Skills + slash commands)
+  commands/<name>.md       # ~125 slash command workflows
   agents/<slug>.md         # 15 agent definitions (spawn_subagent types)
   personas/<slug>.toml     # 15 persona overlays for subagents
 ```

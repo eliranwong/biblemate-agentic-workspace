@@ -18,8 +18,8 @@ live under `.claude/` and use only relative paths, so the workspace is portable.
   settings.json            # permissions + env for the workspace
   agents.md                # combined persona reference (paths ported to .claude)
   preferences/             # default bible/commentary/lexicon version files
-  skills/<name>/SKILL.md   # 124 skills (Claude Code Agent Skills)
-  commands/<name>.md       # 124 slash commands (from .agents/workflows)
+  skills/<name>/SKILL.md   # 125 skills (Claude Code Agent Skills)
+  commands/<name>.md       # 125 slash commands (from .agents/workflows)
   agents/<slug>.md         # 15 subagents (one per persona in agents.md)
 ```
 
