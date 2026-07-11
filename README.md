@@ -7,7 +7,7 @@
 > | Platform | Config | Status |
 > | :-- | :-- | :-- |
 > | **[Google Antigravity](https://antigravity.google/download)** | `.agents/` | Original ecosystem |
-> | **[Claude Code](https://claude.com/claude-code)** | `.claude/` | Full parallel port (same 15 personas, 125 skills, 125 slash commands) |
+> | **[Claude Code](https://claude.com/claude-code)** | `.claude/` + `CLAUDE.md` | Full parallel port (same 15 personas, 125 skills, 125 slash commands) |
 > | **[Grok Build](https://docs.x.ai/build/overview)** (xAI) | `.grok/` + `AGENTS.md` | Full parallel port (same personas, skills, and commands) |
 >
 > Use **any one** or **any combination** against a single shared workspace and the
@@ -185,6 +185,7 @@ All agentic configurations are self-contained under the `.agents/` folder (for t
 │   ├── agents/           # 15 agent definitions (spawn_subagent types)
 │   └── personas/         # 15 persona overlays (.toml) for Grok subagents
 ├── AGENTS.md             # Grok Build project rules (scripture integrity, save rules)
+├── CLAUDE.md             # Claude Code project rules (scripture integrity, save rules)
 ├── preferences/          # Shared default version preferences (bible/commentary/lexicon)
 ├── biblemate/            # Saved study outputs, sermons, outlines, and devotions
 ├── images/               # Generated biblical illustrations and visual aids
@@ -438,7 +439,7 @@ Launch your platform of choice, for example:
 antigravity-ide # or 'antigravity' (GUI without text editor) or agy (Antigravity CLI)
 
 # Optional: Claude Code or Grok Build — open this folder as the project/workspace root
-# so `.claude/` or `.grok/` (+ AGENTS.md) are discovered automatically.
+# so `.claude/` and `CLAUDE.md` or `.grok/` and `AGENTS.md` are discovered automatically.
 ```
 
 ## Auto-Discovery
@@ -465,7 +466,7 @@ Because this repository is already configured with standard multi-platform works
 
 ### Claude Code & Grok Build (optional)
 
-- **Claude Code**: open this repo as the project root; `.claude/skills/` and `.claude/commands/` are auto-discovered. See [Claude Code Equivalent Ecosystem](#-claude-code-equivalent-ecosystem-optional-bonus).
+- **Claude Code**: open this repo as the project root; `.claude/skills/`, `.claude/commands/`, and root `CLAUDE.md` are auto-discovered. See [Claude Code Equivalent Ecosystem](#-claude-code-equivalent-ecosystem-optional-bonus).
 - **Grok Build**: open this repo as the workspace root; `.grok/skills/`, `.grok/commands/`, and root `AGENTS.md` are auto-discovered. See [Grok Build Equivalent Ecosystem](#-grok-build-equivalent-ecosystem-optional-bonus) and **[docs/grok_build_ecosystem.md](docs/grok_build_ecosystem.md)**.
 
 Slash command **names** are the same across platforms (e.g. `/bible`, `/sermon`, `/testimony`, `/biblemate`).
@@ -498,7 +499,7 @@ To utilize the core capabilities of the local Bible study tools (such as databas
    - **Google Antigravity** — primary experience; see the
      [Google Antigravity Documentation](https://antigravity.google/docs).
    - **Claude Code** (optional) — [Claude Code](https://claude.com/claude-code);
-     uses the `.claude/` ecosystem. You can run Claude Code against a local or
+     uses the `.claude/` and `CLAUDE.md` ecosystem. You can run Claude Code against a local or
      cloud [Ollama](https://ollama.com) backend, **GLM-5.2** is recommended for
      BibleMate study workflows.
    - **Grok Build** (optional) — [Grok Build / xAI](https://docs.x.ai/build/overview);
@@ -527,14 +528,14 @@ If you wish to bring these custom Bible study agents and tools into a **differen
           ```cmd
           curl.exe -L -O https://github.com/eliranwong/antigravity-biblemate-workspace/raw/main/manual_setup.zip && tar -xf manual_setup.zip && del manual_setup.zip && md biblemate notes images export
           ```
-      * **Via GUI (Double-Click)**: If you extract using double-click on macOS, the OS will wrap the contents in a `manual_setup` folder. Simply move the configuration folders (e.g. `.agents/`, `preferences/`, `.claude/`, `.grok/`) and any root project-rules files (e.g. `AGENTS.md`) out of it and into your project root.
-      *(You can generate or regenerate this zip file at any time by running the `/zip` command on the platform you use. Contents can vary by platform: Antigravity/Claude zip flows traditionally ship `.agents/` + `preferences/` + `.claude/`; the Grok `/zip` skill packages `.grok/`, `preferences/`, and `AGENTS.md`.)*
+      * **Via GUI (Double-Click)**: If you extract using double-click on macOS, the OS will wrap the contents in a `manual_setup` folder. Simply move the configuration folders (e.g. `.agents/`, `preferences/`, `.claude/`, `.grok/`) and any root project-rules files (e.g. `AGENTS.md` and `CLAUDE.md`) out of it and into your project root.
+      *(You can generate or regenerate this zip file at any time by running the `/zip` command on the platform you use. Contents can vary by platform: Antigravity/Claude zip flows traditionally ship `.agents/` + `preferences/` + `.claude/`; the Grok `/zip` skill packages `.grok/`, `preferences/`, and `AGENTS.md` + `CLAUDE.md`.)*
    - **Method C - Manual Copy (Folders)**: Manually copy the platform trees you need from this repository into the root of your new project:
       * **Antigravity**: `.agents/` + `preferences/`
-      * **Claude Code**: `.claude/` (+ optionally root `CLAUDE.md` / `Claude.md`)
-      * **Grok Build**: `.grok/` + root `AGENTS.md` (+ `preferences/` for shared defaults)
+      * **Claude Code**: `.claude/` and `CLAUDE.md`
+      * **Grok Build**: `.grok/` and `AGENTS.md` (+ `preferences/` for shared defaults)
 
-      Antigravity discovers `.agents/`; Claude Code discovers `.claude/`; Grok Build discovers `.grok/` and `AGENTS.md`. Shared `preferences/` preserves default database versions.
+      Antigravity discovers `.agents/`; Claude Code discovers `.claude/` and `CLAUDE.md`; Grok Build discovers `.grok/` and `AGENTS.md`. Shared `preferences/` preserves default database versions.
 
 2. **Install System Prerequisites**: Ensure you have configured the [System Prerequisites](#system-prerequisites) on your system.
 
@@ -543,7 +544,7 @@ To update your workspace with the latest agent configurations, skills, and comma
 * **For Git users (Method A)**: Simply run `git pull` in your terminal to fetch and merge the latest updates from the upstream repository.
 * **For Manual users (Method B or C)**:
   * **Via Slash Command (macOS/Linux only)**: Run the `/update` command in the chat interface on your platform. This refreshes sources and regenerates that platform's ecosystem where applicable.
-  * **Via Terminal**: Redo the manual download or re-copy the trees you use (`.agents/`, `preferences/`, `.claude/`, `.grok/`, and for Grok also `AGENTS.md`) into your repository root, overwriting the existing directories. To rebuild generated trees without re-downloading:
+  * **Via Terminal**: Redo the manual download or re-copy the trees you use (`.agents/`, `preferences/`, `.claude/` and `CLAUDE.md`, `.grok/`, and for Grok also `AGENTS.md`) into your repository root, overwriting the existing directories. To rebuild generated trees without re-downloading:
     ```bash
     python3 .claude/build_claude.py   # Claude from .agents/ + preferences/
     python3 .grok/build_grok.py       # Grok from .claude/
