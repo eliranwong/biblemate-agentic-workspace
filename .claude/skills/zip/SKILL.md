@@ -1,12 +1,12 @@
 ---
 name: zip
-description: Create manual_setup.zip containing .claude/, preferences/, and .grok/ folders, and the AGENTS.md file for manual repository setup.
+description: Create manual_setup.zip containing .claude/, preferences/, and .grok/ folders, and the AGENTS.md and CLAUDE.md files for manual repository setup.
 ---
 
 # Zip Archive Skill
 
 ## Overview
-This skill packages the `.claude/` configuration, `preferences/`, and `.grok/` directories, and the `AGENTS.md` file into a single `manual_setup.zip` file at the repository root. This archive provides users with a convenient way to manually import the customized AI team personas, skills, workflows, database preferences, Claude Code configurations, and Grok Build configurations into their own new repositories.
+This skill packages the `.claude/` configuration, `preferences/`, and `.grok/` directories, and the `AGENTS.md` and `CLAUDE.md` files into a single `manual_setup.zip` file at the repository root. This archive provides users with a convenient way to manually import the customized AI team personas, skills, workflows, database preferences, Claude Code configurations, and Grok Build configurations into their own new repositories.
 
 ## Guidelines & Objectives
 When executing this skill:

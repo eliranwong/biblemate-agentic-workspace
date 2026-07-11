@@ -127,7 +127,7 @@ def rewrite_paths(text: str) -> str:
     text = text.replace("'.claude', 'skills'", "'.grok', 'skills'")
     text = text.replace("/.claude/skills/", "/.grok/skills/")
     # zip packages
-    text = text.replace("to zip the `.claude/`, `preferences/`, and `.grok/` folders, and the `AGENTS.md` file", "to zip the `.grok/`, `preferences/` folders, and the `AGENTS.md` file")
+    text = text.replace("to zip the `.claude/`, `preferences/`, and `.grok/` folders, and the `AGENTS.md` and `CLAUDE.md` files", "to zip the `.grok/`, `preferences/` folders, and the `AGENTS.md` and `CLAUDE.md` files")
     text = text.replace("['.claude', 'preferences']", "['.grok', 'preferences']")
     text = text.replace("'.claude/' and 'preferences/'", "'.grok/' and 'preferences/'")
     text = text.replace("'.claude/'", "'.grok/'")
@@ -463,7 +463,7 @@ When executing this skill:
     # Inject root-file packaging after the folders loop setup.
     old = """    # Folders to zip
     folders_to_zip = ['.claude', 'preferences', '.grok']
-    files_to_zip = ['AGENTS.md']
+    files_to_zip = ['AGENTS.md', 'CLAUDE.md']
     
     try:
         with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
@@ -490,11 +490,11 @@ When executing this skill:
                 zipf.write(file_path, rel)
                         
         print(f"Successfully created manual_setup.zip at: {zip_path}")
-        print("This zip file includes the '.grok/', 'preferences/', and '.grok/' folders, and the 'AGENTS.md' file, offering users an easy way to set up manually.")
+        print("This zip file includes the '.grok/', 'preferences/', and '.grok/' folders, and the 'AGENTS.md' and 'CLAUDE.md' files, offering users an easy way to set up manually.")
 """
     new = """    # Folders and root files to zip (Grok Build ecosystem)
     folders_to_zip = ['.grok', 'preferences']
-    files_to_zip = ['AGENTS.md']
+    files_to_zip = ['AGENTS.md', 'CLAUDE.md']
     
     try:
         with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
@@ -521,7 +521,7 @@ When executing this skill:
                 zipf.write(file_path, rel)
                         
         print(f"Successfully created manual_setup.zip at: {zip_path}")
-        print("This zip file includes the '.grok/' folder, 'preferences/', and 'AGENTS.md' for Grok Build setup.")
+        print("This zip file includes the '.grok/' folder, 'preferences/', and the 'AGENTS.md' and 'CLAUDE.md' files for Grok Build setup.")
 """
     if old in src:
         src = src.replace(old, new)
