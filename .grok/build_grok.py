@@ -22,6 +22,7 @@ Text transforms applied so the Grok Build copies work independently of
   * persona-adoption lines point to `.grok/agents.md`
   * orchestrator discovery paths use `.grok/skills`
   * zip packages `.grok` + preferences
+  * image skill uses Grok Imagine tools (not Antigravity)
   * data dir resolution keeps BIBLEMATE_DATA / ~/biblemate portability
 
 This script is idempotent. It only rewrites the skills/commands/agents/
@@ -421,6 +422,199 @@ generator) plus the `.claude/` tree as source.
         f.write(skill_md)
 
 
+def _write_grok_image_skill_overlay() -> None:
+    """Replace Antigravity image skill with Grok Build Imagine tools + placer."""
+    skill_dir = os.path.join(DST_SKILLS, "image")
+    os.makedirs(skill_dir, exist_ok=True)
+
+    # Drop the Claude/Antigravity generator if it was copied from .claude/
+    legacy = os.path.join(skill_dir, "image_generator.py")
+    if os.path.isfile(legacy):
+        os.remove(legacy)
+
+    skill_md = """---
+name: image
+description: Generate bible-related images with Grok Build Imagine tools and place them in the images/ directory. Use when the user runs /image or requests this BibleMate workflow.
+---
+
+# Image Generation Skill (Grok Build)
+
+## Overview
+Generate bible-related images with **Grok Build's native Imagine tools**
+(`image_gen` / `image_edit`), then place a durable copy in the repository's
+`images/` directory with a timestamped, slugified filename.
+
+This skill is **self-contained for Grok Build**. It does **not** use Google
+Antigravity, the `google-antigravity` SDK, or any `.agents/` image script.
+
+## Tools
+
+| Situation | Tool |
+|-----------|------|
+| New image from a text prompt (default) | `image_gen` |
+| Restyle, iterate, or vary an existing image | `image_edit` |
+| Place the result under `images/` with BibleMate naming | `image_placer.py` (below) |
+
+## Workflow
+
+1. **Craft the prompt.** Prefer a concrete biblical scene, subject, setting,
+   style, lighting, and mood in natural prose (about 2–5 sentences). If the user
+   supplies a detailed prompt, use it (refined only if needed for clarity).
+2. **Choose aspect ratio** for `image_gen` when helpful:
+   - `16:9` — landscape scenes, banners
+   - `1:1` — icons, social thumbnails
+   - `9:16` — phone / story format
+   - `4:3` / `3:4` — classic illustration framing
+   - `auto` — when the user does not specify
+3. **Generate** with the Grok tool (do **not** call any Antigravity API or script):
+   - New image → `image_gen` with `prompt` and optional `aspect_ratio`
+   - Edit / variation → `image_edit` with `prompt` and the source `image` path
+4. **Place** the returned file into the repo `images/` directory:
+   ```bash
+   python3 .grok/skills/image/image_placer.py "<absolute-or-relative-source-path>" "<original user prompt or title>"
+   ```
+   The helper prints a line like:
+   `SUCCESS: Generated image saved at images/YYYY-MM-DD-HH-MM-SS_<slug>.png`
+5. **Report** to the user: confirm the saved `images/...` path, briefly describe
+   what was generated, and (when useful) show the session-relative path returned
+   by `image_gen` / `image_edit` as well.
+
+## Prompt craft (bible scenes)
+
+- Lead with the subject (who / what), then action, place, era cues, style, and mood.
+- Prefer historically and textually respectful depictions; avoid sensational or
+  anachronistic detail unless the user asks for a specific artistic style.
+- State what to include; avoid long negative-prompt lists.
+- For labeled diagrams, charts, or exact scripture text on the image, prefer
+  building the asset with code (HTML/CSS) rather than pure image generation —
+  image models often garble precise text.
+
+## Failures
+
+- On a moderation or safety block: stop; do not rephrase to evade filters. Tell
+  the user and offer a different creative direction.
+- If generation succeeds but placement fails, report both the tool output path
+  and the placer error so the user can still find the raw file.
+
+## Do not
+
+- Run `.agents/skills/image/image_generator.py` or any `google.antigravity` code.
+- Invent image-tool parameters beyond those provided by Grok Build.
+- Quote or invent Bible verse text on the image unless the user explicitly wants
+  on-image text (and even then, verify accuracy if text must be exact).
+"""
+    with open(os.path.join(skill_dir, "SKILL.md"), "w", encoding="utf-8") as f:
+        f.write(skill_md)
+
+    placer_py = '''#!/usr/bin/env python3
+"""Place a Grok Build–generated image into the repo images/ directory.
+
+Usage:
+  python3 image_placer.py <source_image_path> [prompt_or_title]
+
+Copies (and converts to PNG when possible) the source file into:
+
+  images/YYYY-MM-DD-HH-MM-SS_<slug>.png
+
+No network calls. No Antigravity / external image APIs — generation is done by
+Grok Build's image_gen / image_edit tools; this script only renames and stores.
+"""
+from __future__ import annotations
+
+import datetime
+import logging
+import os
+import re
+import shutil
+import sys
+
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+REPO_ROOT = os.path.abspath(os.path.join(SCRIPT_DIR, "..", "..", ".."))
+IMAGES_DIR = os.path.join(REPO_ROOT, "images")
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    handlers=[logging.StreamHandler(sys.stdout)],
+)
+logger = logging.getLogger("image_placer")
+
+
+def slugify(text: str) -> str:
+    text = re.sub(r"^/[a-zA-Z0-9_-]+\\s*", "", text)
+    text = text.lower()
+    text = re.sub(r"[^a-z0-9]+", "_", text)
+    text = text.strip("_")
+    words = text.split("_")[:4]
+    slug = "_".join(words)[:35]
+    return slug if slug else "bible_image"
+
+
+def place_image(src_path: str, prompt_text: str) -> str:
+    src_path = os.path.abspath(os.path.expanduser(src_path))
+    if not os.path.isfile(src_path):
+        logger.error("Source image not found: %s", src_path)
+        sys.exit(1)
+
+    image_title = slugify(prompt_text or os.path.splitext(os.path.basename(src_path))[0])
+    timestamp = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
+    target_filename = f"{timestamp}_{image_title}.png"
+    target_path = os.path.join(IMAGES_DIR, target_filename)
+
+    logger.info("Source: %s", src_path)
+    logger.info("Refined image title: '%s'", image_title)
+    logger.info("Target destination: '%s'", target_path)
+
+    os.makedirs(IMAGES_DIR, exist_ok=True)
+
+    try:
+        if src_path.lower().endswith(".png"):
+            shutil.copy2(src_path, target_path)
+            logger.info("Image was already PNG. Copied directly.")
+        else:
+            try:
+                from PIL import Image  # optional; fall back to raw copy
+            except ImportError:
+                ext = os.path.splitext(src_path)[1].lower() or ".img"
+                target_filename = f"{timestamp}_{image_title}{ext}"
+                target_path = os.path.join(IMAGES_DIR, target_filename)
+                shutil.copy2(src_path, target_path)
+                logger.info("Pillow not installed; copied with original extension.")
+            else:
+                logger.info("Converting image to PNG format...")
+                with Image.open(src_path) as img:
+                    img.save(target_path, "PNG")
+                logger.info("Successfully converted and saved image.")
+
+        rel = os.path.relpath(target_path, REPO_ROOT)
+        print(f"\\nSUCCESS: Generated image saved at {rel}")
+        return target_path
+    except Exception as e:
+        logger.error("Error copying/converting image: %s", e)
+        sys.exit(1)
+
+
+def main() -> None:
+    args = [a for a in sys.argv[1:] if a.strip() and not (a.startswith("$") or a == '""')]
+    if not args:
+        logger.error("No source image path provided.")
+        print("Usage: python3 image_placer.py <source_image_path> [prompt_or_title]")
+        sys.exit(1)
+
+    src = args[0]
+    prompt = " ".join(args[1:]) if len(args) > 1 else ""
+    place_image(src, prompt)
+
+
+if __name__ == "__main__":
+    main()
+'''
+    placer_path = os.path.join(skill_dir, "image_placer.py")
+    with open(placer_path, "w", encoding="utf-8") as f:
+        f.write(placer_py)
+    os.chmod(placer_path, 0o755)
+
+
 def _write_grok_zip_skill_overlay() -> None:
     """Tailor zip skill to package .grok, preferences, and AGENTS.md."""
     zip_dir = os.path.join(DST_SKILLS, "zip")
@@ -565,6 +759,7 @@ def main() -> None:
     log(f"  {n_skills} skills")
 
     _write_grok_update_skill()
+    _write_grok_image_skill_overlay()
     _write_grok_zip_skill_overlay()
 
     # 2. Commands (slash workflows)
