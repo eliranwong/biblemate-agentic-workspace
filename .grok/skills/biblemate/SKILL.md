@@ -18,7 +18,7 @@ The python orchestrator script is located at `.grok/skills/biblemate/biblemate_o
 | Flag | Usage | Purpose |
 |------|-------|---------|
 | `--list-skills` | `python3 <script>  --list-skills` | Discover all available skills at runtime |
-| `--list-studies` | `python3 <script> --list-studies` | List all existing studies with completion status |
+| `--list-studies` | `python3 <script> --list-studies` | List studies for awareness. It does not choose a folder (Own folder). |
 | `--init "<request>" "<title>"` | Initialize a study | Creates timestamped folder and `000-request_and_study_plan.md` |
 | `--update-plan "<folder>" "<plan>"` | Update the Master Plan | Overwrites the plan file with updated content |
 | `--save-step "<folder>" "<step>" "<skill>" "<content>" [--sub-skill "<sub>"]` | Save step output | Creates `NNN-skill_name.md` files |
@@ -29,9 +29,9 @@ The python orchestrator script is located at `.grok/skills/biblemate/biblemate_o
 | `--validate-plan "<folder>" "<study_type>"` | Validate plan coverage | Checks plan against minimum skill requirements |
 | `--quality-score "<folder>"` | Compute quality metrics | Returns skill coverage, depth, and citation count |
 | `--generate-report-template "<study_type>"` | Get report skeleton | Outputs a comprehensive markdown template to fill |
-| `--resume "<folder>"` | Resume incomplete study | Identifies uncompleted steps from the plan |
+| `--resume "<folder>"` | Report unfinished steps | Only for a folder the user names (Own folder). |
 | `--export "<folder>"` | Export combined document | Merges all step files into one comprehensive markdown |
-| `--git-sync` | Sync to remote | Stages, commits, and pushes all changes |
+| `--git-sync` | Whole-worktree sync | Runs `git add .`. Not the sync step (Own folder). |
 
 ---
 
@@ -57,6 +57,8 @@ Execute these phases in order. Each phase has mandatory quality gates.
 7. **Create Study Folder**: Run `--init` to create the timestamped study folder and save the initial plan to `000-request_and_study_plan.md`.
    > [!IMPORTANT]
    > **Original Request Preservation**: Always write the raw, full, detailed user request to a temporary file (e.g., in the `scratch/` directory) and pass that file path to `--init` instead of trying to pass the request directly as a string argument. This preserves all formatting, bullet points, and constraints without CLI truncation or quoting errors.
+   >
+   > **Own folder**: Every new invocation runs this `--init` and then writes only in the folder path it prints. Pass that path to every later save command and to every subagent. See **Own folder** under Rules.
 
 ### Phase 1: Data Retrieval (Adopt **Bible Textual Critic** and **Biblical Linguistic Analyst** persona)
 
@@ -209,7 +211,7 @@ Use `--save-final-response` to save the final deliverable as `NNN-final_response
 ### Phase 7: Sync
 
 1. **Save Study Metadata**: The orchestrator automatically generates `study_metadata.json`.
-2. **Sync to Git**: Run `--git-sync` (or the `sync` skill) to push all changes if git is configured.
+2. **Sync to Git**: Stage, commit, and push only the study folder this run created. See **Own folder** under Rules.
 
 ---
 
@@ -421,5 +423,6 @@ Each phase builds on the previous. Explicitly pass relevant context forward:
 4. **Parallel Execution**: Run independent skills in parallel where possible (e.g., all Phase 1 data retrieval skills). Run dependent skills in series (e.g., `keywords` depends on `original` and `morphology` output).
 5. **No Shallow Output**: Every step output should be substantial and thorough. If a skill produces a thin result, investigate why and enhance it. A 6-line devotion or a 27-line overview is unacceptable. The final response must be the most substantial document in the study.
 6. **File Naming & Portability**: Follow the `NNN-skill_name.md` convention strictly. Sub-skills use `NNN-skill_name-sub_skill.md`. The pre-final overview uses `NNN-pre_final_overview.md`. The final response uses `NNN-final_response.md`. All links between files MUST be relative (e.g., `[014-pre_final_overview.md](014-pre_final_overview.md)`) and NEVER use absolute paths (e.g., `file:///Users/username/...`) to ensure that the repository remains portable across different devices and operating systems.
-7. **Sync on Completion**: Always run `--git-sync` (or the `sync` skill) at the end if the repository has a remote origin.
+7. **Sync on Completion**: If the repository has a remote origin, stage, commit, and push only the study folder this run created. See **Own folder**.
 8. **Anti-Truncation via Temporary Files**: When calling any `--init`, `--update-plan`, `--save-step`, `--save-overview`, or `--save-final-response` command, if the input parameter (the request, updated plan, or step content) is long, contains multiple lines, list items, or special characters, **DO NOT** summarize or pass the text directly as a command-line string. Instead, write the text content exactly as-is to a temporary file (e.g., in the `scratch/` directory) and pass that file path to the command. The orchestrator will automatically read from it.
+9. **Own folder**: A fresh `/biblemate` message always runs `--init`, even when `--list-studies` already shows a matching in-progress study. For the rest of that invocation, including after the conversation is compacted, write only in the folder path `--init` prints. Pass that path to `--update-plan`, `--save-step`, `--save-overview`, `--save-final-response`, and `--status`, and give every subagent that path as the only `biblemate/` directory it may write. A different `biblemate/` folder is in scope only when the user names it and asks to resume or edit it. The same passage, the same title, an in-progress plan, or an unfinished checklist does not select a folder. `--list-studies` does not select a folder. Another process's plan, `study_metadata.json`, and `NNN-*.md` files stay as they are. `--git-sync` and the `sync` skill run `git add .` on the whole worktree, so they are not the sync step. Stage this run's study folder by its path, commit it, and push it. Leave every other `biblemate/` path unstaged, including folders created while this run was in progress.

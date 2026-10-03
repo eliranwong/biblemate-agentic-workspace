@@ -20,7 +20,7 @@ The python orchestrator script is located at `.grok/skills/biblemate-super/bible
 | Flag | Usage | Purpose |
 |------|-------|---------|
 | `--list-skills` | `python3 <script> --list-skills` | Discover all available skills at runtime |
-| `--list-studies` | `python3 <script> --list-studies` | List all existing studies in `biblemate/` |
+| `--list-studies` | `python3 <script> --list-studies` | List studies for awareness. It does not choose a folder (Own folder). |
 | `--init "<request>" "<title>"` | Initialize a study | Creates study folder prefixed with `super_` and `000-request_and_study_plan.md` |
 | `--update-plan "<folder>" "<plan>"` | Update the Master Plan | Overwrites the plan file with updated contents |
 | `--save-step "<folder>" "<step>" "<skill>" "<content>" [--sub-skill "<sub>"]` | Save step output | Creates `NNN-skill_name.md` files |
@@ -29,9 +29,9 @@ The python orchestrator script is located at `.grok/skills/biblemate-super/bible
 | `--status "<folder>"` | Check study progress | Reports completion %, file sizes, and pending steps |
 | `--validate-plan "<folder>"` | Validate plan coverage | Verifies plan checklist structure and essential components |
 | `--quality-score "<folder>"` | Compute quality metrics | Returns skill coverage, depth, and citation count |
-| `--resume "<folder>"` | Resume incomplete study | Identifies uncompleted steps from the plan |
+| `--resume "<folder>"` | Report unfinished steps | Only for a folder the user names (Own folder). |
 | `--export "<folder>"` | Export combined document | Merges all step files into one comprehensive markdown |
-| `--git-sync` | Sync to remote | Stages, commits, and pushes all changes |
+| `--git-sync` | Whole-worktree sync | Runs `git add .`. Not the sync step (Own folder). |
 
 ---
 
@@ -53,6 +53,7 @@ Execute these phases in order. Perform all audits rigorously.
 4. **Create Study Folder**: Write the raw, full user request to a temporary file (e.g. `scratch/raw_request.txt`) to prevent CLI quoting/truncation errors. Initialize the study via:
    `python3 .grok/skills/biblemate-super/biblemate_super_orchestrator.py --init scratch/raw_request.txt "Study Title"`
    The orchestrator will output the created folder path (e.g., `biblemate/2026-06-20-22-30-00_super_study_title`).
+   Every new invocation runs this `--init` and then writes only in that printed path. Pass it to every later save command and to every subagent. See **Own folder** under Rules.
 5. **Save the Plan**: Write your refined request, dynamic phases, goals, steps, and persona assignments to the plan, and save it via `--update-plan` (writing content to a temporary file first).
 6. **Validate the Plan**: Run `--validate-plan` to verify the plan's structure and that it covers critical components.
 
@@ -122,8 +123,8 @@ Follow the **Draft → Integrate → Audit → Revise** loop:
 
 ---
 
-### Phase N+3: Sync & Sync (Persona: Default)
-Run the orchestrator with `--git-sync` (or run the `sync` skill) to stage, commit, and push changes to the remote origin.
+### Phase N+3: Sync (Persona: Default)
+Stage, commit, and push only the study folder this run created. See **Own folder** under Rules.
 
 ---
 
@@ -162,3 +163,4 @@ Select the best fit for each step task:
 3. **Anti-Truncation via Temporary Files**: When calling CLI commands (`--init`, `--update-plan`, `--save-step`, `--save-overview`, `--save-final-response`), write the content parameter to a temporary file in `scratch/` and pass the path to the flag instead of passing raw string blocks.
 4. **Relative Links**: All links between markdown files in the study folder must be relative (e.g. `[Pre-Final Overview](012-pre_final_overview.md)`) and never absolute.
 5. **Exit Gates**: Never proceed to a subsequent phase if the audit reveals unmet phase goals. Insert follow-up steps, run them, and re-audit.
+6. **Own folder**: A fresh `/biblemate-super` message always runs `--init`, even when `--list-studies` already shows a matching in-progress study. For the rest of that invocation, including after the conversation is compacted, write only in the folder path `--init` prints. Pass that path to `--update-plan`, `--save-step`, `--save-overview`, `--save-final-response`, and `--status`, and give every subagent that path as the only `biblemate/` directory it may write. A different `biblemate/` folder is in scope only when the user names it and asks to resume or edit it. The same passage, the same title, an in-progress plan, or an unfinished checklist does not select a folder. `--list-studies` does not select a folder. Another process's plan, `study_metadata.json`, and `NNN-*.md` files stay as they are. `--git-sync` and the `sync` skill run `git add .` on the whole worktree, so they are not the sync step. Stage this run's study folder by its path, commit it, and push it. Leave every other `biblemate/` path unstaged, including folders created while this run was in progress.
