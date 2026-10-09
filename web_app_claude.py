@@ -18,6 +18,9 @@ from nicegui import ui, app
 
 # Reuse the Claude Code install the user is already signed into.
 CLAUDE_BIN = shutil.which("claude")
+# Claude stream-json writes each tool result as one line. A file read can
+# exceed asyncio's default 64 KiB StreamReader limit and abort the turn.
+CLAUDE_STREAM_LIMIT = 8 * 1024 * 1024
 if not CLAUDE_BIN or not os.path.isfile(CLAUDE_BIN) or not os.access(CLAUDE_BIN, os.X_OK):
     print("Error: the claude CLI was not found.")
     print("Install Claude Code, sign in once, then re-run this app.")
@@ -986,6 +989,7 @@ class BibleMateApp:
                 cwd=WORKSPACE_DIR,
                 env=env,
                 start_new_session=True,
+                limit=CLAUDE_STREAM_LIMIT,
             )
             self.claude_proc = process
             stderr_task = asyncio.create_task(self._drain_stderr(process))

@@ -17,6 +17,9 @@ from nicegui import ui, app
 
 # Reuse the Grok Build install the user is already signed into.
 GROK_BIN = shutil.which("grok") or os.path.expanduser("~/.grok/bin/grok")
+# Grok 1.0.50 writes each streaming-json tool result as one line. A file read
+# can exceed asyncio's default 64 KiB StreamReader limit and abort the turn.
+GROK_STREAM_LIMIT = 8 * 1024 * 1024
 if not GROK_BIN or not os.path.isfile(GROK_BIN) or not os.access(GROK_BIN, os.X_OK):
     print("Error: the grok CLI was not found.")
     print("Install Grok Build, then sign in once with: grok login")
@@ -937,6 +940,7 @@ class BibleMateApp:
                 cwd=WORKSPACE_DIR,
                 env=env,
                 start_new_session=True,
+                limit=GROK_STREAM_LIMIT,
             )
             self.grok_proc = process
             stderr_task = asyncio.create_task(self._drain_stderr(process))
