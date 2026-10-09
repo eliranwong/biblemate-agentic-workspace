@@ -1,11 +1,22 @@
-# Standalone Web Application — Setup & Usage Guide
+# Standalone Web Applications — Setup & Usage Guide
 
-The **BibleMate Agentic Web App** is a self-contained, browser-based control centre that lets you run the full suite of BibleMate AI agents, monitor their execution in real time, browse generated study reports, and view AI-generated biblical images — all from any modern web browser on your local machine.
+The **BibleMate Agentic Web App** is a self-contained, browser-based control centre built with [NiceGUI](https://nicegui.io) that lets you run the full suite of BibleMate AI agents, monitor their execution in real time, browse generated study reports, and view AI-generated biblical images — all from any modern web browser on your local machine.
 
-> **Main entry point:** [`web_app.py`](../web_app.py)  
-> **Default URL:** [http://localhost:33377](http://localhost:33377)
+This workspace provides **four platform-native web applications** sharing the identical UI and feature set:
+
+| Platform | Entry Script | Default Port | Port Override Env | Backend / Credentials |
+| :--- | :--- | :--- | :--- | :--- |
+| **Antigravity CLI (`agy`)** | [`web_app_agy.py`](../web_app_agy.py) | `33380` | `BIBLEMATE_AGY_PORT` | Signed-in Antigravity CLI (`agy -p` headless mode; Google subscription, no API key needed) |
+| **Google Antigravity (SDK)** | [`web_app.py`](../web_app.py) | `33377` | *(fixed)* | `google-antigravity` SDK (requires Gemini API key or SDK auth) |
+| **Claude Code** | [`web_app_claude.py`](../web_app_claude.py) | `33379` | `BIBLEMATE_CLAUDE_PORT` | Signed-in Claude Code CLI (`claude -p` headless mode; no API key needed) |
+| **Grok Build** | [`web_app_grok.py`](../web_app_grok.py) | `33378` | `BIBLEMATE_GROK_PORT` | Signed-in Grok Build session via `grok login` (headless mode; no API key needed) |
 
 <img width="1511" height="860" alt="Image" src="https://github.com/user-attachments/assets/c76d8e4b-5188-4f02-92aa-79d985f68523" />
+
+> [!TIP]
+> **Choosing Between `web_app_agy.py` and `web_app.py`:**
+> - **Use `web_app_agy.py` (Recommended)** if you are logged into the Antigravity CLI (`agy`) with your Google subscription (e.g. Gemini Advanced or Google One AI Premium). It uses the CLI's headless print stream mode (`agy -p --output-format stream-json --dangerously-skip-permissions`), reuses your active login session automatically, supports multi-turn chat continuation via `--conversation <id>`, and **requires NO Gemini API key**.
+> - **Use `web_app.py`** if you prefer running against the `google-antigravity` Python SDK directly with an explicit `GEMINI_API_KEY`.
 
 ---
 
@@ -13,7 +24,7 @@ The **BibleMate Agentic Web App** is a self-contained, browser-based control cen
 
 1. [Prerequisites](#1-prerequisites)
 2. [Installation](#2-installation)
-3. [Running the Application](#3-running-the-application)
+3. [Running the Applications](#3-running-the-applications)
 4. [UI Layout & Features](#4-ui-layout--features)
 5. [Slash Commands in the Chat Bar](#5-slash-commands-in-the-chat-bar)
 6. [Image Generation (`/image`)](#6-image-generation-image)
@@ -28,21 +39,30 @@ The **BibleMate Agentic Web App** is a self-contained, browser-based control cen
 
 Before running the web app, ensure the following dependencies are installed on your machine.
 
-### Required Software
+### Required Software (Common)
 
 | Dependency | Version | Purpose |
 | :--- | :--- | :--- |
 | Python | ≥ 3.10 | Runtime |
-| `google-antigravity` | latest | AI agent SDK |
 | `nicegui` | latest | Web UI framework |
 | `Pillow` | latest | Image format conversion |
 | `biblematedata` | latest | Local scripture database manager |
 
-### System Requirements
+### Platform-Specific Requirements
 
-- A valid **Google Antigravity** account with an active session (`antigravity auth login`)
-- Installed and initialized local Bible databases via `biblematedata`
-- The **BibleMate workspace** cloned from the repository with all `.agents/` skills and database files in place
+- **For Google Antigravity SDK (`web_app.py`)**:
+  - `google-antigravity` Python package installed
+  - `GEMINI_API_KEY` exported in your environment (`export GEMINI_API_KEY="your-api-key"`)
+- **For Antigravity CLI (`web_app_agy.py`)**:
+  - `agy` CLI installed on `PATH` or at `~/.local/bin/agy`
+  - Signed in with your Google subscription (no API key needed)
+- **For Claude Code (`web_app_claude.py`)**:
+  - Claude Code CLI installed on `PATH`
+  - Active Claude Code sign-in (reused automatically; no separate Anthropic API key needed)
+- **For Grok Build (`web_app_grok.py`)**:
+  - Grok Build CLI installed on `PATH` or at `~/.grok/bin/grok`
+  - Signed in via `grok login` (`~/.grok/auth.json` reused automatically; no separate xAI API key needed)
+- **Shared Data**: Installed and initialized local Bible databases via `biblematedata`
 
 ---
 
@@ -55,59 +75,83 @@ git clone https://github.com/eliranwong/antigravity-biblemate-workspace.git
 cd antigravity-biblemate-workspace
 ```
 
-### Step 2: Install Python Dependencies & Database
+### Step 2: Install Common Python Dependencies & Databases
 
 ```bash
-pip install --upgrade biblematedata google-antigravity nicegui Pillow
+pip install --upgrade biblematedata nicegui Pillow
 biblematedata
 ```
 
-> **Tip:** If you use `pyenv` or `venv`, activate your environment first before installing.
+### Step 3: Install Platform Backend & Authenticate
 
-### Step 3: Authenticate with Google Antigravity
-
-The web app uses the Antigravity SDK to run AI agents. Make sure you are authenticated:
-
-```bash
-antigravity auth login
-```
-
-Follow the browser prompts to complete authentication. The session is stored locally and reused automatically by the web app.
+- **For Antigravity SDK (`web_app.py`)**:
+  ```bash
+  pip install google-antigravity
+  export GEMINI_API_KEY="your-gemini-api-key"
+  ```
+- **For Antigravity CLI (`web_app_agy.py`)**:
+  Ensure the `agy` CLI is installed and signed into your Google subscription account.
+- **For Claude Code (`web_app_claude.py`)**: Ensure the `claude` CLI is installed and you are signed in.
+- **For Grok Build (`web_app_grok.py`)**: Ensure the `grok` CLI is installed and authenticate with `grok login`.
 
 ---
 
-## 3. Running the Application
+## 3. Running the Applications
 
-Navigate to the root of the workspace directory and run:
+Run the script corresponding to your platform from the workspace root directory:
 
+### Option A: Antigravity CLI Web App (Port 33380) — *Recommended for Google Subscription*
 ```bash
+python3 web_app_agy.py
+```
+Open **[http://localhost:33380](http://localhost:33380)** in your browser. (Override port with `BIBLEMATE_AGY_PORT=<port>`). Uses your signed-in Antigravity CLI session without requiring an API key.
+
+### Option B: Claude Code Web App (Port 33379)
+```bash
+python3 web_app_claude.py
+```
+Open **[http://localhost:33379](http://localhost:33379)** in your browser. (Override port with `BIBLEMATE_CLAUDE_PORT=<port>`).
+
+### Option C: Grok Build Web App (Port 33378)
+```bash
+python3 web_app_grok.py
+```
+Open **[http://localhost:33378](http://localhost:33378)** in your browser. (Override port with `BIBLEMATE_GROK_PORT=<port>`).
+
+### Option D: Google Antigravity SDK Web App (Port 33377)
+```bash
+export GEMINI_API_KEY="your-gemini-api-key"
 python3 web_app.py
 ```
+Open **[http://localhost:33377](http://localhost:33377)** in your browser.
 
-The server will start and output:
-
-```
-NiceGUI ready to go on http://localhost:33377
-```
-
-Open your browser and navigate to:
-
-**[http://localhost:33377](http://localhost:33377)**
-
-> **Note:** The app **does not open a browser automatically** by design. You must open the URL manually. The server runs in the foreground — press `Ctrl+C` to stop it.
+> **Note:** The web apps **do not open a browser automatically** by design. You must open the URL manually. The server runs in the foreground — press `Ctrl+C` to stop it. Because each variant uses a distinct port, you can run multiple apps concurrently!
 
 ### Running in the Background (Optional)
 
-To keep the server running after closing the terminal:
+To keep a server running after closing the terminal:
 
 ```bash
+# Example for Antigravity CLI web app:
+nohup python3 web_app_agy.py > web_app_agy.log 2>&1 &
+
+# Example for Claude Code web app:
+nohup python3 web_app_claude.py > web_app_claude.log 2>&1 &
+
+# Example for Grok Build web app:
+nohup python3 web_app_grok.py > web_app_grok.log 2>&1 &
+
+# Example for Antigravity SDK web app:
 nohup python3 web_app.py > web_app.log 2>&1 &
 ```
 
-To stop it later:
+To stop a background server:
 
 ```bash
-kill $(pgrep -f "web_app.py")
+kill $(pgrep -f "web_app_agy.py")
+# or: kill $(pgrep -f "web_app_claude.py")
+# or: kill $(pgrep -f "web_app_grok.py")
+# or: kill $(pgrep -f "web_app.py")
 ```
 
 ---
@@ -194,7 +238,7 @@ The following commands bypass the full AI agent pipeline and call local SQLite s
 
 ## 6. Image Generation (`/image`)
 
-The `/image` slash command uses the Antigravity SDK's built-in image generation capability to create **Bible-related images** on demand.
+The `/image` slash command creates **Bible-related images** on demand across the web applications.
 
 ### Usage
 
@@ -212,9 +256,10 @@ The `/image` slash command uses the Antigravity SDK's built-in image generation 
 
 ### How It Works
 
-1. The agent invokes the `.agents/skills/image/image_generator.py` script
-2. The script calls the Antigravity `generate_image` tool via a dedicated Agent session
-3. The generated image is saved to the `images/` directory with a timestamped filename
+1. In **`web_app_agy.py`** and **`web_app.py`**: The agent invokes the built-in `generate_image` tool or `.agents/skills/image/image_generator.py` script.
+2. In **`web_app_grok.py`**: The agent uses Grok's image generation tool and places the file using `.grok/skills/image/image_placer.py`.
+3. In **`web_app_claude.py`**: The agent uses the configured image creation skill.
+4. The generated image is saved to the workspace `images/` directory with a timestamped filename.
 
 ### Filename Format
 
@@ -301,8 +346,9 @@ Open the **⚙ Settings** drawer (top-right) to adjust:
 
 ### AI Model
 
-Select from the available Gemini models:
+Model choices in the **⚙ Settings** drawer adapt to the web application you are running:
 
+#### Google Antigravity (`web_app.py`)
 | Label | SDK Model String |
 | :--- | :--- |
 | Gemini 3.5 Flash | `gemini-3.5-flash` |
@@ -311,15 +357,47 @@ Select from the available Gemini models:
 | Gemini 1.5 Pro | `gemini-1.5-pro` |
 | Gemini 1.5 Flash | `gemini-1.5-flash` |
 
+#### Antigravity CLI (`web_app_agy.py`)
+| Label | Model ID | Description |
+| :--- | :--- | :--- |
+| Default (session default) | `None` | Uses the session default configured in Antigravity CLI |
+| Gemini 3.6 Flash (Medium) | `gemini-3.6-flash-medium` | Fast and highly capable everyday study model (Default) |
+| Gemini 3.6 Flash (High) | `gemini-3.6-flash-high` | Flash model with higher reasoning depth |
+| Gemini 3.6 Flash (Low) | `gemini-3.6-flash-low` | Rapid turnaround for quick verse lookups |
+| Gemini 3.1 Pro (High) | `gemini-3.1-pro-high` | Flagship reasoning and complex theological synthesis |
+| Claude Opus 5.5 (Medium) | `claude-opus-5-5-medium` | Anthropic Opus via your Antigravity Google subscription |
+| Claude Sonnet 5.5 (Medium) | `claude-sonnet-5-5-medium` | Balanced Claude model via Google subscription |
+| GPT-OSS 120B (Medium) | `gpt-oss-120b-medium` | Open-source large language model |
+
+#### Claude Code (`web_app_claude.py`)
+| Label | Model / Flag | Description |
+| :--- | :--- | :--- |
+| Default (session default) | `None` | Uses the session default configured in Claude Code |
+| `opus` | `opus` | Top-tier intelligence for deep biblical synthesis |
+| `sonnet` | `sonnet` | Fast and capable balance for sermons and studies |
+| `fable` | `fable` | Fable family models |
+| `haiku` | `haiku` | Ultra-fast responses for quick verse lookups |
+
+#### Grok Build (`web_app_grok.py`)
+| Label | Model ID | Description |
+| :--- | :--- | :--- |
+| Grok 4.7 | `grok-4.7` | Flagship reasoning and biblical exegesis |
+| Grok 4.7 Build Fast | `grok-4.7-build-fast` | High speed build variant |
+| Grok 4.6 | `grok-4.6` | Stable high-intelligence generation |
+| Grok 4.5 | `grok-4.5` | Standard reasoning model |
+
 ### Active Persona
 
-Choose a specialized AI study persona or leave on **Auto** (recommended for most tasks). Personas are dynamically parsed from `.agents/agents.md` at startup.
+Choose a specialized AI study persona or leave on **Auto** (recommended for most tasks). Personas are dynamically parsed at startup:
+- `.agents/agents.md` in `web_app.py` and `web_app_agy.py`
+- `.claude/agents.md` in `web_app_claude.py`
+- `.grok/agents.md` in `web_app_grok.py`
 
 See [`docs/ai_team_personas.md`](ai_team_personas.md) for the full list and descriptions.
 
 ### Enforced Skill
 
-Force the agent to use a specific skill (e.g., `bible`, `commentary`, `sermon`) regardless of the query type. Leave on **Auto** to allow the agent to pick the best skill dynamically.
+Force the agent to use a specific skill (e.g., `bible`, `commentary`, `sermon`) regardless of the query type. Leave on **Auto** to allow the agent to pick the best skill dynamically. Skills are dynamically discovered from `.agents/skills`, `.claude/skills`, or `.grok/skills`.
 
 ### Appearance
 
@@ -331,12 +409,15 @@ Toggle **Dark Mode / Light Mode** using the switch in the settings panel.
 
 ### Agent keeps spinning without producing output
 
-**Cause:** The Antigravity SDK session may not be authenticated, or the workspace's `.agents/` directory is not being picked up.
+**Cause:** The backend session may not be authenticated, or the workspace directory is not being picked up.
 
 **Fix:**
-1. Re-authenticate: `antigravity auth login`
-2. Ensure you run `python3 web_app.py` from the **workspace root** (the same directory containing `.agents/`)
-3. Check the **System Logs** panel in the UI for specific error messages
+- **For `web_app_agy.py`**: Ensure `agy` CLI is on PATH or at `~/.local/bin/agy` and authenticated with your Google subscription. Run `agy models` in terminal to verify access.
+- **For `web_app.py`**: Re-authenticate via `antigravity auth login` and ensure `.agents/` is present.
+- **For `web_app_claude.py`**: Ensure `claude` CLI is on PATH and signed in. Run `claude --version` in terminal.
+- **For `web_app_grok.py`**: Ensure `grok` CLI is on PATH or at `~/.grok/bin/grok` and run `grok login`.
+- Ensure you run the web app script from the **workspace root**.
+- Check the **System Logs** panel in the UI for specific error messages.
 
 ---
 
@@ -356,31 +437,37 @@ Toggle **Dark Mode / Light Mode** using the switch in the settings panel.
 
 ---
 
-### Port 33377 is already in use
+### Port is already in use
 
-**Fix:** Kill the existing process occupying the port:
+**Fix:** Kill the existing process occupying the port, or use an environment variable to change the port:
 
 ```bash
-lsof -ti tcp:33377 | xargs kill -9
-```
+# Check and free default ports:
+lsof -ti tcp:33380 | xargs kill -9  # web_app_agy.py
+lsof -ti tcp:33379 | xargs kill -9  # web_app_claude.py
+lsof -ti tcp:33378 | xargs kill -9  # web_app_grok.py
+lsof -ti tcp:33377 | xargs kill -9  # web_app.py
 
-Then restart the app.
+# Or launch with a custom port:
+BIBLEMATE_AGY_PORT=33390 python3 web_app_agy.py
+BIBLEMATE_CLAUDE_PORT=33391 python3 web_app_claude.py
+BIBLEMATE_GROK_PORT=33392 python3 web_app_grok.py
+```
 
 ---
 
-### `google-antigravity` not found
+### `google-antigravity` not found or no API key available
 
-**Fix:**
+If you do not have a Gemini API key or `google-antigravity` SDK installed, use **`web_app_agy.py`** instead! It reuses your signed-in Antigravity CLI Google subscription session directly and requires no API key:
+
+```bash
+python3 web_app_agy.py
+```
+
+If you explicitly want to use the SDK version (`web_app.py`):
 
 ```bash
 pip install google-antigravity
-```
-
-If using a virtual environment or pyenv, ensure the correct Python interpreter is active:
-
-```bash
-which python3
-pip install biblematedata google-antigravity nicegui Pillow
 ```
 
 ---
