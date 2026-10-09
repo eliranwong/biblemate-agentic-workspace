@@ -5,7 +5,7 @@ This document describes the design, directory layout, and execution instructions
 ## Overview
 The web application provides a responsive, web-based control center for running local Bible study agents, monitoring their execution in real-time, and browsing generated exegesis reports.
 
-- **Main File**: [web_app.py](web_app.py)
+- **Main File**: [web_app_gemini_api_key.py](web_app_gemini_api_key.py)
 - **Default Port**: `33377`
 - **Theme**: Dark Mode (default), toggleable to Light Mode.
 
@@ -47,13 +47,16 @@ The web application provides a responsive, web-based control center for running 
 Ensure you have the required dependencies installed:
 ```bash
 pip install google-antigravity nicegui Pillow
+export GEMINI_API_KEY="your-gemini-api-key"
 ```
 Also ensure `pandoc` is installed on your system to enable Word exports.
+
+*(Note: If you are signed into Antigravity CLI with a Google subscription without an API key, use `python3 web_app_agy.py` on port 33380 instead.)*
 
 ### 2. Run the Web Application
 Execute the script from the root of the workspace:
 ```bash
-python3 web_app.py
+python3 web_app_gemini_api_key.py
 ```
 
 Open your browser and navigate to:

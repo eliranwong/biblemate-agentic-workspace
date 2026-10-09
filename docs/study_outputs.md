@@ -60,7 +60,7 @@ When executing a full multi-phase study, a dedicated timestamped folder is creat
 
 ## 🖥️ Viewing Saved Files in the Web Application
 
-If you are running the standalone browser-based web application (`web_app.py`), you can browse all these saved files dynamically:
+If you are running any of the standalone browser-based web applications (`web_app_agy.py`, `web_app_gemini_api_key.py`, `web_app_claude.py`, or `web_app_grok.py`), you can browse all these saved files dynamically:
 1.  Open the **Left Sidebar Drawer** (using the menu icon at the top left).
 2.  Click on any file under **Saved Studies** (`biblemate/`), **Images** (`images/`), or **Word Exports** (`export/`).
 3.  The file will open instantly in the **Document Reader** tab, rendering beautiful, readable formatting with full styling.

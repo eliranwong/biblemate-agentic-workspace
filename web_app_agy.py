@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """BibleMate web app backed by the signed-in Antigravity CLI (`agy`).
 
-Sibling of web_app.py, web_app_claude.py, and web_app_grok.py. The layout and workspace
+Sibling of web_app_gemini_api_key.py, web_app_claude.py, and web_app_grok.py. The layout and workspace
 tools are the same. The agent backend is `agy -p` headless mode, which reuses the
 credentials from the user's existing Google subscription sign-in in Antigravity CLI.
 No separate Gemini API key is required.
@@ -1325,7 +1325,7 @@ if __name__ == '__main__':
     # Setup logging interceptor after uvicorn initializes on server startup to capture the active event loop
     app.on_startup(lambda: app_instance.setup_logging_interceptor())
 
-    # 33380 keeps this app from colliding with web_app.py on 33377, web_app_grok.py on 33378, web_app_claude.py on 33379
+    # 33380 keeps this app from colliding with web_app_gemini_api_key.py on 33377, web_app_grok.py on 33378, web_app_claude.py on 33379
     port = int(os.environ.get('BIBLEMATE_AGY_PORT', '33380'))
     print(f"BibleMate Antigravity uses your signed-in Google subscription via Antigravity CLI (no API key required).")
     print(f"Open http://localhost:{port}")

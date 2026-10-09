@@ -7,16 +7,16 @@ This workspace provides **four platform-native web applications** sharing the id
 | Platform | Entry Script | Default Port | Port Override Env | Backend / Credentials |
 | :--- | :--- | :--- | :--- | :--- |
 | **Antigravity CLI (`agy`)** | [`web_app_agy.py`](../web_app_agy.py) | `33380` | `BIBLEMATE_AGY_PORT` | Signed-in Antigravity CLI (`agy -p` headless mode; Google subscription, no API key needed) |
-| **Google Antigravity (SDK)** | [`web_app.py`](../web_app.py) | `33377` | *(fixed)* | `google-antigravity` SDK (requires Gemini API key or SDK auth) |
+| **Google Antigravity (SDK)** | [`web_app_gemini_api_key.py`](../web_app_gemini_api_key.py) | `33377` | *(fixed)* | `google-antigravity` SDK (requires `GEMINI_API_KEY`) |
 | **Claude Code** | [`web_app_claude.py`](../web_app_claude.py) | `33379` | `BIBLEMATE_CLAUDE_PORT` | Signed-in Claude Code CLI (`claude -p` headless mode; no API key needed) |
 | **Grok Build** | [`web_app_grok.py`](../web_app_grok.py) | `33378` | `BIBLEMATE_GROK_PORT` | Signed-in Grok Build session via `grok login` (headless mode; no API key needed) |
 
 <img width="1511" height="860" alt="Image" src="https://github.com/user-attachments/assets/c76d8e4b-5188-4f02-92aa-79d985f68523" />
 
 > [!TIP]
-> **Choosing Between `web_app_agy.py` and `web_app.py`:**
+> **Choosing Between `web_app_agy.py` and `web_app_gemini_api_key.py`:**
 > - **Use `web_app_agy.py` (Recommended)** if you are logged into the Antigravity CLI (`agy`) with your Google subscription (e.g. Gemini Advanced or Google One AI Premium). It uses the CLI's headless print stream mode (`agy -p --output-format stream-json --dangerously-skip-permissions`), reuses your active login session automatically, supports multi-turn chat continuation via `--conversation <id>`, and **requires NO Gemini API key**.
-> - **Use `web_app.py`** if you prefer running against the `google-antigravity` Python SDK directly with an explicit `GEMINI_API_KEY`.
+> - **Use `web_app_gemini_api_key.py`** if you prefer running against the `google-antigravity` Python SDK directly with an explicit `GEMINI_API_KEY`.
 
 ---
 
@@ -50,7 +50,7 @@ Before running the web app, ensure the following dependencies are installed on y
 
 ### Platform-Specific Requirements
 
-- **For Google Antigravity SDK (`web_app.py`)**:
+- **For Google Antigravity SDK (`web_app_gemini_api_key.py`)**:
   - `google-antigravity` Python package installed
   - `GEMINI_API_KEY` exported in your environment (`export GEMINI_API_KEY="your-api-key"`)
 - **For Antigravity CLI (`web_app_agy.py`)**:
@@ -84,7 +84,7 @@ biblematedata
 
 ### Step 3: Install Platform Backend & Authenticate
 
-- **For Antigravity SDK (`web_app.py`)**:
+- **For Antigravity SDK (`web_app_gemini_api_key.py`)**:
   ```bash
   pip install google-antigravity
   export GEMINI_API_KEY="your-gemini-api-key"
@@ -121,7 +121,7 @@ Open **[http://localhost:33378](http://localhost:33378)** in your browser. (Over
 ### Option D: Google Antigravity SDK Web App (Port 33377)
 ```bash
 export GEMINI_API_KEY="your-gemini-api-key"
-python3 web_app.py
+python3 web_app_gemini_api_key.py
 ```
 Open **[http://localhost:33377](http://localhost:33377)** in your browser.
 
@@ -142,7 +142,7 @@ nohup python3 web_app_claude.py > web_app_claude.log 2>&1 &
 nohup python3 web_app_grok.py > web_app_grok.log 2>&1 &
 
 # Example for Antigravity SDK web app:
-nohup python3 web_app.py > web_app.log 2>&1 &
+nohup python3 web_app_gemini_api_key.py > web_app_gemini_api_key.log 2>&1 &
 ```
 
 To stop a background server:
@@ -151,7 +151,7 @@ To stop a background server:
 kill $(pgrep -f "web_app_agy.py")
 # or: kill $(pgrep -f "web_app_claude.py")
 # or: kill $(pgrep -f "web_app_grok.py")
-# or: kill $(pgrep -f "web_app.py")
+# or: kill $(pgrep -f "web_app_gemini_api_key.py")
 ```
 
 ---
@@ -256,7 +256,7 @@ The `/image` slash command creates **Bible-related images** on demand across the
 
 ### How It Works
 
-1. In **`web_app_agy.py`** and **`web_app.py`**: The agent invokes the built-in `generate_image` tool or `.agents/skills/image/image_generator.py` script.
+1. In **`web_app_agy.py`** and **`web_app_gemini_api_key.py`**: The agent invokes the built-in `generate_image` tool or `.agents/skills/image/image_generator.py` script.
 2. In **`web_app_grok.py`**: The agent uses Grok's image generation tool and places the file using `.grok/skills/image/image_placer.py`.
 3. In **`web_app_claude.py`**: The agent uses the configured image creation skill.
 4. The generated image is saved to the workspace `images/` directory with a timestamped filename.
@@ -348,7 +348,7 @@ Open the **⚙ Settings** drawer (top-right) to adjust:
 
 Model choices in the **⚙ Settings** drawer adapt to the web application you are running:
 
-#### Google Antigravity (`web_app.py`)
+#### Google Antigravity (`web_app_gemini_api_key.py`)
 | Label | SDK Model String |
 | :--- | :--- |
 | Gemini 3.5 Flash | `gemini-3.5-flash` |
@@ -389,7 +389,7 @@ Model choices in the **⚙ Settings** drawer adapt to the web application you ar
 ### Active Persona
 
 Choose a specialized AI study persona or leave on **Auto** (recommended for most tasks). Personas are dynamically parsed at startup:
-- `.agents/agents.md` in `web_app.py` and `web_app_agy.py`
+- `.agents/agents.md` in `web_app_gemini_api_key.py` and `web_app_agy.py`
 - `.claude/agents.md` in `web_app_claude.py`
 - `.grok/agents.md` in `web_app_grok.py`
 
@@ -413,7 +413,7 @@ Toggle **Dark Mode / Light Mode** using the switch in the settings panel.
 
 **Fix:**
 - **For `web_app_agy.py`**: Ensure `agy` CLI is on PATH or at `~/.local/bin/agy` and authenticated with your Google subscription. Run `agy models` in terminal to verify access.
-- **For `web_app.py`**: Re-authenticate via `antigravity auth login` and ensure `.agents/` is present.
+- **For `web_app_gemini_api_key.py`**: Ensure `GEMINI_API_KEY` is exported and `.agents/` is present.
 - **For `web_app_claude.py`**: Ensure `claude` CLI is on PATH and signed in. Run `claude --version` in terminal.
 - **For `web_app_grok.py`**: Ensure `grok` CLI is on PATH or at `~/.grok/bin/grok` and run `grok login`.
 - Ensure you run the web app script from the **workspace root**.
@@ -446,7 +446,7 @@ Toggle **Dark Mode / Light Mode** using the switch in the settings panel.
 lsof -ti tcp:33380 | xargs kill -9  # web_app_agy.py
 lsof -ti tcp:33379 | xargs kill -9  # web_app_claude.py
 lsof -ti tcp:33378 | xargs kill -9  # web_app_grok.py
-lsof -ti tcp:33377 | xargs kill -9  # web_app.py
+lsof -ti tcp:33377 | xargs kill -9  # web_app_gemini_api_key.py
 
 # Or launch with a custom port:
 BIBLEMATE_AGY_PORT=33390 python3 web_app_agy.py
@@ -464,10 +464,12 @@ If you do not have a Gemini API key or `google-antigravity` SDK installed, use *
 python3 web_app_agy.py
 ```
 
-If you explicitly want to use the SDK version (`web_app.py`):
+If you explicitly want to use the SDK version (`web_app_gemini_api_key.py`):
 
 ```bash
 pip install google-antigravity
+export GEMINI_API_KEY="your-gemini-api-key"
+python3 web_app_gemini_api_key.py
 ```
 
 ---

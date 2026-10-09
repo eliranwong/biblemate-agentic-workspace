@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """BibleMate web app backed by the signed-in Claude Code CLI.
 
-Sibling of web_app.py and web_app_grok.py. The layout and workspace tools are
+Sibling of web_app_gemini_api_key.py, web_app_agy.py, and web_app_grok.py. The layout and workspace tools are
 the same. The agent backend is `claude -p` headless mode, which reuses the
 credentials from the user's existing Claude Code sign-in (OAuth session,
 keychain, or whatever the CLI is configured with). No separate Anthropic API
@@ -1332,7 +1332,7 @@ if __name__ == '__main__':
     # Setup logging interceptor after uvicorn initializes on server startup to capture the active event loop
     app.on_startup(lambda: app_instance.setup_logging_interceptor())
 
-    # 33379 keeps this app from colliding with web_app.py (33377) and web_app_grok.py (33378).
+    # 33379 keeps this app from colliding with web_app_gemini_api_key.py (33377), web_app_grok.py (33378), and web_app_agy.py (33380).
     port = int(os.environ.get('BIBLEMATE_CLAUDE_PORT', '33379'))
     print(f"BibleMate Claude uses your signed-in Claude Code session (no API key).")
     print(f"Open http://localhost:{port}")

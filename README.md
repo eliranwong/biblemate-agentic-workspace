@@ -230,7 +230,7 @@ use **any one platform or any combination** interchangeably:
 | Personas | `agents.md` (single file) | `.claude/agents/<slug>.md` + `.claude/agents.md` | `.grok/agents/<slug>.md` + `.grok/personas/<slug>.toml` + `.grok/agents.md` |
 | Skills | `.agents/skills/<name>/SKILL.md` | `.claude/skills/<name>/SKILL.md` | `.grok/skills/<name>/SKILL.md` |
 | Slash commands | `.agents/workflows/<name>.md` | `.claude/commands/<name>.md` | `.grok/commands/<name>.md` (+ skills as `/name`) |
-| Web App | [`web_app_agy.py`](web_app_agy.py) (CLI, port 33380) / [`web_app.py`](web_app.py) (SDK, port 33377) | [`web_app_claude.py`](web_app_claude.py) (port 33379) | [`web_app_grok.py`](web_app_grok.py) (port 33378) |
+| Web App | [`web_app_agy.py`](web_app_agy.py) (CLI, port 33380) / [`web_app_gemini_api_key.py`](web_app_gemini_api_key.py) (SDK, port 33377) | [`web_app_claude.py`](web_app_claude.py) (port 33379) | [`web_app_grok.py`](web_app_grok.py) (port 33378) |
 | Runtime data | `~/biblemate/data` (or `BIBLEMATE_DATA`) | same | same |
 | Study outputs | `biblemate/` | `biblemate/` | `biblemate/` |
 
@@ -405,7 +405,7 @@ regenerate the ecosystem after refreshing sources.
 In addition to native IDE integrations and CLI workflows, this workspace ships with **four dedicated, browser-based web applications** built with [NiceGUI](https://nicegui.io). Each app connects directly to its respective agentic platform backend while sharing the exact same intuitive visual layout, real-time agent console, study document browser, markdown editor, and local scripture databases:
 
 - **[Antigravity CLI (`agy`)](https://antigravity.google/download)**: [`web_app_agy.py`](web_app_agy.py) (default port `33380`) — backed by your signed-in Google subscription via Antigravity CLI (`agy -p` headless mode; no Gemini API key required). *(Recommended for subscription users)*
-- **[Google Antigravity SDK](https://antigravity.google/download)**: [`web_app.py`](web_app.py) (default port `33377`) — powered by the `google-antigravity` Python SDK.
+- **[Google Antigravity SDK](https://antigravity.google/download)**: [`web_app_gemini_api_key.py`](web_app_gemini_api_key.py) (default port `33377`) — powered by the `google-antigravity` Python SDK (requires `GEMINI_API_KEY`).
 - **[Claude Code](https://claude.com/claude-code)**: [`web_app_claude.py`](web_app_claude.py) (default port `33379`) — backed by your signed-in Claude Code CLI (`claude -p` headless mode; no separate Anthropic API key needed).
 - **[Grok Build](https://docs.x.ai/build/overview)**: [`web_app_grok.py`](web_app_grok.py) (default port `33378`) — backed by your signed-in Grok Build session via `grok login` (headless mode; no separate xAI API key needed).
 
@@ -416,7 +416,7 @@ In addition to native IDE integrations and CLI workflows, this workspace ships w
 | Platform | Web App Script | Default Port | Port Environment Variable | Backend Execution | Authentication & Credentials | Selectable Models |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
 | **Antigravity CLI** | [`web_app_agy.py`](web_app_agy.py) | `33380` | `BIBLEMATE_AGY_PORT` | `agy -p` headless mode | Signed-in Google subscription session (no API key required) | Gemini 3.6 Flash (Low/Medium/High), Gemini 3.1 Pro, Claude Opus/Sonnet 5.5, GPT-OSS 120B |
-| **Google Antigravity (SDK)** | [`web_app.py`](web_app.py) | `33377` | *(fixed)* | `google-antigravity` SDK | Requires `GEMINI_API_KEY` environment variable | Gemini 3.5 Flash/Pro, Gemini 2.0 Flash, Gemini 1.5 Pro/Flash |
+| **Google Antigravity (SDK)** | [`web_app_gemini_api_key.py`](web_app_gemini_api_key.py) | `33377` | *(fixed)* | `google-antigravity` SDK | Requires `GEMINI_API_KEY` environment variable | Gemini 3.5 Flash/Pro, Gemini 2.0 Flash, Gemini 1.5 Pro/Flash |
 | **Claude Code** | [`web_app_claude.py`](web_app_claude.py) | `33379` | `BIBLEMATE_CLAUDE_PORT` | `claude -p` headless mode | Signed-in Claude Code CLI session (no API key required) | Default (session default), `opus`, `sonnet`, `fable`, `haiku` |
 | **Grok Build** | [`web_app_grok.py`](web_app_grok.py) | `33378` | `BIBLEMATE_GROK_PORT` | `grok` headless mode | Signed-in `grok login` session in `~/.grok/auth.json` (no API key required) | `Grok 4.7`, `Grok 4.7 Build Fast`, `Grok 4.6`, `Grok 4.5` |
 
@@ -470,7 +470,7 @@ Open **[http://localhost:33378](http://localhost:33378)**.
 ```bash
 pip install google-antigravity
 export GEMINI_API_KEY="your-gemini-api-key"
-python3 web_app.py
+python3 web_app_gemini_api_key.py
 ```
 Open **[http://localhost:33377](http://localhost:33377)**.
 
@@ -533,7 +533,7 @@ Because this repository is already configured with standard multi-platform works
    pip install nicegui Pillow
    python3 web_app_agy.py
    ```
-   Then open **[http://localhost:33380](http://localhost:33380)** in your browser. It loads personas and skills from `.agents/` and lets you select available models (`Gemini 3.6 Flash`, `Gemini 3.1 Pro`, `Claude Sonnet/Opus 5.5`, etc.). (If you prefer using the `google-antigravity` SDK with an API key instead, run `python3 web_app.py` on port 33377).
+   Then open **[http://localhost:33380](http://localhost:33380)** in your browser. It loads personas and skills from `.agents/` and lets you select available models (`Gemini 3.6 Flash`, `Gemini 3.1 Pro`, `Claude Sonnet/Opus 5.5`, etc.). (If you prefer using the `google-antigravity` SDK with an API key instead, run `python3 web_app_gemini_api_key.py` on port 33377).
 
 ### Claude Code & Grok Build (optional)
 
@@ -641,7 +641,7 @@ For in-depth details about the web app, workflows, slash commands, and team stru
 
 - **[claude_code_ecosystem.md](docs/claude_code_ecosystem.md)**: How to use the Claude Code (Anthropic) BibleMate ecosystem under `.claude/`—setup, slash commands, subagents/personas, scripture rules, regeneration, and troubleshooting.
 - **[grok_build_ecosystem.md](docs/grok_build_ecosystem.md)**: How to use the Grok Build (xAI) BibleMate ecosystem under `.grok/`—setup, slash commands, personas/agents, regeneration, and troubleshooting.
-- **[standalone_web_app.md](docs/standalone_web_app.md)**: Setup and usage guide for the standalone NiceGUI web applications (`web_app_agy.py`, `web_app.py`, `web_app_claude.py`, and `web_app_grok.py`), including multi-platform launching, slash commands, image generation, settings, and troubleshooting.
+- **[standalone_web_app.md](docs/standalone_web_app.md)**: Setup and usage guide for the standalone NiceGUI web applications (`web_app_agy.py`, `web_app_gemini_api_key.py`, `web_app_claude.py`, and `web_app_grok.py`), including multi-platform launching, slash commands, image generation, settings, and troubleshooting.
 - **[ai_team_personas.md](docs/ai_team_personas.md)**: Detailed profiles, guidelines, and expertise profiles for each of the 15 custom AI study personas.
 - **[slash_commands.md](docs/slash_commands.md)**: A complete reference guide for all 120 custom slash commands (workflows), organized by study category with syntax examples.
 - **[study_outputs.md](docs/study_outputs.md)**: A guide explaining where and how study outputs, images, and Word exports are saved within your workspace.

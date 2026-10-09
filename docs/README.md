@@ -4,7 +4,7 @@ For in-depth details about the ecosystems, standalone web applications, workflow
 
 - **[standalone_web_app.md](standalone_web_app.md)**: A complete setup and usage guide for the standalone NiceGUI web applications:
   - **`web_app_agy.py`** (Default port `33380`): Backed by your signed-in Antigravity CLI (`agy -p` headless mode; reuses your active Google subscription with **no Gemini API key required**).
-  - **`web_app.py`** (Default port `33377`): Backed by the `google-antigravity` Python SDK (requires a Gemini API key or SDK auth).
+  - **`web_app_gemini_api_key.py`** (Default port `33377`): Backed by the `google-antigravity` Python SDK (requires a Gemini API key exported as `GEMINI_API_KEY`).
   - **`web_app_claude.py`** (Default port `33379`): Backed by your signed-in Claude Code CLI (`claude -p` headless mode; no separate Anthropic API key needed).
   - **`web_app_grok.py`** (Default port `33378`): Backed by your signed-in Grok Build session via `grok login` (headless mode; no separate xAI API key needed).
   Covers installation, launching, live agent pipeline consoles, slash commands, local database direct retrieval, inline markdown editing, image generation, and troubleshooting.

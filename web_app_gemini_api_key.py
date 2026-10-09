@@ -1,4 +1,12 @@
 #!/usr/bin/env python3
+"""BibleMate web app backed by the google-antigravity Python SDK.
+
+Requires a Gemini API key exported in the environment:
+    export GEMINI_API_KEY="your-gemini-api-key"
+
+If you are signed into Antigravity CLI with a Google subscription without an
+API key, use `web_app_agy.py` instead.
+"""
 import os
 import sys
 import re
@@ -6,6 +14,12 @@ import json
 import asyncio
 import logging
 from nicegui import ui, app
+
+# Check for GEMINI_API_KEY
+if not os.environ.get("GEMINI_API_KEY"):
+    print("Warning: GEMINI_API_KEY environment variable is not set.")
+    print("Please export it before executing queries: export GEMINI_API_KEY=\"your-api-key\"")
+    print("Or use `web_app_agy.py` to use your signed-in Google subscription with no API key.")
 
 # Try to import Antigravity SDK
 try:
