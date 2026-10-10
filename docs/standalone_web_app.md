@@ -154,6 +154,29 @@ kill $(pgrep -f "web_app_agy.py")
 # or: kill $(pgrep -f "web_app_gemini_api_key.py")
 ```
 
+### Automated Startup on Shell Login or Boot (Headless / Remote Servers)
+
+For cloud instances, container workspaces, or headless remote servers (e.g. Grok Bot, remote VPS, or Docker environments), you can configure your shell profile (`~/.bashrc` or `~/.profile`) to **automatically check if the port is already listening and launch the web app on login**:
+
+```bash
+# Example ~/.bashrc startup snippet for Claude Code (port 33379)
+start_biblemate_claude() {
+  echo "Starting BibleMate Claude on port 33379..."
+  nohup /workspace/ai/bin/python3 /workspace/biblemate_studies/web_app_claude.py >> /tmp/biblemate-claude-33379.log 2>&1 &
+}
+
+# Auto-start only if port 33379 is not already active
+if ! ss -H -ltn 'sport = :33379' 2>/dev/null | grep -q .; then
+  start_biblemate_claude
+else
+  echo "BibleMate Claude is already active on port 33379."
+fi
+```
+
+> [!TIP]
+> For complete step-by-step instructions on automated startup for all four platform apps, virtual environment configuration, shell alias helpers (`bm-status`, `bm-logs`, `stop_biblemate`), and `systemd` daemon services, see the dedicated [**Automating Web App Startup Guide**](automate_web_app.md).
+
+
 ---
 
 ## 4. UI Layout & Features

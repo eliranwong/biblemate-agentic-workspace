@@ -8,6 +8,7 @@ For in-depth details about the ecosystems, standalone web applications, workflow
   - **`web_app_claude.py`** (Default port `33379`): Backed by your signed-in Claude Code CLI (`claude -p` headless mode; no separate Anthropic API key needed).
   - **`web_app_grok.py`** (Default port `33378`): Backed by your signed-in Grok Build session via `grok login` (headless mode; no separate xAI API key needed).
   Covers installation, launching, live agent pipeline consoles, slash commands, local database direct retrieval, inline markdown editing, image generation, and troubleshooting.
+- **[automate_web_app.md](automate_web_app.md)**: A guide for automating headless background startup for BibleMate web apps on Linux servers, cloud VMs, Grok Bot instances, and containers via shell profiles (`~/.bashrc`) or `systemd`.
 - **[claude_code_ecosystem.md](claude_code_ecosystem.md)**: How to use the Claude Code (Anthropic) BibleMate ecosystem under `.claude/`—setup, slash commands, subagents/personas, scripture rules, regeneration, and troubleshooting.
 - **[grok_build_ecosystem.md](grok_build_ecosystem.md)**: How to use the Grok Build (xAI) BibleMate ecosystem under `.grok/`—setup, slash commands, personas/agents, scripture rules, regeneration, and troubleshooting.
 - **[ai_team_personas.md](ai_team_personas.md)**: Detailed profiles, guidelines, and expertise profiles for each of the 15 custom AI study personas.
