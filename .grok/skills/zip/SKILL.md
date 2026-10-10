@@ -1,15 +1,25 @@
 ---
 name: zip
-description: Create manual_setup.zip containing .grok/, preferences/, and AGENTS.md for manual Grok Build repository setup. Use when the user runs /zip or requests this BibleMate workflow.
+description: Create manual_setup.zip containing .grok/, preferences/, AGENTS.md, CLAUDE.md, and the standalone web apps (web_app_agy.py, web_app_claude.py, web_app_grok.py, web_app_gemini_api_key.py) for manual Grok Build repository setup. Use when the user runs /zip or requests this BibleMate workflow.
 ---
 
 # Zip Archive Skill (Grok Build)
 
 ## Overview
-This skill packages the `.grok/` configuration, root `preferences/`, and root
-`AGENTS.md` into a single `manual_setup.zip` at the repository root. That
-archive lets users manually import the Grok Build BibleMate personas, skills,
-slash commands, and database preferences into a new repository.
+This skill packages the `.grok/` configuration, root `preferences/`, root
+`AGENTS.md`, root `CLAUDE.md`, and the standalone web applications into a
+single `manual_setup.zip` at the repository root. That archive lets users
+manually import the Grok Build BibleMate personas, skills, slash commands,
+database preferences, and browser apps into a new repository.
+
+Root files included in the archive:
+
+- `AGENTS.md`
+- `CLAUDE.md`
+- `web_app_agy.py`
+- `web_app_claude.py`
+- `web_app_grok.py`
+- `web_app_gemini_api_key.py`
 
 ## Guidelines & Objectives
 When executing this skill:

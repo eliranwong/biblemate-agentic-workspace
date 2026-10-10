@@ -24,7 +24,14 @@ def main():
     
     # Folders and root files to zip (Grok Build ecosystem)
     folders_to_zip = ['.grok', 'preferences']
-    files_to_zip = ['AGENTS.md', 'CLAUDE.md']
+    files_to_zip = [
+        'AGENTS.md',
+        'CLAUDE.md',
+        'web_app_agy.py',
+        'web_app_claude.py',
+        'web_app_grok.py',
+        'web_app_gemini_api_key.py',
+    ]
     
     try:
         with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
@@ -51,7 +58,12 @@ def main():
                 zipf.write(file_path, rel)
                         
         print(f"Successfully created manual_setup.zip at: {zip_path}")
-        print("This zip file includes the '.grok/' folder, 'preferences/', and the 'AGENTS.md' and 'CLAUDE.md' files for Grok Build setup.")
+        print(
+            "This zip file includes the '.grok/' folder, 'preferences/', "
+            "'AGENTS.md', 'CLAUDE.md', and the standalone web apps "
+            "'web_app_agy.py', 'web_app_claude.py', 'web_app_grok.py', "
+            "and 'web_app_gemini_api_key.py' for Grok Build setup."
+        )
         
         # Git integration: Add, commit, and push if it's a git repository
         git_dir = os.path.join(REPO_ROOT, '.git')
