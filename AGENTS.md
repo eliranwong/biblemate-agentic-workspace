@@ -111,3 +111,35 @@ You may use Antigravity (`.agents/`), Claude Code (`.claude/`), and Grok Build
 (`.grok/`) against the same workspace and the same local Bible databases. Do not
 modify one platform's tree when regenerating another unless intentionally
 updating that platform.
+
+## Cursor Cloud specific instructions
+
+Scripture databases are not in git. The Cloud Agent environment installs them
+under `~/biblemate/data`. Leave `BIBLEMATE_DATA` unset unless the databases
+live somewhere else.
+
+Do not run the `biblematedata` command itself. After the downloads it opens an
+interactive audio menu and waits for a terminal. The environment install
+already runs the non-interactive part: every packaged database, plus the
+default NET, OHGB, BHS5, and OGNT audio sets. A later install skips files that
+are already present.
+
+Useful checks from the repo root:
+
+```bash
+python3 .grok/skills/bible/bible_retriever.py "NET John 3:16"
+python3 .grok/skills/commentary/commentary_retriever.py "AIC John 3:16"
+python3 .grok/skills/lexicon/lexicon_retriever.py "SECE G26"
+python3 -m unittest developement.test_testimony_retriever -v
+```
+
+`pandoc` is installed and also linked at `/opt/homebrew/bin/pandoc`, because
+the docx and markdown converters call that Homebrew path. The Grok CLI is
+`/usr/local/bin/grok`. User-level Python tools such as `biblematedata` are in
+`~/.local/bin`, which login shells already include.
+
+The Grok web app listens on port 33378 (`python3 web_app_grok.py`). It starts
+on boot. Opening a saved study in the sidebar does not need a model login.
+Sending a chat does: sign in with `grok login`, or set `XAI_API_KEY`. The
+Claude, Antigravity CLI, and Gemini API web apps stay off until their own CLI
+or `GEMINI_API_KEY` is available.
