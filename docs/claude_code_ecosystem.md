@@ -19,10 +19,12 @@ It does **not** replace the other platforms. You can use Antigravity, Claude Cod
    > recommended.
 2. **This repository** opened as the workspace root (so Claude Code discovers `.claude/` and `CLAUDE.md`).
 3. **Local Bible data** (not bundled in the repo—files are large):
-
+   Install via `biblematedata`:
    ```bash
    pip install --upgrade biblematedata
+   biblematedata
    ```
+   *Or use the alternate direct download of `data.zip` from [MEGA](https://mega.nz/file/SaBkhRZA#H10dm7nCbShAO1xHo2dWhOWaX3eda8Y-R83v225jBYw) (QR code: `docs/download_data_qr_code.png`) and unpack to `~/biblemate/data` via `./scripts/download_data.sh`.*
 
    Data lands under `~/biblemate/data` by default. To point elsewhere:
 

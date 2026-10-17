@@ -38,11 +38,34 @@ pip install --upgrade biblematedata nicegui Pillow
 
 ### Step 2: Download Local Scripture Databases
 
-Run the `biblematedata` CLI once to initialize the local SQLite Bible databases in `~/biblemate/data`:
+Ensure the local SQLite Bible databases are set up in `~/biblemate/data` via one of the two options below:
 
+**Option A: Via `biblematedata` CLI (Standard)**
+Run the `biblematedata` CLI once to initialize the local databases in `~/biblemate/data`:
 ```bash
 biblematedata
 ```
+
+**Option B: Alternate Direct Download from MEGA**
+Alternatively, download the pre-packaged `data.zip` archive from MEGA:
+- **Link**: [https://mega.nz/file/SaBkhRZA#H10dm7nCbShAO1xHo2dWhOWaX3eda8Y-R83v225jBYw](https://mega.nz/file/SaBkhRZA#H10dm7nCbShAO1xHo2dWhOWaX3eda8Y-R83v225jBYw)
+- **QR Code**:  
+  <img src="download_data_qr_code.png" alt="Download Data QR Code" width="160">
+
+Unpack `data.zip` into `~/biblemate` so that files land in `~/biblemate/data`.
+
+**Command-line setup:**
+```bash
+# Using the helper script:
+/workspace/biblemate_studies/scripts/download_data.sh
+
+# Or manual commands:
+mkdir -p ~/biblemate
+megatools dl 'https://mega.nz/file/SaBkhRZA#H10dm7nCbShAO1xHo2dWhOWaX3eda8Y-R83v225jBYw' --path ~/biblemate/
+unzip -q -o ~/biblemate/data.zip -d ~/biblemate/
+rm ~/biblemate/data.zip
+```
+*(If downloaded manually via browser or QR code to `~/Downloads/data.zip`: `unzip -q -o ~/Downloads/data.zip -d ~/biblemate/`)*
 
 ### Step 3: Clone or Verify the BibleMate Workspace
 

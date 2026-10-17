@@ -77,10 +77,42 @@ cd antigravity-biblemate-workspace
 
 ### Step 2: Install Common Python Dependencies & Databases
 
+Install web app dependencies:
 ```bash
-pip install --upgrade biblematedata nicegui Pillow
+pip install --upgrade nicegui Pillow
+```
+
+Next, ensure the local Scripture databases are set up in `~/biblemate/data` via either option below:
+
+#### Option A: Via `biblematedata` (Standard)
+```bash
+pip install --upgrade biblematedata
 biblematedata
 ```
+
+#### Option B: Alternate Direct Download via MEGA Archive
+If you prefer downloading the pre-packaged archive directly:
+- **Download Link**: [https://mega.nz/file/SaBkhRZA#H10dm7nCbShAO1xHo2dWhOWaX3eda8Y-R83v225jBYw](https://mega.nz/file/SaBkhRZA#H10dm7nCbShAO1xHo2dWhOWaX3eda8Y-R83v225jBYw)
+- **QR Code**:  
+  <img src="download_data_qr_code.png" alt="Download Data QR Code" width="160">
+
+After downloading, unpack `data.zip` into `~/biblemate` so that the databases reside in `~/biblemate/data`.
+
+**Command-line setup:**
+```bash
+# 1. Run the helper script:
+./scripts/download_data.sh
+
+# Or manually:
+mkdir -p ~/biblemate
+# Download using megatools (install via brew install megatools / sudo apt install megatools)
+megatools dl 'https://mega.nz/file/SaBkhRZA#H10dm7nCbShAO1xHo2dWhOWaX3eda8Y-R83v225jBYw' --path ~/biblemate/
+
+# Unpack data.zip into ~/biblemate (creates ~/biblemate/data)
+unzip -q -o ~/biblemate/data.zip -d ~/biblemate/
+rm ~/biblemate/data.zip
+```
+*(If downloaded manually via browser or QR code to `~/Downloads/data.zip`, simply run `unzip -q -o ~/Downloads/data.zip -d ~/biblemate/`)*
 
 ### Step 3: Install Platform Backend & Authenticate
 

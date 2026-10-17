@@ -11,10 +11,12 @@ It does **not** replace the other platforms. You can use Antigravity, Claude Cod
 1. **Grok Build** installed and signed in ([xAI Build docs](https://docs.x.ai/build/overview)).
 2. **This repository** opened as the workspace root (so Grok discovers `.grok/` and `AGENTS.md`).
 3. **Local Bible data** (not bundled in the repo—files are large):
-
+   Install via `biblematedata`:
    ```bash
    pip install --upgrade biblematedata
+   biblematedata
    ```
+   *Or use the alternate direct download of `data.zip` from [MEGA](https://mega.nz/file/SaBkhRZA#H10dm7nCbShAO1xHo2dWhOWaX3eda8Y-R83v225jBYw) (QR code: `docs/download_data_qr_code.png`) and unpack to `~/biblemate/data` via `./scripts/download_data.sh`.*
 
    Data lands under `~/biblemate/data` by default. To point elsewhere:
 

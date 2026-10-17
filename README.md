@@ -243,7 +243,7 @@ re-opened on another.
 1. **Install Claude Code** if you have not already (CLI, desktop app, or IDE
    extension). The `.claude/` ecosystem is auto-discovered when you open this
    workspace as your project root.
-2. **Install the shared database** (one-off, same as Antigravity / Grok Build):
+2. **Install the shared database** (one-off, via `biblematedata` or [alternate MEGA download](#system-prerequisites)):
    ```bash
    pip install --upgrade biblematedata
    biblematedata
@@ -332,7 +332,7 @@ Full usage guide: **[docs/grok_build_ecosystem.md](docs/grok_build_ecosystem.md)
 1. **Install and sign in to Grok Build**, then open this repository as the
    workspace root so Grok discovers `.grok/` skills/commands and root
    [`AGENTS.md`](AGENTS.md).
-2. **Install the shared database** (one-off, same as Antigravity / Claude Code):
+2. **Install the shared database** (one-off, via `biblematedata` or [alternate MEGA download](#system-prerequisites)):
    ```bash
    pip install --upgrade biblematedata
    biblematedata
@@ -550,12 +550,46 @@ For a full reference of all available slash commands and usage examples, see the
 
 To utilize the core capabilities of the local Bible study tools (such as database lookups and document exports), you must ensure the following dependencies are configured on your system:
 
-1. **Local Bible Databases (`biblematedata`)**:  
-   To enable local Scripture database lookups, you need to install the `biblematedata` package and initialize it:
-   ```bash
-   pip install --upgrade biblematedata
-   biblematedata
-   ```
+1. **Local Bible Databases**:  
+   To enable local Scripture database lookups, database files must reside in `~/biblemate/data`. You can set them up using either of the following two options:
+
+   - **Option A: Via `biblematedata` (Recommended Python Package)**:
+     Install the package and run its CLI once to download and unpack datasets automatically:
+     ```bash
+     pip install --upgrade biblematedata
+     biblematedata
+     ```
+
+   - **Option B: Alternate Direct Download via MEGA Archive**:  
+     If you prefer a direct archive download, you can download `data.zip` from MEGA:
+     - **Direct Link**: [https://mega.nz/file/SaBkhRZA#H10dm7nCbShAO1xHo2dWhOWaX3eda8Y-R83v225jBYw](https://mega.nz/file/SaBkhRZA#H10dm7nCbShAO1xHo2dWhOWaX3eda8Y-R83v225jBYw)
+     - **QR Code**:  
+       <img src="docs/download_data_qr_code.png" alt="Download Data QR Code" width="180">
+
+     After downloading `data.zip`, unpack it in `~/biblemate`. The unpacked directory must be `~/biblemate/data`.
+
+     **For command-line users:**
+     You can run our setup helper script:
+     ```bash
+     ./scripts/download_data.sh
+     ```
+     Or execute the following shell commands directly:
+     ```bash
+     # 1. Make sure biblemate directory exists in home directory
+     mkdir -p ~/biblemate
+
+     # 2. Download data.zip using megatools (install via brew install megatools / sudo apt install megatools)
+     megatools dl 'https://mega.nz/file/SaBkhRZA#H10dm7nCbShAO1xHo2dWhOWaX3eda8Y-R83v225jBYw' --path ~/biblemate/
+
+     # 3. Unzip into ~/biblemate (creates ~/biblemate/data)
+     unzip -q -o ~/biblemate/data.zip -d ~/biblemate/
+
+     # 4. Clean up archive (optional)
+     rm ~/biblemate/data.zip
+     ```
+
+     *(If downloaded manually via browser or mobile QR code into `~/Downloads/`: `unzip -q -o ~/Downloads/data.zip -d ~/biblemate/`)*
+
    *Note: For more details on configuring database files, refer to the official [biblemate repository](https://github.com/eliranwong/biblemate).*
 
 2. **Document Converter (`pandoc`)**:  
