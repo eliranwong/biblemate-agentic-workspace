@@ -2,7 +2,7 @@
 
 For pastors, theologians, and biblical scholars, having instant access to editable, permanent files is essential. Unlike standard chat assistants where research disappears when the session ends or gets buried in temporary artifact caches, the **BibleMate Agentic Workspace** automatically writes all theological output directly to physical, editable markdown (`.md`) documents inside your local workspace.
 
-This guide details where those files are saved, how they are named, and how to utilize them in your sermon preparation or academic research.
+This guide details where those files are saved, how they are named, and how to utilize them in your sermon preparation or academic research. Antigravity, Claude Code, Grok Build, and Cursor all write to these same folders. In Cursor, the agent saves study files with the `Write` tool, as required by [`.cursor/rules/biblemate-skills.mdc`](../.cursor/rules/biblemate-skills.mdc). See [cursor_ecosystem.md](cursor_ecosystem.md).
 
 ---
 
@@ -47,7 +47,7 @@ When executing a full multi-phase study, a dedicated timestamped folder is creat
 
 ## 🛠️ Benefits for Pastoral & Scholarly Workflows
 
-1.  **Fully Editable Text**: All outputs are saved in Standard Markdown (`.md`). You can open them in any text editor, IDE (like Cursor or VS Code), or markdown editor (like Obsidian) to modify outlines, add personal notes, or copy-paste passages directly into presentation slides.
+1.  **Fully Editable Text**: All outputs are saved in Standard Markdown (`.md`). You can open them in any text editor, IDE (including the Cursor project that produced them, or VS Code), or markdown editor (like Obsidian) to modify outlines, add personal notes, or copy-paste passages directly into presentation slides.
 2.  **Version Control (Git Integration)**: Since all files are physical documents in the workspace, you can easily track changes over time or push your entire sermon library to a private GitHub repository. Simply run `/sync` to commit and push all latest outputs automatically.
 3.  **Local-First & Offline Access**: Because these files are written directly to your local drive, they are instantly available even when you have no internet access.
 4.  **Easy Word Export (`/docx`)**: You can convert any markdown study output to a Microsoft Word document (`.docx`) for printing or editing. Simply run:

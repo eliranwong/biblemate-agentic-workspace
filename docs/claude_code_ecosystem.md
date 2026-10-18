@@ -1,8 +1,8 @@
 # Claude Code Ecosystem Guide
 
-This guide explains how to use the **BibleMate** study suite on **Claude Code** (Anthropic). The Claude Code port is a full parallel ecosystem of skills, slash commands, subagents, and personas—equivalent to the Antigravity (`.agents/`) and Grok Build (`.grok/`) ports—and is self-contained under `.claude/`.
+This guide explains how to use the **BibleMate** study suite on **Claude Code** (Anthropic). The Claude Code port is a full parallel ecosystem of skills, slash commands, subagents, and personas—equivalent to the Antigravity (`.agents/`), Grok Build (`.grok/`), and Cursor (`.cursor/`) ports—and is self-contained under `.claude/`.
 
-It does **not** replace the other platforms. You can use Antigravity, Claude Code, and Grok Build against the same workspace and the same local Bible databases.
+It runs alongside the other platforms. You can use Antigravity, Claude Code, Grok Build, and Cursor against the same workspace and the same local Bible databases.
 
 ---
 
@@ -284,7 +284,7 @@ The generator is **idempotent**. It rewrites only under `.claude/`:
 
 It does **not** modify `.agents/`, `.grok/`, or root `CLAUDE.md` / `AGENTS.md`.
 
-After editing shared Antigravity sources, refresh Claude first, then Grok (`.grok/build_grok.py` derives from `.claude/`), so all three ecosystems stay aligned.
+After editing shared Antigravity sources, refresh Claude first, then Grok (`.grok/build_grok.py` derives from `.claude/`), then Cursor (`python3 .cursor/build_cursor.py` derives from `.grok/`), so the ecosystems stay aligned.
 
 ---
 
@@ -306,6 +306,7 @@ After editing shared Antigravity sources, refresh Claude first, then Grok (`.gro
 | Google Antigravity | `.agents/` | (Antigravity conventions) |
 | Claude Code | `.claude/` | `CLAUDE.md` |
 | Grok Build | `.grok/` | `AGENTS.md` |
+| Cursor | `.cursor/` | `.cursor/rules/biblemate-skills.mdc` |
 
 Shared across platforms:
 
@@ -334,6 +335,7 @@ When regenerating one platform's tree, leave the others untouched unless you int
 ## Related docs
 
 - [grok_build_ecosystem.md](grok_build_ecosystem.md) — the Grok Build equivalent of this guide
+- [cursor_ecosystem.md](cursor_ecosystem.md) — the Cursor equivalent of this guide
 - [slash_commands.md](slash_commands.md) — full command reference (shared names)
 - [ai_team_personas.md](ai_team_personas.md) — persona profiles
 - [study_outputs.md](study_outputs.md) — where studies and exports are saved

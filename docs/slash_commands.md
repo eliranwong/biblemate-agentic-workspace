@@ -1,6 +1,8 @@
 # Slash Commands & Workflows Reference Guide
 
-This guide details all 125 custom slash commands (workflows) available in the **Antigravity Bible Study Agents** ecosystem, categorized by their study focus.
+This guide details all 125 custom slash commands (workflows) available in the **Antigravity Bible Study Agents** ecosystem, categorized by their study focus. The same names are skills on Claude Code, Grok Build, and Cursor.
+
+**In Cursor**, each name is a project skill at `.cursor/skills/<name>/SKILL.md`. The always-on rule [`.cursor/rules/biblemate-skills.mdc`](../.cursor/rules/biblemate-skills.mdc) tells the agent to follow that skill when you use the slash-style request below or ask for the same workflow in plain language. Setup and tool names: [cursor_ecosystem.md](cursor_ecosystem.md). On Cursor, `/image` uses the `GenerateImage` tool, and `/zip` packages `.cursor/` along with shared preferences and project-rule files.
 
 ---
 

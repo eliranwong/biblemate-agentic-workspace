@@ -11,6 +11,8 @@ This workspace provides **four platform-native web applications** sharing the id
 | **Claude Code** | [`web_app_claude.py`](../web_app_claude.py) | `33379` | `BIBLEMATE_CLAUDE_PORT` | Signed-in Claude Code CLI (`claude -p` headless mode; no API key needed) |
 | **Grok Build** | [`web_app_grok.py`](../web_app_grok.py) | `33378` | `BIBLEMATE_GROK_PORT` | Signed-in Grok Build session via `grok login` (headless mode; no API key needed) |
 
+**Cursor** runs in the IDE, through `.cursor/skills/` and `.cursor/rules/biblemate-skills.mdc`. Studies started there land in the same `biblemate/`, `images/`, and `~/biblemate/data` folders these apps use. See [cursor_ecosystem.md](cursor_ecosystem.md).
+
 <img width="1511" height="860" alt="Image" src="https://github.com/user-attachments/assets/c76d8e4b-5188-4f02-92aa-79d985f68523" />
 
 > [!TIP]

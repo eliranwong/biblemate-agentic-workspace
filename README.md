@@ -1,7 +1,7 @@
 # BibleMate Agentic Workspace
 
 > [!IMPORTANT]
-> **News — multi-platform support.** This workspace now runs on **three** agentic
+> **News — multi-platform support.** This workspace now runs on **four** agentic
 > platforms, not only Google Antigravity:
 >
 > | Platform | Config | Status |
@@ -9,32 +9,35 @@
 > | **[Google Antigravity](https://antigravity.google/download)** | `.agents/` | Original ecosystem |
 > | **[Claude Code](https://claude.com/claude-code)** | `.claude/` + `CLAUDE.md` | Full parallel port (same 15 personas, 125 skills, 125 slash commands) |
 > | **[Grok Build](https://docs.x.ai/build/overview)** (xAI) | `.grok/` + `AGENTS.md` | Full parallel port (same personas, skills, and commands) |
+> | **[Cursor](https://cursor.com)** | `.cursor/` + `.cursor/rules/` | Full parallel port (same 15 personas and 125 skills) |
 >
 > Use **any one** or **any combination** against a single shared workspace and the
 > same local Bible databases. Details:
 > [Claude Code](#-claude-code-equivalent-ecosystem-optional-bonus) ·
 > [Grok Build](#-grok-build-equivalent-ecosystem-optional-bonus) ·
-> [docs/grok_build_ecosystem.md](docs/grok_build_ecosystem.md)
+> [Cursor](#-cursor-equivalent-ecosystem-optional-bonus) ·
+> [docs/cursor_ecosystem.md](docs/cursor_ecosystem.md)
 
-*An integrated local workspace combining robust scripture databases, modular study skills, and specialized AI personas to streamline biblical research and writing across Google Antigravity, Claude Code, and Grok Build.*
+*An integrated local workspace combining robust scripture databases, modular study skills, and specialized AI personas to streamline biblical research and writing across Google Antigravity, Claude Code, Grok Build, and Cursor.*
 
 > [!NOTE]
-> **Where Rigorous Scholarship Meets Agentic Power:** This repository unites advanced agentic workflow capability (originally built for the **Google Antigravity Platform**, now also available for **Claude Code** and **Grok Build**) with the reliable, time-tested databases of the **[UniqueBible Project](https://github.com/eliranwong/UniqueBible)** and the modular AI exegesis tools of **[BibleMate AI](https://github.com/eliranwong/biblemate)**.
+> **Where Rigorous Scholarship Meets Agentic Power:** This repository unites advanced agentic workflow capability (originally built for the **Google Antigravity Platform**, now also available for **Claude Code**, **Grok Build**, and **Cursor**) with the reliable, time-tested databases of the **[UniqueBible Project](https://github.com/eliranwong/UniqueBible)** and the modular AI exegesis tools of **[BibleMate AI](https://github.com/eliranwong/biblemate)**.
 
-Welcome to the **BibleMate Agentic Workspace**, a state-of-the-art local agentic study suite. It began as an extension for the **Google Antigravity** development platform (CLI, IDE, and platform) and now ships equivalent, self-contained ecosystems for **Claude Code** and **Grok Build** as well. It features an integrated team of 15 customized study personas, 125 standalone exegesis and theology skills, and 125 custom slash commands—shared names and study outputs across platforms.
+Welcome to the **BibleMate Agentic Workspace**, a state-of-the-art local agentic study suite. It began as an extension for the **Google Antigravity** development platform (CLI, IDE, and platform) and now ships equivalent, self-contained ecosystems for **Claude Code**, **Grok Build**, and **Cursor** as well. It features an integrated team of 15 customized study personas, 125 standalone exegesis and theology skills, and 125 custom slash commands—shared names and study outputs across platforms.
 
 > [!TIP]
 > **Optional multi-platform add-ons.** Beyond the original Google Antigravity
 > experience under `.agents/`, this workspace ships parallel, self-contained
-> ecosystems for **[Claude Code](https://claude.com/claude-code)** (`.claude/`) and
-> **[Grok Build](https://docs.x.ai/build/overview)** (`.grok/`) — each with the
-> same 15 personas, 125 skills, and 125 slash commands. Both are **optional**:
-> ignore them and use Antigravity alone, or use **any combination** of the three
-> platforms interchangeably against a single shared workspace and shared local
-> Bible databases. See
-> [Claude Code Equivalent Ecosystem](#-claude-code-equivalent-ecosystem-optional-bonus)
+> ecosystems for **[Claude Code](https://claude.com/claude-code)** (`.claude/`),
+> **[Grok Build](https://docs.x.ai/build/overview)** (`.grok/`), and
+> **[Cursor](https://cursor.com)** (`.cursor/`) — each with the same 15 personas
+> and 125 skills. They are **optional**: use Antigravity alone, or use **any
+> combination** of the four platforms interchangeably against a single shared
+> workspace and shared local Bible databases. See
+> [Claude Code Equivalent Ecosystem](#-claude-code-equivalent-ecosystem-optional-bonus),
+> [Grok Build Equivalent Ecosystem](#-grok-build-equivalent-ecosystem-optional-bonus),
 > and
-> [Grok Build Equivalent Ecosystem](#-grok-build-equivalent-ecosystem-optional-bonus)
+> [Cursor Equivalent Ecosystem](#-cursor-equivalent-ecosystem-optional-bonus)
 > below.
 
 Whether you are a **pastor preparing a sermon**, a **bible content writer drafting articles**, a **theology student researching ancient manuscripts**, or a **believer deepening your study of the scriptures**, this workspace provides a unified, local-first environment where writing, AI agent assistance, and scholarly databases reside side-by-side in your IDE.
@@ -56,8 +59,8 @@ By integrating the tools and retrievers of **[BibleMate AI](https://github.com/e
 ### 3. Multi-Platform Agentic Environments
 Tools are exposed natively in your agentic environment of choice. The original
 integration targets **Google Antigravity**; equivalent ecosystems ship for
-**Claude Code** and **Grok Build**:
-* **Automatic Workspace Loading**: Open this workspace in Antigravity, Claude Code, or Grok Build, and the matching tree (`.agents/`, `.claude/`, or `.grok/`) loads personas, skills, and slash commands.
+**Claude Code**, **Grok Build**, and **Cursor**:
+* **Automatic Workspace Loading**: Open this workspace in Antigravity, Claude Code, Grok Build, or Cursor, and the matching tree (`.agents/`, `.claude/`, `.grok/`, or `.cursor/`) loads personas, skills, and study workflows.
 * **Inline Composition**: Write your study guides, sermons, or articles in the IDE while conversing with specialized agents in the side panel.
 * **Slash Commands**: Execute complex workflows (e.g. `/sermon Romans 8:28`, `/testimony George Muller provision`, or `/translate-greek John 1:1`) with simple, parameterized commands—**same command names** across platforms.
 
@@ -161,7 +164,7 @@ While `/biblemate` follows a preset, structured 6-phase framework, `/biblemate-s
 
 ## Directory Structure
 
-All agentic configurations are self-contained under the `.agents/` folder (for the Antigravity platform), with **optional, parallel** ecosystems for **Claude Code** under `.claude/` and **Grok Build** under `.grok/` (see [Claude Code](#-claude-code-equivalent-ecosystem-optional-bonus) and [Grok Build](#-grok-build-equivalent-ecosystem-optional-bonus) below). Generated study outputs are written to your shared workspace:
+All agentic configurations are self-contained under the `.agents/` folder (for the Antigravity platform), with **optional, parallel** ecosystems for **Claude Code** under `.claude/`, **Grok Build** under `.grok/`, and **Cursor** under `.cursor/` (see [Claude Code](#-claude-code-equivalent-ecosystem-optional-bonus), [Grok Build](#-grok-build-equivalent-ecosystem-optional-bonus), and [Cursor](#-cursor-equivalent-ecosystem-optional-bonus) below). Generated study outputs are written to your shared workspace:
 
 ```
 ├── .agents/              # Antigravity agentic config (personas, skills, workflows)
@@ -184,6 +187,13 @@ All agentic configurations are self-contained under the `.agents/` folder (for t
 │   ├── commands/         # 125 slash command workflows
 │   ├── agents/           # 15 agent definitions (spawn_subagent types)
 │   └── personas/         # 15 persona overlays (.toml) for Grok subagents
+├── .cursor/              # Cursor equivalent ecosystem (self-contained, portable)
+│   ├── build_cursor.py   # Regenerates .cursor/ skills from .grok/
+│   ├── rules/            # Project rule: follow .cursor/skills for BibleMate work
+│   │   └── biblemate-skills.mdc
+│   ├── agents.md         # Combined persona reference (paths ported to .cursor)
+│   ├── preferences/      # Default bible/commentary/lexicon version files
+│   └── skills/           # 125 Cursor Agent Skills (one per study workflow)
 ├── AGENTS.md             # Grok Build project rules (scripture integrity, save rules)
 ├── CLAUDE.md             # Claude Code project rules (scripture integrity, save rules)
 ├── preferences/          # Shared default version preferences (bible/commentary/lexicon)
@@ -215,26 +225,26 @@ it mirrors the Antigravity ecosystem one-to-one: the same **15 personas**, the s
 **125 skills**, and the same **125 slash commands**, all using **relative paths**
 only (no hardcoded absolute paths), so the workspace stays portable.
 
-### One workspace, three ecosystems
+### One workspace, four ecosystems
 
-The Antigravity (`.agents/`), Claude Code (`.claude/`), and Grok Build (`.grok/`)
-ecosystems **coexist** in a single repository and share the same local Bible
-databases, the same root `preferences/` defaults (each port also keeps a copy
-under its own tree), and the same `biblemate/` study output directory. You can
-use **any one platform or any combination** interchangeably:
+The Antigravity (`.agents/`), Claude Code (`.claude/`), Grok Build (`.grok/`),
+and Cursor (`.cursor/`) ecosystems **coexist** in a single repository and share
+the same local Bible databases, the same root `preferences/` defaults (each port
+also keeps a copy under its own tree), and the same `biblemate/` study output
+directory. You can use **any one platform or any combination** interchangeably:
 
-| | Antigravity | Claude Code | Grok Build |
-| :-- | :-- | :-- | :-- |
-| Config dir | `.agents/` | `.claude/` | `.grok/` |
-| Project rules | (Antigravity conventions) | `CLAUDE.md` / `Claude.md` | `AGENTS.md` |
-| Personas | `agents.md` (single file) | `.claude/agents/<slug>.md` + `.claude/agents.md` | `.grok/agents/<slug>.md` + `.grok/personas/<slug>.toml` + `.grok/agents.md` |
-| Skills | `.agents/skills/<name>/SKILL.md` | `.claude/skills/<name>/SKILL.md` | `.grok/skills/<name>/SKILL.md` |
-| Slash commands | `.agents/workflows/<name>.md` | `.claude/commands/<name>.md` | `.grok/commands/<name>.md` (+ skills as `/name`) |
-| Web App | [`web_app_agy.py`](web_app_agy.py) (CLI, port 33380) / [`web_app_gemini_api_key.py`](web_app_gemini_api_key.py) (SDK, port 33377) | [`web_app_claude.py`](web_app_claude.py) (port 33379) | [`web_app_grok.py`](web_app_grok.py) (port 33378) |
-| Runtime data | `~/biblemate/data` (or `BIBLEMATE_DATA`) | same | same |
-| Study outputs | `biblemate/` | `biblemate/` | `biblemate/` |
+| | Antigravity | Claude Code | Grok Build | Cursor |
+| :-- | :-- | :-- | :-- | :-- |
+| Config dir | `.agents/` | `.claude/` | `.grok/` | `.cursor/` |
+| Project rules | (Antigravity conventions) | `CLAUDE.md` / `Claude.md` | `AGENTS.md` | `.cursor/rules/biblemate-skills.mdc` |
+| Personas | `agents.md` (single file) | `.claude/agents/<slug>.md` + `.claude/agents.md` | `.grok/agents/<slug>.md` + `.grok/personas/<slug>.toml` + `.grok/agents.md` | `.cursor/agents.md` (Task subagent slugs) |
+| Skills | `.agents/skills/<name>/SKILL.md` | `.claude/skills/<name>/SKILL.md` | `.grok/skills/<name>/SKILL.md` | `.cursor/skills/<name>/SKILL.md` |
+| Slash commands | `.agents/workflows/<name>.md` | `.claude/commands/<name>.md` | `.grok/commands/<name>.md` (+ skills as `/name`) | Same skill names; the project rule maps `/bible`-style requests to `.cursor/skills/` |
+| Web App | [`web_app_agy.py`](web_app_agy.py) (CLI, port 33380) / [`web_app_gemini_api_key.py`](web_app_gemini_api_key.py) (SDK, port 33377) | [`web_app_claude.py`](web_app_claude.py) (port 33379) | [`web_app_grok.py`](web_app_grok.py) (port 33378) | Cursor Agent in the IDE |
+| Runtime data | `~/biblemate/data` (or `BIBLEMATE_DATA`) | same | same | same |
+| Study outputs | `biblemate/` | `biblemate/` | `biblemate/` | `biblemate/` |
 
-Because all three read from the same SQLite databases and write to the same
+Because all four read from the same SQLite databases and write to the same
 `biblemate/` folder, a study started on one platform can be continued or
 re-opened on another.
 
@@ -400,9 +410,94 @@ regenerate the ecosystem after refreshing sources.
 
 ---
 
+## 🖱️ Cursor Equivalent Ecosystem (Optional Bonus)
+
+> [!NOTE]
+> This section is **entirely optional**. The Google Antigravity integration under
+> `.agents/` is the primary experience and requires nothing from `.cursor/`. The
+> Cursor ecosystem below is an **additional choice** for users who prefer to run
+> BibleMate in [Cursor](https://cursor.com) instead of — or alongside —
+> Antigravity, Claude Code, and/or Grok Build. If you do not use Cursor, you can
+> safely ignore everything in `.cursor/`.
+
+This workspace also ships an **optional, parallel BibleMate ecosystem for
+[Cursor](https://cursor.com)** under `.cursor/`. It is generated from the Grok
+Build tree (`.grok/`) by [`python3 .cursor/build_cursor.py`](.cursor/build_cursor.py),
+with paths and tool names adapted to Cursor. It mirrors the other platforms: the
+same **15 personas** and the same **125 skills**, using **relative paths** only
+so the workspace stays portable.
+
+Full usage guide: **[docs/cursor_ecosystem.md](docs/cursor_ecosystem.md)**.
+
+### Using BibleMate with Cursor
+
+1. **Install Cursor**, then open this repository as the project root so Cursor
+   loads [`.cursor/rules/biblemate-skills.mdc`](.cursor/rules/biblemate-skills.mdc)
+   and discovers [`.cursor/skills/`](.cursor/skills).
+2. **Install the shared database** (one-off, via `biblematedata` or [alternate MEGA download](#system-prerequisites)):
+   ```bash
+   pip install --upgrade biblematedata
+   biblematedata
+   ```
+3. **Ask the Agent** for any study workflow, using the same names as on the
+   other platforms. The project rule tells Cursor to read the matching
+   `SKILL.md` and follow it:
+   ```
+   /bible NET John 3:16
+   /devotion Romans 8:28
+   /sermon Psalm 23
+   /testimony Corrie ten Boom forgiveness
+   /biblemate Study grace in Ephesians 2
+   ```
+   Plain-language requests work the same way (“write a devotion on Romans 8”).
+   `/testimony` writes a **verified real-life or missionary** story (never
+   fabricated) with biographical background and fact-checkable sources; it is
+   also available to `biblemate` and `biblemate-super` as an integrable study
+   skill.
+4. **Scripture integrity & output saving** match the other ports: fetch verses
+   with `python3 .cursor/skills/bible/bible_retriever.py "..."` (never from
+   memory), and save study outputs under `biblemate/` with a
+   `YYYY-MM-DD-HH-MM-SS_` timestamp prefix (via the Cursor `Write` tool).
+5. **Personas**: read [`.cursor/agents.md`](.cursor/agents.md), or delegate a
+   step with the `Task` tool and `subagent_type` set to a persona slug (for
+   example `ot-bible-scholar` or `compassionate-pastor`).
+
+### Portability (no absolute paths)
+
+The `.cursor/` ecosystem is fully self-contained and portable:
+
+- Skill scripts and bundled data live under **`.cursor/skills/`**; instructions
+  use relative paths such as `.cursor/skills/bible/bible_retriever.py`.
+- Runtime Bible data resolves in this order:
+  1. the `BIBLEMATE_DATA` environment variable, else
+  2. `~/biblemate` (the standard install location).
+- Default versions are read from [`.cursor/preferences/`](.cursor/preferences)
+  (copied from [`.grok/preferences/`](.grok/preferences) when you regenerate).
+
+### Regenerating or refreshing `.cursor/`
+
+Generate or refresh Cursor from the Grok tree (refresh Claude and Grok first if
+you changed `.agents/` or root `preferences/`):
+
+```bash
+python3 .claude/build_claude.py   # optional: sync Claude from Antigravity sources
+python3 .grok/build_grok.py       # optional: rebuild Grok from .claude/
+python3 .cursor/build_cursor.py   # rebuild Cursor skills from .grok/
+```
+
+The Cursor generator is idempotent and only rewrites `skills/`, `preferences/`,
+`agents.md`, and `rules/biblemate-skills.mdc` under `.cursor/`. It does not
+modify `.agents/`, `.claude/`, `.grok/`, or `.cursor/build_cursor.py`.
+
+From within Cursor you can also ask the agent to run the `update` skill to
+regenerate the skills after refreshing sources.
+
+
+---
+
 ## 🌐 Standalone Web Applications
 
-In addition to native IDE integrations and CLI workflows, this workspace ships with **four dedicated, browser-based web applications** built with [NiceGUI](https://nicegui.io). Each app connects directly to its respective agentic platform backend while sharing the exact same intuitive visual layout, real-time agent console, study document browser, markdown editor, and local scripture databases:
+In addition to native IDE integrations and CLI workflows, this workspace ships with **four dedicated, browser-based web applications** built with [NiceGUI](https://nicegui.io). Each app connects directly to its respective agentic platform backend while sharing the exact same intuitive visual layout, real-time agent console, study document browser, markdown editor, and local scripture databases. **Cursor** runs in the IDE Agent (see [Cursor Equivalent Ecosystem](#-cursor-equivalent-ecosystem-optional-bonus)) and writes to the same `biblemate/` folder these apps browse.
 
 - **[Antigravity CLI (`agy`)](https://antigravity.google/download)**: [`web_app_agy.py`](web_app_agy.py) (default port `33380`) — backed by your signed-in Google subscription via Antigravity CLI (`agy -p` headless mode; no Gemini API key required). *(Recommended for subscription users)*
 - **[Google Antigravity SDK](https://antigravity.google/download)**: [`web_app_gemini_api_key.py`](web_app_gemini_api_key.py) (default port `33377`) — powered by the `google-antigravity` Python SDK (requires `GEMINI_API_KEY`).
@@ -502,8 +597,9 @@ Launch your platform of choice, for example:
 # Google Antigravity (primary)
 antigravity-ide # or 'antigravity' (GUI without text editor) or agy (Antigravity CLI)
 
-# Optional: Claude Code or Grok Build — open this folder as the project/workspace root
-# so `.claude/` and `CLAUDE.md` or `.grok/` and `AGENTS.md` are discovered automatically.
+# Optional: Claude Code, Grok Build, or Cursor — open this folder as the project/workspace root
+# so `.claude/` and `CLAUDE.md`, `.grok/` and `AGENTS.md`, or `.cursor/` and
+# `.cursor/rules/biblemate-skills.mdc` are discovered automatically.
 ```
 
 ## Auto-Discovery
@@ -535,10 +631,11 @@ Because this repository is already configured with standard multi-platform works
    ```
    Then open **[http://localhost:33380](http://localhost:33380)** in your browser. It loads personas and skills from `.agents/` and lets you select available models (`Gemini 3.6 Flash`, `Gemini 3.1 Pro`, `Claude Sonnet/Opus 5.5`, etc.). (If you prefer using the `google-antigravity` SDK with an API key instead, run `python3 web_app_gemini_api_key.py` on port 33377).
 
-### Claude Code & Grok Build (optional)
+### Claude Code, Grok Build & Cursor (optional)
 
 - **Claude Code**: open this repo as the project root; `.claude/skills/`, `.claude/commands/`, and root `CLAUDE.md` are auto-discovered. See [Claude Code Equivalent Ecosystem](#-claude-code-equivalent-ecosystem-optional-bonus).
 - **Grok Build**: open this repo as the workspace root; `.grok/skills/`, `.grok/commands/`, and root `AGENTS.md` are auto-discovered. See [Grok Build Equivalent Ecosystem](#-grok-build-equivalent-ecosystem-optional-bonus) and **[docs/grok_build_ecosystem.md](docs/grok_build_ecosystem.md)**.
+- **Cursor**: open this repo as the project root; `.cursor/skills/` and the always-on rule `.cursor/rules/biblemate-skills.mdc` are auto-discovered. See [Cursor Equivalent Ecosystem](#-cursor-equivalent-ecosystem-optional-bonus) and **[docs/cursor_ecosystem.md](docs/cursor_ecosystem.md)**.
 
 Slash command **names** are the same across platforms (e.g. `/bible`, `/sermon`, `/testimony`, `/biblemate`).
 
@@ -609,6 +706,10 @@ To utilize the core capabilities of the local Bible study tools (such as databas
      BibleMate study workflows.
    - **Grok Build** (optional) — [Grok Build / xAI](https://docs.x.ai/build/overview);
      uses the `.grok/` ecosystem and root `AGENTS.md`.
+   - **Cursor** (optional) — [Cursor](https://cursor.com);
+     uses the `.cursor/` skills and the always-on rule
+     `.cursor/rules/biblemate-skills.mdc`. Guide:
+     [docs/cursor_ecosystem.md](docs/cursor_ecosystem.md).
 
 
 ---
@@ -633,14 +734,15 @@ If you wish to bring these custom Bible study agents and tools into a **differen
           ```cmd
           curl.exe -L -O https://github.com/eliranwong/antigravity-biblemate-workspace/raw/main/manual_setup.zip && tar -xf manual_setup.zip && del manual_setup.zip && md biblemate notes images export
           ```
-      * **Via GUI (Double-Click)**: If you extract using double-click on macOS, the OS will wrap the contents in a `manual_setup` folder. Simply move the configuration folders (e.g. `.agents/`, `preferences/`, `.claude/`, `.grok/`) and any root project-rules files (e.g. `AGENTS.md` and `CLAUDE.md`) out of it and into your project root.
-      *(You can generate or regenerate this zip file at any time by running the `/zip` command on the platform you use. Contents can vary by platform: Antigravity/Claude zip flows traditionally ship `.agents/` + `preferences/` + `.claude/`; the Grok `/zip` skill packages `.grok/`, `preferences/`, and `AGENTS.md` + `CLAUDE.md`.)*
+      * **Via GUI (Double-Click)**: If you extract using double-click on macOS, the OS will wrap the contents in a `manual_setup` folder. Simply move the configuration folders (e.g. `.agents/`, `preferences/`, `.claude/`, `.grok/`, `.cursor/`) and any root project-rules files (e.g. `AGENTS.md` and `CLAUDE.md`) out of it and into your project root.
+      *(You can generate or regenerate this zip file at any time by running the `/zip` command on the platform you use. Contents can vary by platform: Antigravity/Claude zip flows traditionally ship `.agents/` + `preferences/` + `.claude/`; the Grok `/zip` skill packages `.grok/`, `preferences/`, and `AGENTS.md` + `CLAUDE.md`; the Cursor `zip` skill packages `.cursor/`, `preferences/`, and `AGENTS.md` + `CLAUDE.md`.)*
    - **Method C - Manual Copy (Folders)**: Manually copy the platform trees you need from this repository into the root of your new project:
       * **Antigravity**: `.agents/` + `preferences/`
       * **Claude Code**: `.claude/` and `CLAUDE.md`
       * **Grok Build**: `.grok/` and `AGENTS.md` (+ `preferences/` for shared defaults)
+      * **Cursor**: `.cursor/` (skills, `.cursor/rules/biblemate-skills.mdc`, preferences, and `agents.md`)
 
-      Antigravity discovers `.agents/`; Claude Code discovers `.claude/` and `CLAUDE.md`; Grok Build discovers `.grok/` and `AGENTS.md`. Shared `preferences/` preserves default database versions.
+      Antigravity discovers `.agents/`; Claude Code discovers `.claude/` and `CLAUDE.md`; Grok Build discovers `.grok/` and `AGENTS.md`; Cursor discovers `.cursor/skills/` and `.cursor/rules/`. Shared `preferences/` preserves default database versions.
 
 2. **Install System Prerequisites**: Ensure you have configured the [System Prerequisites](#system-prerequisites) on your system.
 
@@ -649,10 +751,11 @@ To update your workspace with the latest agent configurations, skills, and comma
 * **For Git users (Method A)**: Simply run `git pull` in your terminal to fetch and merge the latest updates from the upstream repository.
 * **For Manual users (Method B or C)**:
   * **Via Slash Command (macOS/Linux only)**: Run the `/update` command in the chat interface on your platform. This refreshes sources and regenerates that platform's ecosystem where applicable.
-  * **Via Terminal**: Redo the manual download or re-copy the trees you use (`.agents/`, `preferences/`, `.claude/` and `CLAUDE.md`, `.grok/`, and for Grok also `AGENTS.md`) into your repository root, overwriting the existing directories. To rebuild generated trees without re-downloading:
+  * **Via Terminal**: Redo the manual download or re-copy the trees you use (`.agents/`, `preferences/`, `.claude/` and `CLAUDE.md`, `.grok/` and `AGENTS.md`, `.cursor/`) into your repository root, overwriting the existing directories. To rebuild generated trees without re-downloading:
     ```bash
     python3 .claude/build_claude.py   # Claude from .agents/ + preferences/
     python3 .grok/build_grok.py       # Grok from .claude/
+    python3 .cursor/build_cursor.py   # Cursor skills from .grok/
     ```
 
 ---
@@ -675,6 +778,7 @@ For in-depth details about the web app, workflows, slash commands, and team stru
 
 - **[claude_code_ecosystem.md](docs/claude_code_ecosystem.md)**: How to use the Claude Code (Anthropic) BibleMate ecosystem under `.claude/`—setup, slash commands, subagents/personas, scripture rules, regeneration, and troubleshooting.
 - **[grok_build_ecosystem.md](docs/grok_build_ecosystem.md)**: How to use the Grok Build (xAI) BibleMate ecosystem under `.grok/`—setup, slash commands, personas/agents, regeneration, and troubleshooting.
+- **[cursor_ecosystem.md](docs/cursor_ecosystem.md)**: How to use the Cursor BibleMate skills under `.cursor/`—setup, project rule, skill requests, personas, scripture rules, regeneration, and troubleshooting.
 - **[standalone_web_app.md](docs/standalone_web_app.md)**: Setup and usage guide for the standalone NiceGUI web applications (`web_app_agy.py`, `web_app_gemini_api_key.py`, `web_app_claude.py`, and `web_app_grok.py`), including multi-platform launching, slash commands, image generation, settings, and troubleshooting.
 - **[ai_team_personas.md](docs/ai_team_personas.md)**: Detailed profiles, guidelines, and expertise profiles for each of the 15 custom AI study personas.
 - **[slash_commands.md](docs/slash_commands.md)**: A complete reference guide for all 120 custom slash commands (workflows), organized by study category with syntax examples.

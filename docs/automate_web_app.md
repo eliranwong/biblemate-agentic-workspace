@@ -1,6 +1,6 @@
 # Automating Web App Startup & Headless Deployment
 
-This guide explains how to configure **automatic background startup** for the BibleMate NiceGUI web applications in headless Linux servers, cloud virtual machines, Grok Bot instances, Docker containers, or persistent remote workspaces (e.g. `/workspace/`).
+This guide explains how to configure **automatic background startup** for the BibleMate NiceGUI web applications in headless Linux servers, cloud virtual machines, Grok Bot instances, Docker containers, or persistent remote workspaces (e.g. `/workspace/`). Cursor itself runs in the IDE ([cursor_ecosystem.md](cursor_ecosystem.md)); the apps below are the browser front ends for Antigravity, Claude Code, and Grok Build, and they can open studies that Cursor saved under `biblemate/`.
 
 With this setup, the web application runs in the background on its assigned port, automatically starts upon shell login or container initialization if not already listening, logs output to a file, and remains accessible from your browser.
 

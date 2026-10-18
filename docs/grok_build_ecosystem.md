@@ -1,8 +1,8 @@
 # Grok Build Ecosystem Guide
 
-This guide explains how to use the **BibleMate** study suite on **Grok Build** (xAI Grok). The Grok port is a full parallel ecosystem of skills, slash commands, agents, and personas—equivalent to the Antigravity (`.agents/`) and Claude Code (`.claude/`) ports—and is self-contained under `.grok/`.
+This guide explains how to use the **BibleMate** study suite on **Grok Build** (xAI Grok). The Grok port is a full parallel ecosystem of skills, slash commands, agents, and personas—equivalent to the Antigravity (`.agents/`), Claude Code (`.claude/`), and Cursor (`.cursor/`) ports—and is self-contained under `.grok/`.
 
-It does **not** replace the other platforms. You can use Antigravity, Claude Code, and Grok Build against the same workspace and the same local Bible databases.
+It runs alongside the other platforms. You can use Antigravity, Claude Code, Grok Build, and Cursor against the same workspace and the same local Bible databases.
 
 ---
 
@@ -296,7 +296,7 @@ The generator is **idempotent**. It rewrites only under `.grok/`:
 
 It does **not** modify `.agents/`, `.claude/`, or root `AGENTS.md`.
 
-After editing shared Antigravity sources, refresh Claude first, then Grok, so all three ecosystems stay aligned.
+After editing shared Antigravity sources, refresh Claude first, then Grok, then Cursor (`python3 .cursor/build_cursor.py`), so the ecosystems stay aligned.
 
 ---
 
@@ -318,6 +318,7 @@ After editing shared Antigravity sources, refresh Claude first, then Grok, so al
 | Google Antigravity | `.agents/` | (Antigravity conventions) |
 | Claude Code | `.claude/` | `CLAUDE.md` / `Claude.md` |
 | Grok Build | `.grok/` | `AGENTS.md` |
+| Cursor | `.cursor/` | `.cursor/rules/biblemate-skills.mdc` |
 
 Shared across platforms:
 
@@ -344,6 +345,7 @@ When regenerating one platform’s tree, leave the others untouched unless you i
 
 ## Related docs
 
+- [cursor_ecosystem.md](cursor_ecosystem.md) — the Cursor port, generated from this Grok tree
 - [slash_commands.md](slash_commands.md) — full command reference (shared names)
 - [ai_team_personas.md](ai_team_personas.md) — persona profiles
 - [study_outputs.md](study_outputs.md) — where studies and exports are saved
