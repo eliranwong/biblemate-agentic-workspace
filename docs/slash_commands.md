@@ -2,7 +2,7 @@
 
 This guide details all 125 custom slash commands (workflows) available in the **Antigravity Bible Study Agents** ecosystem, categorized by their study focus. The same names are skills on Claude Code, Grok Build, and Cursor.
 
-**In Cursor**, each name is a project skill at `.cursor/skills/<name>/SKILL.md`. The always-on rule [`.cursor/rules/biblemate-skills.mdc`](../.cursor/rules/biblemate-skills.mdc) tells the agent to follow that skill when you use the slash-style request below or ask for the same workflow in plain language. Setup and tool names: [cursor_ecosystem.md](cursor_ecosystem.md). On Cursor, `/image` uses the `GenerateImage` tool, and `/zip` packages `.cursor/` along with shared preferences and project-rule files.
+**In Cursor**, each name is a project skill at `.cursor/skills/<name>/SKILL.md`. The always-on rule [`.cursor/rules/biblemate-skills.mdc`](../.cursor/rules/biblemate-skills.mdc) tells the agent to follow that skill when you use the slash-style request below or ask for the same workflow in plain language. Setup and tool names: [cursor_ecosystem.md](cursor_ecosystem.md). On Cursor, `/image` uses the `GenerateImage` tool. On Claude Code, Grok Build, and Cursor, the refresh skill is `/update-biblemate` (Antigravity keeps `/update`).
 
 ---
 
@@ -131,7 +131,7 @@ These utility commands manage resource versions, convert format types, and synch
 | **`/sync`** | Stages, commits, and pushes all latest workspace changes to the remote repository. | Verse Scripter | Optional custom commit message | `/sync "Added sync command"` |
 | **`/md`** | Converts a file to markdown, or exports the last response/conversation to export/md. | Verse Scripter | Optional file path or export keyword (e.g., 'whole', 'conversation') | `/md export/docx/README.md` or `/md whole` |
 | **`/docx`** | Converts a file to Word docx format, or exports the last response/conversation to export/docx. | Verse Scripter | Optional file path or export keyword (e.g., 'whole', 'conversation') | `/docx README.md` or `/docx whole` |
-| **`/zip`** | Creates a `manual_setup.zip` file in the root directory containing `.agents/`, `preferences/`, and `.claude/` folders for manual setup. | Verse Scripter | None | `/zip` |
-| **`/update`** | Downloads and applies the manual setup zip to initialize workspace directories. | Verse Scripter | None | `/update` |
+| **`/zip`** | Creates a `manual_setup.zip` file in the root directory containing the `.agents/`, `.claude/`, `.cursor/`, `.grok/`, and `preferences/` folders, plus `AGENTS.md`, `CLAUDE.md`, and the standalone web app scripts, for manual setup. | Verse Scripter | None | `/zip` |
+| **`/update-biblemate`** | Downloads and applies the manual setup zip to initialize workspace directories. On Antigravity the skill is **`/update`**. On Claude Code, Grok Build, and Cursor the skill is **`/update-biblemate`** (Claude Code regenerates `.claude`; Grok regenerates `.grok`; Cursor regenerates `.cursor`). | Verse Scripter | None | `/update` on Antigravity; `/update-biblemate` elsewhere |
 
 

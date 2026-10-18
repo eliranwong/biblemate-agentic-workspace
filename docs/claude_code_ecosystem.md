@@ -170,8 +170,8 @@ Wildcards (`*`, `?`) and logical combinations (`+`, `|`) follow the shared searc
 | `/sync` | Git add, commit, and push workspace changes |
 | `/md` / `/docx` | Export content to `export/md` or `export/docx` |
 | `/image` | Generate bible-related images into `images/` |
-| `/zip` | Build `manual_setup.zip` with `.claude/`, `preferences/`, and `CLAUDE.md` |
-| `/update` | Refresh sources and regenerate the `.claude` ecosystem |
+| `/zip` | Build `manual_setup.zip` with `.agents/`, `.claude/`, `.cursor/`, `.grok/`, and `preferences/`, plus root `AGENTS.md`, `CLAUDE.md`, and the web app scripts |
+| `/update-biblemate` | Refresh sources and regenerate the `.claude` ecosystem |
 
 ---
 

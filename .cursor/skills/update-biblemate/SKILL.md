@@ -1,9 +1,9 @@
 ---
-name: update
-description: Refresh the BibleMate Cursor skills by regenerating .cursor from the Grok sources in this repository. Use when the user runs /update or asks to regenerate the .cursor skills.
+name: update-biblemate
+description: Refresh the BibleMate Cursor skills by regenerating .cursor from the Grok sources in this repository. Use when the user runs /update-biblemate or asks to regenerate the .cursor skills.
 ---
 
-# Update Skill (Cursor)
+# Update BibleMate Skill (Cursor)
 
 ## Overview
 This skill refreshes the Cursor BibleMate skills in `.cursor/`. Content comes
@@ -21,7 +21,7 @@ paths and tool names so the copies run in Cursor.
    ```
    Optional remote download, only when the user wants a fresh upstream bundle:
    ```bash
-   python3 .cursor/skills/update/updater.py
+   python3 .cursor/skills/update-biblemate/updater.py
    ```
 4. **Regenerate `.cursor`**:
    ```bash

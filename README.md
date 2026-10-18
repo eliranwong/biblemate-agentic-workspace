@@ -310,8 +310,8 @@ under `.claude/`):
 python3 .claude/build_claude.py
 ```
 
-From within Claude Code you can also run the tailored `/update` command, which
-refreshes the bundled `.agents/` + `preferences/` source from the remote
+From within Claude Code you can also run the tailored `/update-biblemate` command,
+which refreshes the bundled `.agents/` + `preferences/` source from the remote
 `manual_setup.zip` and then regenerates `.claude/`.
 
 
@@ -404,7 +404,7 @@ The Grok generator is idempotent and only rewrites `skills/`, `commands/`,
 `agents/`, `personas/`, `preferences/`, and `agents.md` under `.grok/`. It does
 not modify `.agents/`, `.claude/`, or root `AGENTS.md`.
 
-From within Grok Build you can also run the tailored `/update` skill to
+From within Grok Build you can also run the tailored `/update-biblemate` skill to
 regenerate the ecosystem after refreshing sources.
 
 
@@ -489,8 +489,8 @@ The Cursor generator is idempotent and only rewrites `skills/`, `preferences/`,
 `agents.md`, and `rules/biblemate-skills.mdc` under `.cursor/`. It does not
 modify `.agents/`, `.claude/`, `.grok/`, or `.cursor/build_cursor.py`.
 
-From within Cursor you can also ask the agent to run the `update` skill to
-regenerate the skills after refreshing sources.
+From within Cursor you can also ask the agent to run the `update-biblemate`
+skill to regenerate the skills after refreshing sources.
 
 
 ---
@@ -735,7 +735,7 @@ If you wish to bring these custom Bible study agents and tools into a **differen
           curl.exe -L -O https://github.com/eliranwong/antigravity-biblemate-workspace/raw/main/manual_setup.zip && tar -xf manual_setup.zip && del manual_setup.zip && md biblemate notes images export
           ```
       * **Via GUI (Double-Click)**: If you extract using double-click on macOS, the OS will wrap the contents in a `manual_setup` folder. Simply move the configuration folders (e.g. `.agents/`, `preferences/`, `.claude/`, `.grok/`, `.cursor/`) and any root project-rules files (e.g. `AGENTS.md` and `CLAUDE.md`) out of it and into your project root.
-      *(You can generate or regenerate this zip file at any time by running the `/zip` command on the platform you use. Contents can vary by platform: Antigravity/Claude zip flows traditionally ship `.agents/` + `preferences/` + `.claude/`; the Grok `/zip` skill packages `.grok/`, `preferences/`, and `AGENTS.md` + `CLAUDE.md`; the Cursor `zip` skill packages `.cursor/`, `preferences/`, and `AGENTS.md` + `CLAUDE.md`.)*
+      *(You can generate or regenerate this zip file at any time by running the `/zip` command on the platform you use. The `/zip` skill is the same on every platform and packages the full bundle: the `.agents/`, `.claude/`, `.cursor/`, `.grok/`, and `preferences/` folders, plus `AGENTS.md`, `CLAUDE.md`, and the standalone web app scripts `web_app_agy.py`, `web_app_claude.py`, `web_app_grok.py`, and `web_app_gemini_api_key.py`.)*
    - **Method C - Manual Copy (Folders)**: Manually copy the platform trees you need from this repository into the root of your new project:
       * **Antigravity**: `.agents/` + `preferences/`
       * **Claude Code**: `.claude/` and `CLAUDE.md`
@@ -750,7 +750,7 @@ If you wish to bring these custom Bible study agents and tools into a **differen
 To update your workspace with the latest agent configurations, skills, and command definitions:
 * **For Git users (Method A)**: Simply run `git pull` in your terminal to fetch and merge the latest updates from the upstream repository.
 * **For Manual users (Method B or C)**:
-  * **Via Slash Command (macOS/Linux only)**: Run the `/update` command in the chat interface on your platform. This refreshes sources and regenerates that platform's ecosystem where applicable.
+  * **Via Slash Command (macOS/Linux only)**: On Antigravity, run `/update`. On Claude Code, Grok Build, and Cursor, run `/update-biblemate`. This refreshes sources and regenerates that platform's ecosystem where applicable.
   * **Via Terminal**: Redo the manual download or re-copy the trees you use (`.agents/`, `preferences/`, `.claude/` and `CLAUDE.md`, `.grok/` and `AGENTS.md`, `.cursor/`) into your repository root, overwriting the existing directories. To rebuild generated trees without re-downloading:
     ```bash
     python3 .claude/build_claude.py   # Claude from .agents/ + preferences/

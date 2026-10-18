@@ -1,16 +1,25 @@
 ---
 name: zip
-description: Create manual_setup.zip containing .cursor/, preferences/, AGENTS.md, CLAUDE.md, and the standalone web apps (web_app_agy.py, web_app_claude.py, web_app_grok.py, web_app_gemini_api_key.py) for manual Cursor repository setup. Use when the user runs /zip or requests this BibleMate workflow.
+description: Create manual_setup.zip containing .agents/, .claude/, .cursor/, .grok/, preferences/, AGENTS.md, CLAUDE.md, and the standalone web apps (web_app_agy.py, web_app_claude.py, web_app_grok.py, web_app_gemini_api_key.py) for manual repository setup. Use when the user runs /zip or requests this BibleMate workflow.
 ---
 
 # Zip Archive Skill (Cursor)
 
 ## Overview
-This skill packages the `.cursor/` configuration, root `preferences/`, root
-`AGENTS.md`, root `CLAUDE.md`, and the standalone web applications into a
-single `manual_setup.zip` at the repository root. That archive lets users
-manually import the Cursor BibleMate personas, skills, slash commands,
+This skill packages the `.agents/`, `.claude/`, `.cursor/`, and `.grok/`
+configuration trees, root `preferences/`, root `AGENTS.md`, root `CLAUDE.md`,
+and the standalone web applications into a single `manual_setup.zip` at the
+repository root. That archive lets users manually import the Antigravity,
+Claude Code, Cursor, and Grok Build BibleMate personas, skills, workflows,
 database preferences, and browser apps into a new repository.
+
+Folders included in the archive:
+
+- `.agents/`
+- `.claude/`
+- `.cursor/`
+- `.grok/`
+- `preferences/`
 
 Root files included in the archive:
 

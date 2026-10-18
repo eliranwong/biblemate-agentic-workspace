@@ -18,7 +18,7 @@ Text transforms so the copies run in Cursor, independent of `.grok/`:
   * `.grok/skills/` and related tokens -> `.cursor/...`
   * Grok tool names -> Cursor tool names
   * image generation uses Cursor's GenerateImage tool
-  * the update skill regenerates this tree
+  * the update-biblemate skill regenerates this tree
 
 This script is idempotent. It rewrites `skills/`, `preferences/`, `agents.md`,
 and `rules/biblemate-skills.mdc` under `.cursor/`. It does not modify
@@ -214,12 +214,18 @@ the `google-antigravity` SDK, or any `.agents/` image script.
 
 
 def write_update_skill() -> None:
+    """Write the Cursor refresh skill as update-biblemate.
+
+    Grok ships this workflow as `update-biblemate`. If an older copy still
+    arrives as `update`, move its helper and drop that directory so Cursor
+    exposes one skill under the new name.
+    """
     skill_md = """---
-name: update
-description: Refresh the BibleMate Cursor skills by regenerating .cursor from the Grok sources in this repository. Use when the user runs /update or asks to regenerate the .cursor skills.
+name: update-biblemate
+description: Refresh the BibleMate Cursor skills by regenerating .cursor from the Grok sources in this repository. Use when the user runs /update-biblemate or asks to regenerate the .cursor skills.
 ---
 
-# Update Skill (Cursor)
+# Update BibleMate Skill (Cursor)
 
 ## Overview
 This skill refreshes the Cursor BibleMate skills in `.cursor/`. Content comes
@@ -237,7 +243,7 @@ paths and tool names so the copies run in Cursor.
    ```
    Optional remote download, only when the user wants a fresh upstream bundle:
    ```bash
-   python3 .cursor/skills/update/updater.py
+   python3 .cursor/skills/update-biblemate/updater.py
    ```
 4. **Regenerate `.cursor`**:
    ```bash
@@ -246,7 +252,15 @@ paths and tool names so the copies run in Cursor.
 5. **Report Status**: Say whether regeneration succeeded, how many skills were
    written, and confirm `.cursor/rules/biblemate-skills.mdc` is present.
 """
-    path = os.path.join(DST_SKILLS, "update", "SKILL.md")
+    legacy = os.path.join(DST_SKILLS, "update")
+    skill_dir = os.path.join(DST_SKILLS, "update-biblemate")
+    os.makedirs(skill_dir, exist_ok=True)
+    updater_src = os.path.join(legacy, "updater.py")
+    if os.path.isfile(updater_src):
+        shutil.copy2(updater_src, os.path.join(skill_dir, "updater.py"))
+    if os.path.isdir(legacy):
+        shutil.rmtree(legacy)
+    path = os.path.join(skill_dir, "SKILL.md")
     with open(path, "w", encoding="utf-8") as f:
         f.write(skill_md)
 
@@ -298,7 +312,7 @@ def audit() -> int:
         "Grok Build",
     )
     allow_grok = {
-        os.path.normpath(os.path.join(DST_SKILLS, "update", "SKILL.md")),
+        os.path.normpath(os.path.join(DST_SKILLS, "update-biblemate", "SKILL.md")),
         os.path.normpath(DST_RULE),
     }
     bad = []

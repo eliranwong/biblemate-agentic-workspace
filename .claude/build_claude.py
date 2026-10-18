@@ -287,15 +287,25 @@ def build_subagent_md(name, body, universal):
 
 
 def _write_claude_update_skill():
-    """Overwrite .claude/skills/update/SKILL.md with a Claude-tailored flow."""
-    skill_dir = os.path.join(DST_SKILLS, "update")
+    """Write the Claude Code refresh skill as update-biblemate.
+
+    .agents ships this workflow as `update`. After the copy, move its helper
+    into `update-biblemate` and drop the copied `update` directory.
+    """
+    legacy = os.path.join(DST_SKILLS, "update")
+    skill_dir = os.path.join(DST_SKILLS, "update-biblemate")
     os.makedirs(skill_dir, exist_ok=True)
+    updater_src = os.path.join(legacy, "updater.py")
+    if os.path.isfile(updater_src):
+        shutil.copy2(updater_src, os.path.join(skill_dir, "updater.py"))
+    if os.path.isdir(legacy):
+        shutil.rmtree(legacy)
     skill_md = """---
-name: update
-description: Refresh the BibleMate Claude Code ecosystem by re-running the local generator against the latest .agents/preferences source.
+name: update-biblemate
+description: Refresh the BibleMate Claude Code ecosystem by re-running the local generator against the latest .agents/preferences source. Use when the user runs /update-biblemate or asks to regenerate the .claude ecosystem.
 ---
 
-# Update Skill (Claude Code)
+# Update BibleMate Skill (Claude Code)
 
 ## Overview
 This skill refreshes the self-contained `.claude` BibleMate ecosystem for Claude
@@ -314,7 +324,7 @@ remote bundle; it does not depend on any other local files outside `.claude/`.
    overwriting source files. Run it in your own copy/fork instead.
 3. **Download & Extract**: Run the updater helper:
    ```bash
-   python3 .claude/skills/update/updater.py
+   python3 .claude/skills/update-biblemate/updater.py
    ```
    This fetches `manual_setup.zip` and extracts `.agents/` and `preferences/`
    into the workspace root.
@@ -356,9 +366,10 @@ def main():
         copy_skill(s, os.path.join(DST_SKILLS, name))
     log(f"  {n_skills} skills")
 
-    # Tailor the `update` skill for the Claude Code ecosystem: refresh the
-    # `.agents`/`preferences` source from the remote bundle, then regenerate
-    # `.claude` via build_claude.py. (Original was antigravity-platform-only.)
+    # Tailor the `update-biblemate` skill for the Claude Code ecosystem:
+    # refresh the `.agents`/`preferences` source from the remote bundle, then
+    # regenerate `.claude` via build_claude.py. (Original was
+    # antigravity-platform-only and named `update`.)
     _write_claude_update_skill()
 
     # 2. Commands (workflows)
@@ -371,7 +382,14 @@ def main():
         with open(os.path.join(SRC_WORKFLOWS, name), "r", encoding="utf-8") as f:
             content = f.read()
         content = transform_command_md(content)
-        with open(os.path.join(DST_COMMANDS, name), "w", encoding="utf-8") as f:
+        out_name = name
+        if name == "update.md":
+            content = content.replace(
+                "Use the **update** skill",
+                "Use the **update-biblemate** skill",
+            )
+            out_name = "update-biblemate.md"
+        with open(os.path.join(DST_COMMANDS, out_name), "w", encoding="utf-8") as f:
             f.write(content)
         n_cmds += 1
     log(f"  {n_cmds} commands")

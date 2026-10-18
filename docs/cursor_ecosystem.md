@@ -122,7 +122,7 @@ Open the Agent chat in this project and ask for the workflow. Examples:
 
 The same requests work in plain language (“retrieve NET John 3:16”, “write a devotion on Romans 8:28”). The agent reads `.cursor/skills/<name>/SKILL.md` and runs the Python helper that skill names.
 
-Full command catalog (shared names across platforms): [slash_commands.md](slash_commands.md).
+Full command catalog: [slash_commands.md](slash_commands.md). Cursor uses the same names. The refresh skill is `update-biblemate` on Cursor, Grok Build, and Claude Code (Antigravity keeps `update`).
 
 ### `/testimony` (real-life and missionary stories)
 
@@ -167,8 +167,8 @@ Each Protestant canon book has a search skill (for example `Gen`, `John`, `Rom`,
 | `sync` | Git add, commit, and push workspace changes |
 | `md` / `docx` | Export content to `export/md` or `export/docx` |
 | `image` | Generate bible-related images into `images/` with `GenerateImage` |
-| `zip` | Build `manual_setup.zip` including `.cursor/`, root `preferences/`, `AGENTS.md`, and `CLAUDE.md` |
-| `update` | Regenerate the `.cursor` skills from the current `.grok/` tree |
+| `zip` | Build `manual_setup.zip` with `.agents/`, `.claude/`, `.cursor/`, `.grok/`, and `preferences/`, plus root `AGENTS.md`, `CLAUDE.md`, and the web app scripts |
+| `update-biblemate` | Regenerate the `.cursor` skills from the current `.grok/` tree |
 
 ---
 
@@ -305,7 +305,7 @@ The Cursor generator is **idempotent**. It rewrites only:
 
 It leaves `.cursor/build_cursor.py`, `.agents/`, `.claude/`, and `.grok/` unchanged.
 
-From the Cursor agent you can also ask it to run the `update` skill, which follows the same refresh path.
+From the Cursor agent you can also ask it to run the `update-biblemate` skill, which follows the same refresh path.
 
 ---
 
@@ -355,7 +355,7 @@ When regenerating one platform’s tree, leave the others untouched unless you i
 
 ## Related docs
 
-- [slash_commands.md](slash_commands.md) — full command reference (shared names)
+- [slash_commands.md](slash_commands.md) — full command reference (Claude Code, Grok, and Cursor refresh skill: `update-biblemate`)
 - [ai_team_personas.md](ai_team_personas.md) — persona profiles
 - [study_outputs.md](study_outputs.md) — where studies and exports are saved
 - [claude_code_ecosystem.md](claude_code_ecosystem.md) — Claude Code port

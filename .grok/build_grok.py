@@ -21,7 +21,7 @@ Text transforms applied so the Grok Build copies work independently of
   * Claude tool names            -> Grok tool names
   * persona-adoption lines point to `.grok/agents.md`
   * orchestrator discovery paths use `.grok/skills`
-  * zip packages `.grok` + preferences
+  * zip packages `.agents`, `.claude`, `.cursor`, `.grok`, and preferences
   * image skill uses Grok Imagine tools (not Antigravity)
   * data dir resolution keeps BIBLEMATE_DATA / ~/biblemate portability
 
@@ -132,8 +132,6 @@ def rewrite_paths(text: str) -> str:
     text = text.replace('".claude", "skills"', '".grok", "skills"')
     text = text.replace("'.claude', 'skills'", "'.grok', 'skills'")
     text = text.replace("/.claude/skills/", "/.grok/skills/")
-    # zip packages
-    text = text.replace("to zip the `.claude/`, `preferences/`, and `.grok/` folders, and the `AGENTS.md` and `CLAUDE.md` files", "to zip the `.grok/`, `preferences/` folders, and the `AGENTS.md` and `CLAUDE.md` files")
     text = text.replace("['.claude', 'preferences']", "['.grok', 'preferences']")
     text = text.replace("'.claude/' and 'preferences/'", "'.grok/' and 'preferences/'")
     text = text.replace("'.claude/'", "'.grok/'")
@@ -143,6 +141,13 @@ def rewrite_paths(text: str) -> str:
     # Prose about Claude Code -> Grok Build
     text = text.replace("Claude Code", "Grok Build")
     text = text.replace("for Claude Code", "for Grok Build")
+    # The zip command names `.claude/` in the package list. The replacements
+    # above turn that into a second `.grok/`. Put the full package list back
+    # after those replacements so `.claude/` survives.
+    text = text.replace(
+        "to zip the `.grok/`, `preferences/`, and `.grok/` folders, and the `AGENTS.md` and `CLAUDE.md` files",
+        "to zip the `.agents/`, `.claude/`, `.cursor/`, `.grok/`, and `preferences/` folders, and the `AGENTS.md` and `CLAUDE.md` files",
+    )
     return text
 
 
@@ -376,15 +381,25 @@ def build_persona_toml(name: str, body: str, universal: str) -> str:
 
 
 def _write_grok_update_skill() -> None:
-    """Overwrite .grok/skills/update/SKILL.md with a Grok-tailored flow."""
-    skill_dir = os.path.join(DST_SKILLS, "update")
+    """Write the Grok refresh skill as update-biblemate.
+
+    Claude ships this workflow as `update`. After the copy, move its helper
+    into `update-biblemate` and drop the copied `update` directory.
+    """
+    legacy = os.path.join(DST_SKILLS, "update")
+    skill_dir = os.path.join(DST_SKILLS, "update-biblemate")
     os.makedirs(skill_dir, exist_ok=True)
+    updater_src = os.path.join(legacy, "updater.py")
+    if os.path.isfile(updater_src):
+        shutil.copy2(updater_src, os.path.join(skill_dir, "updater.py"))
+    if os.path.isdir(legacy):
+        shutil.rmtree(legacy)
     skill_md = """---
-name: update
-description: Refresh the BibleMate Grok Build ecosystem by re-running the local generator against the latest Claude Code (or antigravity) source. Use when the user runs /update or asks to regenerate the .grok ecosystem.
+name: update-biblemate
+description: Refresh the BibleMate Grok Build ecosystem by re-running the local generator against the latest Claude Code (or antigravity) source. Use when the user runs /update-biblemate or asks to regenerate the .grok ecosystem.
 ---
 
-# Update Skill (Grok Build)
+# Update BibleMate Skill (Grok Build)
 
 ## Overview
 This skill refreshes the self-contained `.grok` BibleMate ecosystem for Grok
@@ -404,7 +419,7 @@ generator) plus the `.claude/` tree as source.
 3. **Optional download & extract** (if `.claude/` is missing or stale and the
    user wants a remote refresh):
    ```bash
-   python3 .grok/skills/update/updater.py
+   python3 .grok/skills/update-biblemate/updater.py
    ```
    If the Claude updater exists, you may also run:
    ```bash
@@ -616,22 +631,41 @@ if __name__ == "__main__":
 
 
 def _write_grok_zip_skill_overlay() -> None:
-    """Tailor zip skill to package .grok, preferences, and AGENTS.md."""
+    """Tailor the zip skill to package every platform tree plus preferences."""
     zip_dir = os.path.join(DST_SKILLS, "zip")
     os.makedirs(zip_dir, exist_ok=True)
 
     skill_md = """---
 name: zip
-description: Create manual_setup.zip containing .grok/, preferences/, and AGENTS.md for manual Grok Build repository setup. Use when the user runs /zip or requests this BibleMate workflow.
+description: Create manual_setup.zip containing .agents/, .claude/, .cursor/, .grok/, preferences/, AGENTS.md, CLAUDE.md, and the standalone web apps (web_app_agy.py, web_app_claude.py, web_app_grok.py, web_app_gemini_api_key.py) for manual Grok Build repository setup. Use when the user runs /zip or requests this BibleMate workflow.
 ---
 
 # Zip Archive Skill (Grok Build)
 
 ## Overview
-This skill packages the `.grok/` configuration, root `preferences/`, and root
-`AGENTS.md` into a single `manual_setup.zip` at the repository root. That
-archive lets users manually import the Grok Build BibleMate personas, skills,
-slash commands, and database preferences into a new repository.
+This skill packages the `.agents/`, `.claude/`, `.cursor/`, and `.grok/`
+configuration trees, root `preferences/`, root `AGENTS.md`, root `CLAUDE.md`,
+and the standalone web applications into a single `manual_setup.zip` at the
+repository root. That archive lets users manually import the Antigravity,
+Claude Code, Cursor, and Grok Build BibleMate personas, skills, slash commands,
+database preferences, and browser apps into a new repository.
+
+Folders included in the archive:
+
+- `.agents/`
+- `.claude/`
+- `.cursor/`
+- `.grok/`
+- `preferences/`
+
+Root files included in the archive:
+
+- `AGENTS.md`
+- `CLAUDE.md`
+- `web_app_agy.py`
+- `web_app_claude.py`
+- `web_app_grok.py`
+- `web_app_gemini_api_key.py`
 
 ## Guidelines & Objectives
 When executing this skill:
@@ -652,83 +686,42 @@ When executing this skill:
     with open(os.path.join(zip_dir, "SKILL.md"), "w", encoding="utf-8") as f:
         f.write(skill_md)
 
-    # Patch zip_creator.py if present: include AGENTS.md as a root file.
+    # Path rewrite copies the Claude creator and renames `.claude` to `.grok`.
+    # Put the full platform package list back onto that copy.
     creator = os.path.join(zip_dir, "zip_creator.py")
     if not os.path.isfile(creator):
+        log("WARNING: zip_creator.py missing; skill markdown written only")
         return
     with open(creator, "r", encoding="utf-8") as f:
         src = f.read()
-    if "Grok Build ecosystem" in src:
-        return
-    # Inject root-file packaging after the folders loop setup.
-    old = """    # Folders to zip
-    folders_to_zip = ['.claude', 'preferences', '.grok']
-    files_to_zip = ['AGENTS.md', 'CLAUDE.md']
-    
-    try:
-        with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
-            for folder in folders_to_zip:
-                folder_path = os.path.join(REPO_ROOT, folder)
-                if not os.path.exists(folder_path):
-                    print(f"Warning: Folder '{folder}' does not exist, skipping.")
-                    continue
-                # Walk through the folder
-                for root, dirs, files in os.walk(folder_path):
-                    # Sort dirs and files to ensure deterministic zip order
-                    dirs.sort()
-                    files.sort()
-                    for file in files:
-                        file_path = os.path.join(root, file)
-                        # The relative path within the zip archive
-                        arcname = os.path.relpath(file_path, REPO_ROOT)
-                        zipf.write(file_path, arcname)
-            for rel in files_to_zip:
-                file_path = os.path.join(REPO_ROOT, rel)
-                if not os.path.isfile(file_path):
-                    print(f"Warning: File '{rel}' does not exist, skipping.")
-                    continue
-                zipf.write(file_path, rel)
-                        
-        print(f"Successfully created manual_setup.zip at: {zip_path}")
-        print("This zip file includes the '.grok/', 'preferences/', and '.grok/' folders, and the 'AGENTS.md' and 'CLAUDE.md' files, offering users an easy way to set up manually.")
-"""
-    new = """    # Folders and root files to zip (Grok Build ecosystem)
-    folders_to_zip = ['.grok', 'preferences']
-    files_to_zip = ['AGENTS.md', 'CLAUDE.md']
-    
-    try:
-        with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
-            for folder in folders_to_zip:
-                folder_path = os.path.join(REPO_ROOT, folder)
-                if not os.path.exists(folder_path):
-                    print(f"Warning: Folder '{folder}' does not exist, skipping.")
-                    continue
-                # Walk through the folder
-                for root, dirs, files in os.walk(folder_path):
-                    # Sort dirs and files to ensure deterministic zip order
-                    dirs.sort()
-                    files.sort()
-                    for file in files:
-                        file_path = os.path.join(root, file)
-                        # The relative path within the zip archive
-                        arcname = os.path.relpath(file_path, REPO_ROOT)
-                        zipf.write(file_path, arcname)
-            for rel in files_to_zip:
-                file_path = os.path.join(REPO_ROOT, rel)
-                if not os.path.isfile(file_path):
-                    print(f"Warning: File '{rel}' does not exist, skipping.")
-                    continue
-                zipf.write(file_path, rel)
-                        
-        print(f"Successfully created manual_setup.zip at: {zip_path}")
-        print("This zip file includes the '.grok/' folder, 'preferences/', and the 'AGENTS.md' and 'CLAUDE.md' files for Grok Build setup.")
-"""
-    if old in src:
-        src = src.replace(old, new)
-        with open(creator, "w", encoding="utf-8") as f:
-            f.write(src)
-    else:
-        log("WARNING: zip_creator.py layout unexpected; left path-rewritten copy as-is")
+    src = src.replace(
+        "# Folders to zip\n",
+        "# Folders and root files to zip (Grok Build ecosystem)\n",
+    )
+    src, n_folders = re.subn(
+        r"folders_to_zip = \[[^\]]*\]",
+        "folders_to_zip = ['.agents', '.claude', '.cursor', '.grok', 'preferences']",
+        src,
+        count=1,
+    )
+    new_print = (
+        "print(\n"
+        "            \"This zip file includes the '.agents/', '.claude/', '.cursor/', \"\n"
+        "            \"'.grok/', and 'preferences/' folders, plus 'AGENTS.md', 'CLAUDE.md', \"\n"
+        "            \"and the standalone web apps 'web_app_agy.py', 'web_app_claude.py', \"\n"
+        "            \"'web_app_grok.py', and 'web_app_gemini_api_key.py' for Grok Build setup.\"\n"
+        "        )"
+    )
+    src, n_print = re.subn(
+        r'print\(\s*"This zip file includes[\s\S]*?\)',
+        new_print,
+        src,
+        count=1,
+    )
+    if n_folders != 1 or n_print != 1:
+        log("WARNING: zip_creator.py layout unexpected; package list may be stale")
+    with open(creator, "w", encoding="utf-8") as f:
+        f.write(src)
 
 
 # ---------------------------------------------------------------------------
@@ -772,7 +765,14 @@ def main() -> None:
         with open(os.path.join(SRC_COMMANDS, name), "r", encoding="utf-8") as f:
             content = f.read()
         content = transform_command_md(content)
-        with open(os.path.join(DST_COMMANDS, name), "w", encoding="utf-8") as f:
+        out_name = name
+        if name == "update.md":
+            content = content.replace(
+                "Use the **update** skill",
+                "Use the **update-biblemate** skill",
+            )
+            out_name = "update-biblemate.md"
+        with open(os.path.join(DST_COMMANDS, out_name), "w", encoding="utf-8") as f:
             f.write(content)
         n_cmds += 1
     log(f"  {n_cmds} commands")

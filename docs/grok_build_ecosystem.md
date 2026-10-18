@@ -179,8 +179,8 @@ Wildcards (`*`, `?`) and logical combinations (`+`, `|`) follow the shared searc
 | `/sync` | Git add, commit, and push workspace changes |
 | `/md` / `/docx` | Export content to `export/md` or `export/docx` |
 | `/image` | Generate bible-related images into `images/` |
-| `/zip` | Build `manual_setup.zip` with `.grok/`, `preferences/`, and `AGENTS.md` |
-| `/update` | Refresh sources and regenerate the `.grok` ecosystem |
+| `/zip` | Build `manual_setup.zip` with `.agents/`, `.claude/`, `.cursor/`, `.grok/`, and `preferences/`, plus root `AGENTS.md`, `CLAUDE.md`, and the web app scripts |
+| `/update-biblemate` | Refresh sources and regenerate the `.grok` ecosystem |
 
 ---
 
@@ -324,7 +324,7 @@ Shared across platforms:
 
 - Local Bible / commentary / lexicon databases (`BIBLEMATE_DATA` or `~/biblemate`)
 - Study outputs in `biblemate/`, `images/`, `export/`
-- Command and skill **names** (same `/bible`, `/sermon`, `/biblemate`, book skills, etc.)
+- Command and skill **names** (same `/bible`, `/sermon`, `/biblemate`, book skills, etc.). The refresh skill is `/update-biblemate` on Claude Code, Grok Build, and Cursor; Antigravity keeps `/update`.
 
 When regenerating one platform’s tree, leave the others untouched unless you intend to update them.
 

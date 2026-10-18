@@ -1,9 +1,9 @@
 ---
-name: update
-description: Refresh the BibleMate Grok Build ecosystem by re-running the local generator against the latest Claude Code (or antigravity) source. Use when the user runs /update or asks to regenerate the .grok ecosystem.
+name: update-biblemate
+description: Refresh the BibleMate Grok Build ecosystem by re-running the local generator against the latest Claude Code (or antigravity) source. Use when the user runs /update-biblemate or asks to regenerate the .grok ecosystem.
 ---
 
-# Update Skill (Grok Build)
+# Update BibleMate Skill (Grok Build)
 
 ## Overview
 This skill refreshes the self-contained `.grok` BibleMate ecosystem for Grok
@@ -23,7 +23,7 @@ generator) plus the `.claude/` tree as source.
 3. **Optional download & extract** (if `.claude/` is missing or stale and the
    user wants a remote refresh):
    ```bash
-   python3 .grok/skills/update/updater.py
+   python3 .grok/skills/update-biblemate/updater.py
    ```
    If the Claude updater exists, you may also run:
    ```bash

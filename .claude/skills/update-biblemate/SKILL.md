@@ -1,9 +1,9 @@
 ---
-name: update
-description: Refresh the BibleMate Claude Code ecosystem by re-running the local generator against the latest .agents/preferences source.
+name: update-biblemate
+description: Refresh the BibleMate Claude Code ecosystem by re-running the local generator against the latest .agents/preferences source. Use when the user runs /update-biblemate or asks to regenerate the .claude ecosystem.
 ---
 
-# Update Skill (Claude Code)
+# Update BibleMate Skill (Claude Code)
 
 ## Overview
 This skill refreshes the self-contained `.claude` BibleMate ecosystem for Claude
@@ -22,7 +22,7 @@ remote bundle; it does not depend on any other local files outside `.claude/`.
    overwriting source files. Run it in your own copy/fork instead.
 3. **Download & Extract**: Run the updater helper:
    ```bash
-   python3 .claude/skills/update/updater.py
+   python3 .claude/skills/update-biblemate/updater.py
    ```
    This fetches `manual_setup.zip` and extracts `.agents/` and `preferences/`
    into the workspace root.
