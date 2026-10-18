@@ -750,7 +750,7 @@ If you wish to bring these custom Bible study agents and tools into a **differen
 To update your workspace with the latest agent configurations, skills, and command definitions:
 * **For Git users (Method A)**: Simply run `git pull` in your terminal to fetch and merge the latest updates from the upstream repository.
 * **For Manual users (Method B or C)**:
-  * **Via Slash Command (macOS/Linux only)**: On Antigravity, run `/update`. On Claude Code, Grok Build, and Cursor, run `/update-biblemate`. This refreshes sources and regenerates that platform's ecosystem where applicable.
+  * **Via Slash Command (macOS/Linux only)**: Run `/update-biblemate` (available on Antigravity, Claude Code, Grok Build, and Cursor). This refreshes sources and regenerates that platform's ecosystem where applicable.
   * **Via Terminal**: Redo the manual download or re-copy the trees you use (`.agents/`, `preferences/`, `.claude/` and `CLAUDE.md`, `.grok/` and `AGENTS.md`, `.cursor/`) into your repository root, overwriting the existing directories. To rebuild generated trees without re-downloading:
     ```bash
     python3 .claude/build_claude.py   # Claude from .agents/ + preferences/

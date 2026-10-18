@@ -324,7 +324,7 @@ Shared across platforms:
 
 - Local Bible / commentary / lexicon databases (`BIBLEMATE_DATA` or `~/biblemate`)
 - Study outputs in `biblemate/`, `images/`, `export/`
-- Command and skill **names** (same `/bible`, `/sermon`, `/biblemate`, book skills, etc.). The refresh skill is `/update-biblemate` on Claude Code, Grok Build, and Cursor; Antigravity keeps `/update`.
+- Command and skill **names** (same `/bible`, `/sermon`, `/biblemate`, `/update-biblemate`, book skills, etc.).
 
 When regenerating one platform’s tree, leave the others untouched unless you intend to update them.
 
