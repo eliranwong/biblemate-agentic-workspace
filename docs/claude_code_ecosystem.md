@@ -1,8 +1,8 @@
 # Claude Code Ecosystem Guide
 
-This guide explains how to use the **BibleMate** study suite on **Claude Code** (Anthropic). The Claude Code port is a full parallel ecosystem of skills, slash commands, subagents, and personas—equivalent to the Antigravity (`.agents/`), Grok Build (`.grok/`), and Cursor (`.cursor/`) ports—and is self-contained under `.claude/`.
+This guide explains how to use the **BibleMate** study suite on **Claude Code** (Anthropic). The Claude Code port is a full parallel ecosystem of skills, slash commands, subagents, and personas—equivalent to the Antigravity (`.agents/`), Codex (`.codex/`), Grok Build (`.grok/`), and Cursor (`.cursor/`) ports—and is self-contained under `.claude/`.
 
-It runs alongside the other platforms. You can use Antigravity, Claude Code, Grok Build, and Cursor against the same workspace and the same local Bible databases.
+It runs alongside the other platforms. You can use Antigravity, Claude Code, Codex, Grok Build, and Cursor against the same workspace and the same local Bible databases.
 
 ---
 
@@ -170,7 +170,7 @@ Wildcards (`*`, `?`) and logical combinations (`+`, `|`) follow the shared searc
 | `/sync` | Git add, commit, and push workspace changes |
 | `/md` / `/docx` | Export content to `export/md` or `export/docx` |
 | `/image` | Generate bible-related images into `images/` |
-| `/zip` | Build `manual_setup.zip` with `.agents/`, `.claude/`, `.cursor/`, `.grok/`, and `preferences/`, plus root `AGENTS.md`, `CLAUDE.md`, and the web app scripts |
+| `/zip` | Build `manual_setup.zip` with the BibleMate platform bundle (`.agents/`, generated platform trees such as `.claude/`, `.codex/`, `.grok/`, `.cursor/`, and `preferences/`), plus project-rule files and web app scripts |
 | `/update-biblemate` | Refresh sources and regenerate the `.claude` ecosystem |
 
 ---
@@ -282,9 +282,9 @@ The generator is **idempotent**. It rewrites only under `.claude/`:
 
 - `skills/`, `commands/`, `agents/`, `preferences/`, `agents.md`
 
-It does **not** modify `.agents/`, `.grok/`, or root `CLAUDE.md` / `AGENTS.md`.
+It does **not** modify `.agents/`, `.codex/`, `.grok/`, `.cursor/`, or root `CLAUDE.md` / `AGENTS.md`.
 
-After editing shared Antigravity sources, refresh Claude first, then Grok (`.grok/build_grok.py` derives from `.claude/`), then Cursor (`python3 .cursor/build_cursor.py` derives from `.grok/`), so the ecosystems stay aligned.
+After editing shared Antigravity sources, refresh Claude for Claude/Grok/derived Cursor updates, refresh Codex separately with `python3 .codex/build_codex.py`, then Grok (`.grok/build_grok.py` derives from `.claude/`), then Cursor (`python3 .cursor/build_cursor.py` derives from `.grok/`), so the ecosystems stay aligned.
 
 ---
 
@@ -305,6 +305,7 @@ After editing shared Antigravity sources, refresh Claude first, then Grok (`.gro
 | :--- | :--- | :--- |
 | Google Antigravity | `.agents/` | (Antigravity conventions) |
 | Claude Code | `.claude/` | `CLAUDE.md` |
+| Codex | `.codex/` | `.codex/AGENTS.md` |
 | Grok Build | `.grok/` | `AGENTS.md` |
 | Cursor | `.cursor/` | `.cursor/rules/biblemate-skills.mdc` |
 
@@ -335,6 +336,7 @@ When regenerating one platform's tree, leave the others untouched unless you int
 ## Related docs
 
 - [grok_build_ecosystem.md](grok_build_ecosystem.md) — the Grok Build equivalent of this guide
+- [codex_ecosystem.md](codex_ecosystem.md) — the Codex equivalent of this guide
 - [cursor_ecosystem.md](cursor_ecosystem.md) — the Cursor equivalent of this guide
 - [slash_commands.md](slash_commands.md) — full command reference (shared names)
 - [ai_team_personas.md](ai_team_personas.md) — persona profiles

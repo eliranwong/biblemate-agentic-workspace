@@ -1,8 +1,8 @@
 # Cursor Ecosystem Guide
 
-This guide explains how to use the **BibleMate** study suite in **Cursor**. The Cursor port is a parallel set of project skills and a project rule—equivalent in study coverage to the Antigravity (`.agents/`), Claude Code (`.claude/`), and Grok Build (`.grok/`) ports—and lives under `.cursor/`.
+This guide explains how to use the **BibleMate** study suite in **Cursor**. The Cursor port is a parallel set of project skills and a project rule—equivalent in study coverage to the Antigravity (`.agents/`), Claude Code (`.claude/`), Codex (`.codex/`), and Grok Build (`.grok/`) ports—and lives under `.cursor/`.
 
-It runs alongside the other platforms. You can use Antigravity, Claude Code, Grok Build, and Cursor against the same workspace and the same local Bible databases.
+It runs alongside the other platforms. You can use Antigravity, Claude Code, Codex, Grok Build, and Cursor against the same workspace and the same local Bible databases.
 
 ---
 
@@ -167,7 +167,7 @@ Each Protestant canon book has a search skill (for example `Gen`, `John`, `Rom`,
 | `sync` | Git add, commit, and push workspace changes |
 | `md` / `docx` | Export content to `export/md` or `export/docx` |
 | `image` | Generate bible-related images into `images/` with `GenerateImage` |
-| `zip` | Build `manual_setup.zip` with `.agents/`, `.claude/`, `.cursor/`, `.grok/`, and `preferences/`, plus root `AGENTS.md`, `CLAUDE.md`, and the web app scripts |
+| `zip` | Build `manual_setup.zip` with the BibleMate platform bundle (`.agents/`, generated platform trees such as `.claude/`, `.codex/`, `.grok/`, `.cursor/`, and `preferences/`), plus project-rule files and web app scripts |
 | `update-biblemate` | Regenerate the `.cursor` skills from the current `.grok/` tree |
 
 ---
@@ -296,6 +296,8 @@ python3 .grok/build_grok.py
 python3 .cursor/build_cursor.py
 ```
 
+The Codex tree is generated separately from `.agents/` with `python3 .codex/build_codex.py`; Cursor does not read `.codex/`.
+
 The Cursor generator is **idempotent**. It rewrites only:
 
 - `.cursor/skills/`
@@ -303,7 +305,7 @@ The Cursor generator is **idempotent**. It rewrites only:
 - `.cursor/agents.md`
 - `.cursor/rules/biblemate-skills.mdc`
 
-It leaves `.cursor/build_cursor.py`, `.agents/`, `.claude/`, and `.grok/` unchanged.
+It leaves `.cursor/build_cursor.py`, `.agents/`, `.claude/`, `.codex/`, and `.grok/` unchanged.
 
 From the Cursor agent you can also ask it to run the `update-biblemate` skill, which follows the same refresh path.
 
@@ -326,6 +328,7 @@ From the Cursor agent you can also ask it to run the `update-biblemate` skill, w
 | :--- | :--- | :--- |
 | Google Antigravity | `.agents/` | (Antigravity conventions) |
 | Claude Code | `.claude/` | `CLAUDE.md` |
+| Codex | `.codex/` | `.codex/AGENTS.md` |
 | Grok Build | `.grok/` | `AGENTS.md` |
 | Cursor | `.cursor/` | `.cursor/rules/biblemate-skills.mdc` |
 
@@ -335,7 +338,7 @@ Shared across platforms:
 - Study outputs in `biblemate/`, `images/`, `export/`
 - Skill **names** (the same `bible`, `sermon`, `biblemate`, book skills, and so on)
 
-When regenerating one platform’s tree, leave the others untouched unless you intend to update them. Refresh Cursor last, because `.cursor/build_cursor.py` reads `.grok/`.
+When regenerating one platform’s tree, leave the others untouched unless you intend to update them. Refresh Cursor last in the Claude/Grok/Cursor chain, because `.cursor/build_cursor.py` reads `.grok/`. Refresh Codex separately with `python3 .codex/build_codex.py`.
 
 ---
 
@@ -359,6 +362,7 @@ When regenerating one platform’s tree, leave the others untouched unless you i
 - [ai_team_personas.md](ai_team_personas.md) — persona profiles
 - [study_outputs.md](study_outputs.md) — where studies and exports are saved
 - [claude_code_ecosystem.md](claude_code_ecosystem.md) — Claude Code port
+- [codex_ecosystem.md](codex_ecosystem.md) — Codex port
 - [grok_build_ecosystem.md](grok_build_ecosystem.md) — Grok Build port
 - [`.cursor/rules/biblemate-skills.mdc`](../.cursor/rules/biblemate-skills.mdc) — the always-on Cursor rule
 - [`.cursor/agents.md`](../.cursor/agents.md) — combined persona definitions for Cursor

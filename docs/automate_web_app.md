@@ -1,6 +1,6 @@
 # Automating Web App Startup & Headless Deployment
 
-This guide explains how to configure **automatic background startup** for the BibleMate NiceGUI web applications in headless Linux servers, cloud virtual machines, Grok Bot instances, Docker containers, or persistent remote workspaces (e.g. `/workspace/`). Cursor itself runs in the IDE ([cursor_ecosystem.md](cursor_ecosystem.md)); the apps below are the browser front ends for Antigravity, Claude Code, and Grok Build, and they can open studies that Cursor saved under `biblemate/`.
+This guide explains how to configure **automatic background startup** for the BibleMate NiceGUI web applications in headless Linux servers, cloud virtual machines, Grok Bot instances, Docker containers, or persistent remote workspaces (e.g. `/workspace/`). Cursor runs in the IDE ([cursor_ecosystem.md](cursor_ecosystem.md)); the apps below are the browser front ends for Antigravity, Claude Code, Codex, and Grok Build, and they can open studies saved under `biblemate/`.
 
 With this setup, the web application runs in the background on its assigned port, automatically starts upon shell login or container initialization if not already listening, logs output to a file, and remains accessible from your browser.
 
@@ -138,7 +138,7 @@ If you run another platform variant (or switch between them), use this adaptable
 # ==============================================================================
 # BibleMate Web App Auto-Start (Configurable)
 # ==============================================================================
-# Target script: web_app_agy.py | web_app_claude.py | web_app_grok.py | web_app_gemini_api_key.py
+# Target script: web_app_agy.py | web_app_claude.py | web_app_codex.py | web_app_grok.py | web_app_gemini_api_key.py
 APP_SCRIPT="web_app_claude.py"
 APP_PORT=33379
 WORKSPACE_DIR="/workspace/biblemate_studies"
@@ -165,6 +165,7 @@ fi
 | :--- | :--- | :--- | :--- |
 | **Antigravity CLI** | `web_app_agy.py` | `33380` | `BIBLEMATE_AGY_PORT` |
 | **Claude Code** | `web_app_claude.py` | `33379` | `BIBLEMATE_CLAUDE_PORT` |
+| **Codex** | `web_app_codex.py` | `33376` | `BIBLEMATE_CODEX_PORT` |
 | **Grok Build** | `web_app_grok.py` | `33378` | `BIBLEMATE_GROK_PORT` |
 | **Google Antigravity SDK** | `web_app_gemini_api_key.py` | `33377` | *(fixed)* |
 
@@ -176,14 +177,14 @@ You can define quick alias functions in `~/.bashrc` to control and monitor the a
 
 ```bash
 # Check if BibleMate port is listening
-alias bm-status="ss -tulpn | grep -E '33377|33378|33379|33380'"
+alias bm-status="ss -tulpn | grep -E '33376|33377|33378|33379|33380'"
 
 # Follow live server logs
 alias bm-logs="tail -f /tmp/biblemate-*.log"
 
 # Stop all running BibleMate web app instances
 stop_biblemate() {
-  pkill -f "web_app_(claude|agy|grok|gemini_api_key)\.py" && echo "BibleMate services stopped." || echo "No BibleMate services found."
+  pkill -f "web_app_(claude|codex|agy|grok|gemini_api_key)\.py" && echo "BibleMate services stopped." || echo "No BibleMate services found."
 }
 ```
 
@@ -267,5 +268,6 @@ systemctl status biblemate-claude.service
 
 4. **CLI Authentication Inside Headless Environments**:
    - **For Claude Code (`web_app_claude.py`)**: Run `claude --version` and ensure you are logged into Claude.
+   - **For Codex (`web_app_codex.py`)**: Run `codex --version` and ensure you are logged in with `codex login`.
    - **For Grok Build (`web_app_grok.py`)**: Run `grok login` once so that `~/.grok/auth.json` is populated.
    - **For Antigravity CLI (`web_app_agy.py`)**: Run `agy auth login` or verify `agy models`.

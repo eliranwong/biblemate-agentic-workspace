@@ -1,0 +1,59 @@
+---
+name: zip
+description: Create manual_setup.zip containing .agents/, .claude/, .codex/, .cursor/, .grok/, preferences/, AGENTS.md, CLAUDE.md, and the standalone web apps (web_app_agy.py, web_app_claude.py, web_app_codex.py, web_app_grok.py, web_app_gemini_api_key.py) for manual repository setup. Use when the user runs /zip or requests this BibleMate workflow.
+---
+
+# Zip Archive Skill (Codex)
+
+## Overview
+This skill packages the `.agents/`, `.claude/`, `.codex/`, `.cursor/`, and `.grok/`
+configuration trees, root `preferences/`, root `AGENTS.md`, root `CLAUDE.md`,
+and the standalone web applications into a single `manual_setup.zip` at the
+repository root. That archive lets users manually import the Antigravity,
+Claude Code, Codex, Cursor, and Grok Build BibleMate personas, skills, workflows,
+database preferences, and browser apps into a new repository.
+
+Folders included in the archive:
+
+- `.agents/`
+- `.claude/`
+- `.codex/`
+- `.cursor/`
+- `.grok/`
+- `preferences/`
+
+Root files included in the archive:
+
+- `AGENTS.md`
+- `CLAUDE.md`
+- `web_app_agy.py`
+- `web_app_claude.py`
+- `web_app_codex.py`
+- `web_app_grok.py`
+- `web_app_gemini_api_key.py`
+
+## Guidelines & Objectives
+When executing this skill:
+1. **Remove Existing Archive**: Before creating a new zip file, always check for
+   the existence of `manual_setup.zip` in the root of the repository. If it
+   exists, delete it first to ensure the archive is built fresh.
+2. **Execute Python Helper**: Run the zip creator script:
+   ```bash
+   python3 .codex/skills/zip/zip_creator.py
+   ```
+3. **Git Integration**: The script will automatically detect if the repository
+   is a Git repository. If it is, and `manual_setup.zip` has modifications, it
+   will stage, commit, and push it to the remote repository.
+4. **Report Status**: Once the ZIP archive is successfully created and Git
+   integration has run, output a clear summary confirming the creation of
+   `manual_setup.zip` and the Git synchronization status.
+
+## Codex Runtime Notes
+
+- Use this `.codex/skills/zip/` copy as the active skill. Do not invoke
+  sibling skills from `.agents/`, `.claude/`, `.grok/`, or `.cursor/`.
+- Run helper scripts with `exec_command` from the repository root, using the
+  `.codex/skills/...` paths named above.
+- Use `apply_patch` when creating or editing repository files; use shell
+  commands only for execution, inspection, validation, and generated helper
+  output.

@@ -1,0 +1,32 @@
+---
+name: ot-highligths
+description: Outline key highlights, major events, and summaries for an Old Testament passage. Use when the user runs /ot-highligths or requests this BibleMate workflow.
+---
+
+# Ot Highligths Skill
+
+## Overview
+This standalone skill enables any agent to perform a high-quality ot highligths study for a given Bible reference, text, or topic.
+
+## Guidelines & Objectives
+When executing this skill:
+- Keep explanations biblically accurate and structurally clear.
+- Cite specific book, chapter, and verse references for all statements.
+- Ensure that the output is comprehensive, addressing all prompt criteria without skipping sections.
+- Focus strictly on the requirements of this specific study type.
+
+## Instructions
+Outline key highlights, major events, and summaries for an Old Testament passage:
+1. **Narrative/Theological Milestones**: Pivotal events, miracles, speeches, or commands.
+2. **Covenantal Signs**: How this passage updates, enforces, or fulfills God's covenant promises.
+3. **Major Disclosures**: Core revelations about God's character, judgment, or salvation.
+
+## Codex Runtime Notes
+
+- Use this `.codex/skills/ot-highligths/` copy as the active skill. Do not invoke
+  sibling skills from `.agents/`, `.claude/`, `.grok/`, or `.cursor/`.
+- Run helper scripts with `exec_command` from the repository root, using the
+  `.codex/skills/...` paths named above.
+- Use `apply_patch` when creating or editing repository files; use shell
+  commands only for execution, inspection, validation, and generated helper
+  output.

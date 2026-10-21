@@ -1,12 +1,12 @@
 ---
 name: zip
-description: Create manual_setup.zip containing .claude/, preferences/, .grok/, .agents/, and .cursor/ folders, and the AGENTS.md, CLAUDE.md, web_app_gemini_api_key.py, web_app_agy.py, web_app_claude.py, and web_app_grok.py files for manual repository setup.
+description: Create manual_setup.zip containing .claude/, preferences/, .codex/, .grok/, .agents/, and .cursor/ folders, and the AGENTS.md, CLAUDE.md, web_app_gemini_api_key.py, web_app_agy.py, web_app_claude.py, web_app_codex.py, and web_app_grok.py files for manual repository setup.
 ---
 
 # Zip Archive Skill
 
 ## Overview
-This skill packages the `.claude/` configuration, `preferences/`, `.grok/`, `.agents/`, and `.cursor/` directories, and the `AGENTS.md`, `CLAUDE.md`, `web_app_gemini_api_key.py`, `web_app_agy.py`, `web_app_claude.py`, and `web_app_grok.py` files into a single `manual_setup.zip` file at the repository root. This archive provides users with a convenient way to manually import the customized AI team personas, skills, workflows, database preferences, Claude Code configurations, Grok Build configurations, antigravity-platform configurations, Cursor configurations, and web application scripts into their own new repositories.
+This skill packages the `.claude/` configuration, `preferences/`, `.codex/`, `.grok/`, `.agents/`, and `.cursor/` directories, and the `AGENTS.md`, `CLAUDE.md`, `web_app_gemini_api_key.py`, `web_app_agy.py`, `web_app_claude.py`, `web_app_codex.py`, and `web_app_grok.py` files into a single `manual_setup.zip` file at the repository root. This archive provides users with a convenient way to manually import the customized AI team personas, skills, workflows, database preferences, Claude Code configurations, Codex configurations, Grok Build configurations, antigravity-platform configurations, Cursor configurations, and web application scripts into their own new repositories.
 
 ## Guidelines & Objectives
 When executing this skill:

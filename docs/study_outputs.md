@@ -2,7 +2,7 @@
 
 For pastors, theologians, and biblical scholars, having instant access to editable, permanent files is essential. Unlike standard chat assistants where research disappears when the session ends or gets buried in temporary artifact caches, the **BibleMate Agentic Workspace** automatically writes all theological output directly to physical, editable markdown (`.md`) documents inside your local workspace.
 
-This guide details where those files are saved, how they are named, and how to utilize them in your sermon preparation or academic research. Antigravity, Claude Code, Grok Build, and Cursor all write to these same folders. In Cursor, the agent saves study files with the `Write` tool, as required by [`.cursor/rules/biblemate-skills.mdc`](../.cursor/rules/biblemate-skills.mdc). See [cursor_ecosystem.md](cursor_ecosystem.md).
+This guide details where those files are saved, how they are named, and how to utilize them in your sermon preparation or academic research. Antigravity, Claude Code, Codex, Grok Build, and Cursor all write to these same folders. In Codex, use the Codex-native skills under [`.codex/skills/`](../.codex/skills); in Cursor, the agent saves study files with the `Write` tool, as required by [`.cursor/rules/biblemate-skills.mdc`](../.cursor/rules/biblemate-skills.mdc). See [codex_ecosystem.md](codex_ecosystem.md) and [cursor_ecosystem.md](cursor_ecosystem.md).
 
 ---
 
@@ -60,7 +60,7 @@ When executing a full multi-phase study, a dedicated timestamped folder is creat
 
 ## 🖥️ Viewing Saved Files in the Web Application
 
-If you are running any of the standalone browser-based web applications (`web_app_agy.py`, `web_app_gemini_api_key.py`, `web_app_claude.py`, or `web_app_grok.py`), you can browse all these saved files dynamically:
+If you are running any of the standalone browser-based web applications (`web_app_agy.py`, `web_app_gemini_api_key.py`, `web_app_claude.py`, `web_app_codex.py`, or `web_app_grok.py`), you can browse all these saved files dynamically. Cursor studies are saved to the same folders, so the web apps can browse them too:
 1.  Open the **Left Sidebar Drawer** (using the menu icon at the top left).
 2.  Click on any file under **Saved Studies** (`biblemate/`), **Images** (`images/`), or **Word Exports** (`export/`).
 3.  The file will open instantly in the **Document Reader** tab, rendering beautiful, readable formatting with full styling.

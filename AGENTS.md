@@ -7,10 +7,33 @@ all live under `.grok/` and use only relative paths, so the workspace is portabl
 
 > The original Antigravity configuration remains in `.agents/`.
 > The Claude Code port remains in `.claude/`.
+> The Codex port lives in `.codex/`.
 > `.grok/` is a parallel ecosystem generated from `.claude/` by
 > `python3 .grok/build_grok.py`. Re-run that generator after refreshing
 > `.claude/` (or after editing skills/commands you want mirrored) to update
 > `.grok/`.
+
+## Codex usage
+
+When working in Codex, use the Codex-native skills in `.codex/skills/`.
+Read `.codex/skills/<name>/SKILL.md` before running a BibleMate workflow, and
+run helper scripts from `.codex/skills/...` paths. Do not invoke sibling skill
+copies from `.agents/`, `.claude/`, `.grok/`, or `.cursor/`.
+
+The Codex skill names are hyphen-case/lowercase for Codex compatibility, so
+book search skills live at paths like `.codex/skills/gen/` and
+`.codex/skills/1cor/`; their descriptions still recognize the familiar
+BibleMate commands such as `/Gen` and `/1Cor`.
+
+Refresh the Codex tree with:
+
+```bash
+python3 .codex/build_codex.py
+```
+
+The Codex generator rewrites only generated Codex artifacts under `.codex/`:
+`skills/`, `preferences/`, and `agents.md`. It does not modify `.agents/`,
+`.claude/`, `.grok/`, or `.cursor/`.
 
 ## Layout
 
@@ -23,6 +46,13 @@ all live under `.grok/` and use only relative paths, so the workspace is portabl
   commands/<name>.md       # ~125 slash command workflows
   agents/<slug>.md         # 15 agent definitions (spawn_subagent types)
   personas/<slug>.toml     # 15 persona overlays for subagents
+
+.codex/
+  build_codex.py           # regenerates the .codex ecosystem for Codex
+  AGENTS.md                # Codex-specific usage notes
+  agents.md                # persona reference ported for Codex wording
+  preferences/             # default bible/commentary/lexicon version files
+  skills/<name>/SKILL.md   # 125 Codex skills + helper scripts
 ```
 
 Skills and commands share the same names as the Antigravity / Claude workflows,

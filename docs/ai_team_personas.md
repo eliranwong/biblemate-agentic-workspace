@@ -1,6 +1,6 @@
 ## The AI Team Personas
 
-The ecosystem configures a team of 15 specialized personas defined in [.agents/agents.md](../.agents/agents.md). The same personas are ported for Claude Code ([.claude/agents.md](../.claude/agents.md)), Grok Build ([.grok/agents.md](../.grok/agents.md)), and Cursor ([.cursor/agents.md](../.cursor/agents.md)). In Cursor, study skills adopt a persona from that file, or you can delegate a step with the `Task` tool and the persona slug (see [cursor_ecosystem.md](cursor_ecosystem.md)):
+The ecosystem configures a team of 15 specialized personas defined in [.agents/agents.md](../.agents/agents.md). The same personas are ported for Claude Code ([.claude/agents.md](../.claude/agents.md)), Codex ([.codex/agents.md](../.codex/agents.md)), Grok Build ([.grok/agents.md](../.grok/agents.md)), and Cursor ([.cursor/agents.md](../.cursor/agents.md)). In Codex and Cursor, study skills adopt a persona from the platform's `agents.md`; in Cursor, you can also delegate a step with the `Task` tool and the persona slug (see [codex_ecosystem.md](codex_ecosystem.md) and [cursor_ecosystem.md](cursor_ecosystem.md)):
 - **Passionate Evangelist**: Warm, earnest, direct evangelistic speaker.
 - **Context Analyst David**: Specializes in historical-emotional analysis of the Psalms and David's life.
 - **Biblical Content Interpreter**: Evaluates contemporary culture and articles from a Gospel-focused worldview.

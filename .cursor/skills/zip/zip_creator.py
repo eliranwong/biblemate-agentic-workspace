@@ -23,12 +23,13 @@ def main():
     print("Creating manual_setup.zip...")
     
     # Folders and root files to zip (Cursor ecosystem)
-    folders_to_zip = ['.agents', 'preferences', '.claude', '.cursor', '.grok']
+    folders_to_zip = ['.agents', 'preferences', '.claude', '.codex', '.cursor', '.grok']
     files_to_zip = [
         'AGENTS.md',
         'CLAUDE.md',
         'web_app_agy.py',
         'web_app_claude.py',
+        'web_app_codex.py',
         'web_app_grok.py',
         'web_app_gemini_api_key.py',
     ]
@@ -59,9 +60,9 @@ def main():
                         
         print(f"Successfully created manual_setup.zip at: {zip_path}")
         print(
-            "This zip file includes the '.agents/', 'preferences/', '.claude/', '.cursor/', and '.grok/' folders, "
+            "This zip file includes the '.agents/', 'preferences/', '.claude/', '.codex/', '.cursor/', and '.grok/' folders, "
             "and the 'AGENTS.md', 'CLAUDE.md', and the standalone web apps "
-            "'web_app_agy.py', 'web_app_claude.py', 'web_app_grok.py', "
+            "'web_app_agy.py', 'web_app_claude.py', 'web_app_codex.py', 'web_app_grok.py', "
             "and 'web_app_gemini_api_key.py' for Cursor setup."
         )
         
