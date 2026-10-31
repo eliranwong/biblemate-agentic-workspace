@@ -15,7 +15,7 @@ It runs alongside the other platforms. You can use Antigravity, Claude Code, Cod
    > local or cloud [Ollama](https://ollama.com) backend instead of the hosted
    > Anthropic API — useful for fully local, open-source setups. Setup details:
    > [docs.ollama.com/integrations/claude-code](https://docs.ollama.com/integrations/claude-code).
-   > For BibleMate study workflows, the open-source **GLM-5.2** model is
+   > For BibleMate study workflows, the open-source **GLM-5.3-Flash** model is
    > recommended.
 2. **This repository** opened as the workspace root (so Claude Code discovers `.claude/` and `CLAUDE.md`).
 3. **Local Bible data** (not bundled in the repo—files are large):

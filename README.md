@@ -804,7 +804,7 @@ To utilize the core capabilities of the local Bible study tools (such as databas
      [Google Antigravity Documentation](https://antigravity.google/docs).
    - **Claude Code** (optional) — [Claude Code](https://claude.com/claude-code);
      uses the `.claude/` and `CLAUDE.md` ecosystem. You can run Claude Code against a local or
-     cloud [Ollama](https://ollama.com) backend, **GLM-5.2** is recommended for
+     cloud [Ollama](https://ollama.com) backend, **GLM-5.3-Flash** is recommended for
      BibleMate study workflows.
    - **Codex** (optional) — [Codex](https://openai.com/codex/);
      uses the `.codex/` skill ecosystem and `.codex/AGENTS.md`. Guide:
