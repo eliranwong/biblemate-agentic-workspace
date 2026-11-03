@@ -89,11 +89,12 @@ SKILLS_LIST = get_skills()
 # CLI session default is configured with" (no --model flag is passed).
 MODELS_MAP = {
     'Default (session default)': None,
-    'Gemini 3.6 Flash (Medium)': 'gemini-3.6-flash-medium',
-    'Gemini 3.6 Flash (High)': 'gemini-3.6-flash-high',
-    'Gemini 3.6 Flash (Low)': 'gemini-3.6-flash-low',
-    'Gemini 3.1 Pro (High)': 'gemini-3.1-pro-high',
-    'Gemini 3.1 Pro (Low)': 'gemini-3.1-pro-low',
+    'Gemini 3.8 Flash (Medium)': 'gemini-3.8-flash-medium',
+    'Gemini 3.8 Flash (High)': 'gemini-3.8-flash-high',
+    'Gemini 3.8 Flash (Low)': 'gemini-3.8-flash-low',
+    'Gemini 4 Argon (Medium)': 'gemini-4-argon-medium',
+    'Gemini 4 Argon (High)': 'gemini-4-argon-high',
+    'Gemini 4 Argon (Low)': 'gemini-4-argon-low',
     'Claude Opus 5.5 (Medium)': 'claude-opus-5-5-medium',
     'Claude Opus 5.5 (High)': 'claude-opus-5-5-high',
     'Claude Opus 5.5 (Low)': 'claude-opus-5-5-low',
@@ -102,7 +103,7 @@ MODELS_MAP = {
     'Claude Sonnet 5.5 (Low)': 'claude-sonnet-5-5-low',
     'GPT-OSS 120B (Medium)': 'gpt-oss-120b-medium',
 }
-DEFAULT_MODEL = 'Gemini 3.6 Flash (Medium)'
+DEFAULT_MODEL = 'Gemini 3.8 Flash (Medium)'
 
 # Regex to match scripture references (e.g. John 3:16, 1 Cor 13, Romans 8:28, 1Tim 3:16)
 BIBLE_REF_PATTERN = re.compile(
