@@ -1,9 +1,12 @@
 ---
 name: update-biblemate
-description: Download and extract the manual setup zip to initialize workspace directories.
+description: Download and extract the manual setup zip to initialize workspace directories. Use when the user runs /update-biblemate or requests this BibleMate workflow.
 ---
 
 # Update BibleMate Skill
+
+## Persona
+Adopt the **Verse Scripter** persona from `.agents/agents.md`.
 
 ## Overview
 This standalone skill enables the agent to update or initialize a workspace by downloading a manual setup zip file, extracting it, and creating the necessary workspace directories (such as `biblemate`, `notes`, `images`, `export`).

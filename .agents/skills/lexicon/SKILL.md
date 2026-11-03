@@ -1,9 +1,12 @@
 ---
 name: lexicon
-description: Retrieve and compare definitions for Strong's numbers or original language keys from local lexicon databases.
+description: Retrieve and compare definitions for Strong's numbers or original language keys from local lexicon databases. Use when the user runs /lexicon or requests this BibleMate workflow.
 ---
 
 # Bible Lexicon Retrieval Skill
+
+## Persona
+Adopt the **Verse Scripter** persona from `.agents/agents.md`.
 
 ## Overview
 This standalone skill enables any agent to retrieve and compare definitions for Strong's numbers (e.g. H148, G2479) or other lexicon keys directly from local SQLite databases stored in `~/biblemate/data/lexicons` or `~/biblemate/data_custom/lexicons`.

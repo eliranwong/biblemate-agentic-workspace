@@ -1,9 +1,12 @@
 ---
 name: zip
-description: Create manual_setup.zip containing .agents/, preferences/, .claude/, .codex/, .cursor/, and .grok/ folders, and the AGENTS.md, CLAUDE.md, web_app_agy.py, web_app_claude.py, web_app_codex.py, web_app_grok.py, and web_app_gemini_api_key.py files for manual repository setup.
+description: Create manual_setup.zip containing .agents/, preferences/, .claude/, .codex/, .cursor/, and .grok/ folders, and the AGENTS.md, CLAUDE.md, web_app_agy.py, web_app_claude.py, web_app_codex.py, web_app_grok.py, and web_app_gemini_api_key.py files for manual repository setup. Use when the user runs /zip or requests this BibleMate workflow.
 ---
 
 # Zip Archive Skill
+
+## Persona
+Adopt the **Verse Scripter** persona from `.agents/agents.md`.
 
 ## Overview
 This skill packages the `.agents/` configuration, `preferences/`, `.claude/`, `.codex/`, `.cursor/`, and `.grok/` directories, and the `AGENTS.md`, `CLAUDE.md`, `web_app_agy.py`, `web_app_claude.py`, `web_app_codex.py`, `web_app_grok.py`, and `web_app_gemini_api_key.py` files into a single `manual_setup.zip` file at the repository root. This archive provides users with a convenient way to manually import the customized AI team personas, skills, workflows, database preferences, Claude Code configurations, Codex configurations, Grok Build configurations, and web application scripts into their own new repositories.
@@ -17,4 +20,3 @@ When executing this skill:
    ```
 3. **Git Integration**: The script will automatically detect if the repository is a Git repository. If it is, and `manual_setup.zip` has modifications, it will stage, commit, and push it to the remote repository.
 4. **Report Status**: Once the ZIP archive is successfully created and Git integration has run, output a clear summary confirming the creation of `manual_setup.zip` and the Git synchronization status.
-

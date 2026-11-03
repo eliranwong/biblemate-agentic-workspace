@@ -1,9 +1,12 @@
 ---
 name: flow
-description: Trace and analyze the author's logical thought progression in effectively conveying their message.
+description: Trace and analyze the author's logical thought progression in effectively conveying their message. Use when the user runs /flow or requests this BibleMate workflow.
 ---
 
 # Flow Skill
+
+## Persona
+Adopt the **OT Bible Scholar** (for Old Testament passages) or **NT Bible Scholar** (for New Testament passages) persona from `.agents/agents.md`.
 
 ## Overview
 This standalone skill enables any agent to perform a high-quality flow study for a given Bible reference, text, or topic.
@@ -21,3 +24,4 @@ Provide a detailed overview of the author's thought progression in a book, chapt
 2. **Logical Connectives**: Identify key conjunctions, transition phrases, and rhetorical questions that move the argument.
 3. **Premise-Conclusion Flow**: Trace how the author builds their argument, addresses objections, and arrives at conclusions.
 4. **Rhetorical Strategy**: Detail the literary devices, comparisons, or historical examples the author uses to persuade the audience.
+- Provide a detailed overview of the author's thought progression in effectively conveying the key messages of the given book, chapter, or passage.

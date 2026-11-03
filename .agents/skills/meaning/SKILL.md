@@ -1,9 +1,12 @@
 ---
 name: meaning
-description: Analyze and explain the core spiritual and theological meaning of a passage.
+description: Analyze and explain the core spiritual and theological meaning of a passage. Use when the user runs /meaning or requests this BibleMate workflow.
 ---
 
 # Meaning Skill
+
+## Persona
+Adopt the **Biblical Theologian** persona from `.agents/agents.md`.
 
 ## Overview
 This standalone skill enables any agent to perform a high-quality meaning study for a given Bible reference, text, or topic.
@@ -20,3 +23,4 @@ Analyze and explain the core theological and spiritual meaning of a passage:
 1. **Authorial Intent**: What did the human author intend to communicate to the original audience?
 2. **Divine Intent**: What is the timeless theological message inspired by the Holy Spirit?
 3. **Doctrinal Synthesis**: How does this passage connect to systematic theology (e.g., theology proper, anthropology, soteriology)?
+- Explain the core spiritual and theological meaning of the given content in reference to the Bible, supported by concrete Scripture citations retrieved via the `bible` skill.

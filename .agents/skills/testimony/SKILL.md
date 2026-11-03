@@ -1,9 +1,12 @@
 ---
 name: testimony
-description: Retrieve verified real-life and missionary testimonies from local database or online research, including background details and fact-checking sources.
+description: Retrieve verified real-life and missionary testimonies from local database or online research, including background details and fact-checking sources. Use when the user runs /testimony or requests this BibleMate workflow.
 ---
 
 # Testimony Retrieval & Generation Skill
+
+## Persona
+Adopt the **Passionate Evangelist** persona from `.agents/agents.md`.
 
 ## Overview
 This standalone skill enables any agent to find, verify, and write real-life or missionary-historical testimonies that address the user's specific input, struggle, or sermon topic. All testimonies must be completely real and verified.
@@ -25,7 +28,6 @@ When executing this skill:
 2. **Perform Online Search (if needed)**:
    If no direct match is found in the local registry, or if a specific modern scenario is queried:
    - Use the `search_web` tool to search for real-life testimonies, modern missionary reports, or news articles.
-   - Use the `read_url_content` tool to fetch pages and verify the details.
    - Compile the narrative, biographical background, and fact-checking sources.
 3. **Retrieve and Quote Bible Passages**:
    Identify the theological themes or verses connected to the testimony, and retrieve the exact text of those verses using the local `bible` skill.

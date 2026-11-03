@@ -1,9 +1,12 @@
 ---
 name: chronology
-description: Expound biblical chronology using local datasets and academic-historical knowledge.
+description: Expound biblical chronology using local datasets and academic-historical knowledge. Use when the user runs /chronology or requests this BibleMate workflow.
 ---
 
 # Chronology Skill
+
+## Persona
+Adopt the **OT Bible Scholar** (for Old Testament periods), **NT Bible Scholar** (for New Testament periods), or **Biblical Theologian** persona from `.agents/agents.md` depending on the context of the query.
 
 ## Overview
 This standalone skill enables any agent to search and expound biblical, royal, and apostolic timelines. It queries a set of local chronology text files to locate matching records, and complements those findings with historical-grammatical scholarship.

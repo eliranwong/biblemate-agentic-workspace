@@ -1,9 +1,12 @@
 ---
 name: bible
-description: Retrieve bible verses from the local SQLite databases based on versions and references.
+description: Retrieve bible verses from the local SQLite databases based on versions and references. Use when the user runs /bible or requests this BibleMate workflow.
 ---
 
 # Bible Retrieval Skill
+
+## Persona
+Adopt the **Verse Scripter** persona from `.agents/agents.md`.
 
 ## Overview
 This standalone skill enables any agent to retrieve and compare Bible verses directly from the local SQLite databases stored in `~/biblemate/data/bibles` or `~/biblemate/data_custom/bibles`.

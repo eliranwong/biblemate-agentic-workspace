@@ -1,9 +1,12 @@
 ---
 name: daily-read
-description: Retrieve the scheduled daily bible readings for a given date or today, and retrieve the bible texts.
+description: Retrieve the scheduled daily bible readings for a given date or today, and retrieve the bible texts. Use when the user runs /daily-read or requests this BibleMate workflow.
 ---
 
 # Daily Read Skill
+
+## Persona
+Adopt the **Verse Scripter** persona from `.agents/agents.md`.
 
 ## Overview
 This standalone skill calculates the day of the year (on a 365-day yearly basis) for a specified date or the current date. It maps the day of the year to a daily Bible reading plan and fetches the actual scripture texts using the local bible retrieval system.

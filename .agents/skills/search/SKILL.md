@@ -1,9 +1,12 @@
 ---
 name: search
-description: Search for given words or phrases in one or multiple bibles, with wildcards (*, ?) and logical combinations (+, |) supported.
+description: Search for given words or phrases in one or multiple bibles, with wildcards (*, ?) and logical combinations (+, |) supported. Use when the user runs /search or requests this BibleMate workflow.
 ---
 
 # Bible Search Skill
+
+## Persona
+Adopt the **Verse Scripter** persona from `.agents/agents.md`.
 
 ## Overview
 This standalone skill enables any agent to search for words or phrases inside local SQLite Bible databases stored in `~/biblemate/data/bibles` or `~/biblemate/data_custom/bibles`.

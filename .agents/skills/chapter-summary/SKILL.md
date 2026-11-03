@@ -1,9 +1,12 @@
 ---
 name: chapter-summary
-description: Generate a detailed summary, structure, and theological interpretation of a bible chapter.
+description: Generate a detailed summary, structure, and theological interpretation of a bible chapter. Use when the user runs /chapter-summary or requests this BibleMate workflow.
 ---
 
 # Chapter Summary Skill
+
+## Persona
+Adopt the **OT Bible Scholar** (for Old Testament chapters) or **NT Bible Scholar** (for New Testament chapters) persona from `.agents/agents.md`.
 
 ## Overview
 This standalone skill enables any agent to perform a high-quality chapter summary study for a given Bible reference, text, or topic.
@@ -27,3 +30,15 @@ Write a detailed, scholarly interpretation on a bible chapter. Provide a structu
 5. **Canonical & Covenantal Links**: Connecting this chapter to the broader redemptive storyline of Scripture.
 6. **Pastoral & Practical Application**: Life applications grounded in the chapter's theological message.
 
+## Guiding Questions
+Combine the retrieved database output with your scholar persona and relevant Scripture references (verified and retrieved using the local `bible` skill rather than from memory) to address all of the following questions:
+1. What is the overview of the chapter? (Expand on the overview retrieved from the database)
+2. How are the verses in this chapter structured or organized? (Elaborate on the structural outline retrieved from the database)
+3. Are there any key verses or passages in the chapter? (Cite and explain them)
+4. Are there any significant characters, events, or symbols in the chapter?
+5. What are the main themes or messages of the chapter? (Deepen the themes retrieved from the database)
+6. What historical or cultural context is important to understand the chapter?
+7. How have theologians, scholars, or religious leaders interpreted this chapter?
+8. Are there any popular interpretations or controversies related to this chapter?
+9. How does this chapter relate to other chapters, books, or themes in the Bible?
+10. What lessons or morals can be taken from the chapter?

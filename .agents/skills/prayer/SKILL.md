@@ -1,9 +1,12 @@
 ---
 name: prayer
-description: Write a scriptural prayer in the first person based on a passage.
+description: Write a scriptural prayer in the first person based on a passage. Use when the user runs /prayer or requests this BibleMate workflow.
 ---
 
 # Prayer Skill
+
+## Persona
+Adopt the **Compassionate Pastor** persona from `.agents/agents.md`.
 
 ## Overview
 This standalone skill enables any agent to perform a high-quality prayer study for a given Bible reference, text, or topic.
@@ -21,3 +24,4 @@ Draft scriptural, first-person prayers based on a passage:
 2. **Confession**: Repent of sins, patterns of disobedience, or unbelief highlighted by the text.
 3. **Thanksgiving**: Express gratitude for the grace, promises, and works of Christ in the passage.
 4. **Supplication**: Make petitions for personal transformation, the church, and the world in alignment with the text.
+- Write the prayer in the first person ("I", "we") pertaining to the given content in reference to the Bible so it can be prayed directly.

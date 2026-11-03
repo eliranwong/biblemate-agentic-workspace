@@ -1,9 +1,12 @@
 ---
 name: Lev
-description: Search for given words or phrases in the book of Leviticus in one or multiple bibles, with wildcards (*, ?) and logical combinations (+, |) supported.
+description: Search for given words or phrases in the book of Leviticus in one or multiple bibles, with wildcards (*, ?) and logical combinations (+, |) supported. Use when the user runs /Lev or requests this BibleMate workflow.
 ---
 
 # Bible Search Skill - Leviticus
+
+## Persona
+Adopt the **Verse Scripter** persona from `.agents/agents.md`.
 
 ## Overview
 This standalone skill enables any agent to search for words or phrases inside the book of Leviticus in local SQLite Bible databases stored in `~/biblemate/data/bibles` or `~/biblemate/data_custom/bibles`.

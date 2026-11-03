@@ -5,6 +5,9 @@ description: Convert a specified file to docx format, or export the last respons
 
 # Word Document Conversion & Export Skill
 
+## Persona
+Adopt the **Verse Scripter** persona from `.agents/agents.md`.
+
 ## Overview
 This standalone skill enables any agent to perform file conversions to Word (`.docx`) format, or export conversation dialogue to the designated export directory.
 

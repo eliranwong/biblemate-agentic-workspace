@@ -1,9 +1,12 @@
 ---
 name: promises
-description: Identify and quote relevant biblical promises for a specific topic or passage.
+description: Identify and quote relevant biblical promises for a specific topic or passage. Use when the user runs /promises or requests this BibleMate workflow.
 ---
 
 # Promises Skill
+
+## Persona
+Adopt the **Verse Scripter** or **Compassionate Pastor** persona from `.agents/agents.md`.
 
 ## Overview
 This standalone skill enables any agent to perform a high-quality promises study for a given Bible reference, text, or topic by retrieving promise lists from the local collections database.
@@ -38,4 +41,3 @@ Identify 3-5 additional relevant scriptures from the wider Bible that were not r
 
 ### 4. Pastoral Reflection or Prayer
 Provide a scriptural prayer in the first person based on these promises so the user can pray it directly, or a warm pastoral reflection.
-

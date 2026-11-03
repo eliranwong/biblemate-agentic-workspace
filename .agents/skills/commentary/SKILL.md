@@ -1,9 +1,12 @@
 ---
 name: commentary
-description: Retrieve bible commentaries from the local SQLite databases based on versions and references.
+description: Retrieve bible commentaries from the local SQLite databases based on versions and references. Use when the user runs /commentary or requests this BibleMate workflow.
 ---
 
 # Bible Commentary Skill
+
+## Persona
+Adopt the **Verse Scripter** persona from `.agents/agents.md`.
 
 ## Overview
 This standalone skill enables any agent to retrieve and compare Bible commentaries directly from the local SQLite databases stored in `~/biblemate/data/commentaries` or `~/biblemate/data_custom/commentaries`.

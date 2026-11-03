@@ -1,9 +1,12 @@
 ---
 name: book-analysis
-description: Produce a comprehensive introduction, historical background, and overview of a bible book.
+description: Produce a comprehensive introduction, historical background, and overview of a bible book. Use when the user runs /book-analysis or requests this BibleMate workflow.
 ---
 
 # Book Analysis Skill
+
+## Persona
+Adopt the **OT Bible Scholar** (for Old Testament books) or **NT Bible Scholar** (for New Testament books) persona from `.agents/agents.md`.
 
 ## Overview
 This standalone skill enables any agent to perform a high-quality introduce book study for a given Bible reference, text, or topic.
@@ -26,3 +29,16 @@ Produce a comprehensive scholarly introduction and overview of a bible book. Int
 4. **Theological Themes**: Core doctrines, covenantal focus, and major teachings. Deepen the Themes, Keywords, and Theology retrieved from the database.
 5. **Christological Focus**: How the book reveals Jesus Christ and the Gospel.
 6. **Canonical Placement & Practical Application**: Setting the book's location in the grand storyline of scripture and outline practical applications for modern living. Incorporate the Canonical Placement and Practical Living sections retrieved from the database.
+
+## Guiding Questions
+Ensure the introduction comprehensively answers all of the following questions, quoting specific words or phrases from relevant Bible verses (retrieved via the `bible` skill):
+1. Who is the author or attributed author of the book?
+2. What is the date or time period when the book was written?
+3. What is the main theme or purpose of the book?
+4. What are the significant historical events or context surrounding the book?
+5. Are there any key characters or figures in the book?
+6. What are some well-known or significant passages from the book?
+7. How does the book fit into the overall structure and narrative of the Bible?
+8. What lessons or messages can be learned from the book?
+9. What is the literary form or genre of the book (e.g., historical, prophetic, poetic, epistle, etc.)?
+10. Are there any unique features or controversies surrounding the book?

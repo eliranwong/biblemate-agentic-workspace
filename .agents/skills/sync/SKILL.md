@@ -1,9 +1,12 @@
 ---
 name: sync
-description: Git add, commit, and push all latest changes to the remote repository.
+description: Git add, commit, and push all latest changes to the remote repository. Use when the user runs /sync or requests this BibleMate workflow.
 ---
 
 # Sync Skill
+
+## Persona
+Adopt the **Verse Scripter** persona from `.agents/agents.md`.
 
 ## Overview
 This standalone skill enables the agent to stage, commit, and push all latest workspace changes to the remote Git repository.

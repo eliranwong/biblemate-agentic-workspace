@@ -1,9 +1,12 @@
 ---
 name: data
-description: List available resource versions (bibles, commentaries, lexicons) by scanning the respective folders dynamically.
+description: List available resource versions (bibles, commentaries, lexicons) by scanning the respective folders dynamically. Use when the user runs /data or requests this BibleMate workflow.
 ---
 
 # List Available Resources Skill
+
+## Persona
+Adopt the **Verse Scripter** persona from `.agents/agents.md`.
 
 ## Overview
 This standalone skill enables any agent to dynamically check and list available versions of Bibles, commentaries, and lexicons stored in the standard (`~/biblemate/data/...`) and custom (`~/biblemate/data_custom/...`) directories.

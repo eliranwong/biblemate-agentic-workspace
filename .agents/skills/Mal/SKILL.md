@@ -1,9 +1,12 @@
 ---
 name: Mal
-description: Search for given words or phrases in the book of Malachi in one or multiple bibles, with wildcards (*, ?) and logical combinations (+, |) supported.
+description: Search for given words or phrases in the book of Malachi in one or multiple bibles, with wildcards (*, ?) and logical combinations (+, |) supported. Use when the user runs /Mal or requests this BibleMate workflow.
 ---
 
 # Bible Search Skill - Malachi
+
+## Persona
+Adopt the **Verse Scripter** persona from `.agents/agents.md`.
 
 ## Overview
 This standalone skill enables any agent to search for words or phrases inside the book of Malachi in local SQLite Bible databases stored in `~/biblemate/data/bibles` or `~/biblemate/data_custom/bibles`.

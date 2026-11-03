@@ -1,9 +1,12 @@
 ---
 name: names
-description: Retrieve and compare the meanings of names in the Bible.
+description: Retrieve and compare the meanings of names in the Bible. Use when the user runs /names or requests this BibleMate workflow.
 ---
 
 # Names Skill
+
+## Persona
+Adopt the **Biblical Linguistic Analyst** persona from `.agents/agents.md`.
 
 ## Overview
 This standalone skill enables any agent to search and expound the etymological and spiritual meanings of biblical names. It queries a local database of Bible names and their associated meanings, supporting spelling flexibility for misspelled queries.

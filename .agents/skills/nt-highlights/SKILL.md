@@ -1,9 +1,12 @@
 ---
 name: nt-highlights
-description: Outline key highlights, major events, and summaries for a New Testament passage.
+description: Outline key highlights, major events, and summaries for a New Testament passage. Use when the user runs /nt-highlights or requests this BibleMate workflow.
 ---
 
 # Nt Highlights Skill
+
+## Persona
+Adopt the **NT Bible Scholar** persona from `.agents/agents.md`.
 
 ## Overview
 This standalone skill enables any agent to perform a high-quality nt highlights study for a given Bible reference, text, or topic.
@@ -20,3 +23,10 @@ Outline key highlights, major events, and summaries for a New Testament passage:
 1. **Narrative/Theological Milestones**: Pivotal events, miracles, speeches, or commands.
 2. **Covenantal Signs**: How this passage updates, enforces, or fulfills God's covenant promises.
 3. **Major Disclosures**: Core revelations about God's character, judgment, or salvation.
+
+## Guiding Questions & Constraints
+Focus directly on the following questions without repeating the questions word-for-word or quoting all verses of the passage at the beginning:
+- Provide a detailed summary of the passage.
+- How does the meaning of the biblical Greek words in this passage provide insights that aid our understanding? Explain with concrete examples.
+- What are the key words and phrases used in this passage, and how do they contribute to its meaning?
+- How does this passage relate to other passages in the Bible, both within the same book and in other books?

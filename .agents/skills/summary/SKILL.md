@@ -1,9 +1,12 @@
 ---
 name: summary
-description: Summarize any given text or article in reference to the Bible.
+description: Summarize any given text or article in reference to the Bible. Use when the user runs /summary or requests this BibleMate workflow.
 ---
 
 # Summary Skill
+
+## Persona
+Adopt the **Biblical Theologian** persona from `.agents/agents.md`.
 
 ## Overview
 This standalone skill enables any agent to perform a high-quality summary study for a given Bible reference, text, or topic.
@@ -19,3 +22,4 @@ When executing this skill:
 Summarize the text or article in reference to the Bible:
 1. **Core Summary**: Clear, concise synthesis of the provided content.
 2. **Biblical Intersections**: Compare the ideas to scriptural principles and historical theology.
+- Write a clear summary of the given content in reference to the Bible, supported by relevant Scripture citations retrieved via the `bible` skill.

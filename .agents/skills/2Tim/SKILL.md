@@ -1,9 +1,12 @@
 ---
 name: 2Tim
-description: Search for given words or phrases in the book of 2 Timothy in one or multiple bibles, with wildcards (*, ?) and logical combinations (+, |) supported.
+description: Search for given words or phrases in the book of 2 Timothy in one or multiple bibles, with wildcards (*, ?) and logical combinations (+, |) supported. Use when the user runs /2Tim or requests this BibleMate workflow.
 ---
 
 # Bible Search Skill - 2 Timothy
+
+## Persona
+Adopt the **Verse Scripter** persona from `.agents/agents.md`.
 
 ## Overview
 This standalone skill enables any agent to search for words or phrases inside the book of 2 Timothy in local SQLite Bible databases stored in `~/biblemate/data/bibles` or `~/biblemate/data_custom/bibles`.

@@ -5,6 +5,9 @@ description: Convert a specified file to markdown format, or export the last res
 
 # Markdown Conversion & Export Skill
 
+## Persona
+Adopt the **Verse Scripter** persona from `.agents/agents.md`.
+
 ## Overview
 This standalone skill enables any agent to perform file markdown conversions or export conversation dialogue to the designated export directory.
 

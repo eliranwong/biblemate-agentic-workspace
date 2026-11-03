@@ -1,9 +1,12 @@
 ---
 name: Hos
-description: Search for given words or phrases in the book of Hosea in one or multiple bibles, with wildcards (*, ?) and logical combinations (+, |) supported.
+description: Search for given words or phrases in the book of Hosea in one or multiple bibles, with wildcards (*, ?) and logical combinations (+, |) supported. Use when the user runs /Hos or requests this BibleMate workflow.
 ---
 
 # Bible Search Skill - Hosea
+
+## Persona
+Adopt the **Verse Scripter** persona from `.agents/agents.md`.
 
 ## Overview
 This standalone skill enables any agent to search for words or phrases inside the book of Hosea in local SQLite Bible databases stored in `~/biblemate/data/bibles` or `~/biblemate/data_custom/bibles`.

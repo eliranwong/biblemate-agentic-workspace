@@ -1,9 +1,12 @@
 ---
 name: parallels
-description: Retrieve and analyze parallel Bible passages, comparing their similarities, differences, theological significance, and life applications.
+description: Retrieve and analyze parallel Bible passages, comparing their similarities, differences, theological significance, and life applications. Use when the user runs /parallels or requests this BibleMate workflow.
 ---
 
 # Parallels Skill
+
+## Persona
+Adopt the **Biblical Theologian**, **NT Bible Scholar**, or **OT Bible Scholar** persona from `.agents/agents.md`.
 
 ## Overview
 This standalone skill enables any agent to perform a deep-dive comparison and theological analysis of parallel passages in Scripture by retrieving matches from the local database.

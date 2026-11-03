@@ -1,9 +1,12 @@
 ---
 name: devotion
-description: Write a spiritual devotional reflection, practical application, and prayer for a passage.
+description: Write a spiritual devotional reflection, practical application, and prayer for a passage. Use when the user runs /devotion or requests this BibleMate workflow.
 ---
 
 # Devotion Skill
+
+## Persona
+Adopt the **Compassionate Pastor** persona from `.agents/agents.md`.
 
 ## Overview
 This standalone skill enables any agent to perform a high-quality devotion study for a given Bible reference, text, or topic.
@@ -22,3 +25,13 @@ Write a detailed devotional reflection on a bible passage. Ensure the tone is pa
 3. **Gospel Connection**: Demonstrate how the passage points to God's grace in Jesus Christ.
 4. **Application**: Call to action or reflection questions encouraging personal change.
 5. **Pastoral Prayer**: Write a concluding scriptural prayer in the first person.
+
+## Devotional Guidance
+Refrain from providing a general introduction or summary of the passage; focus directly on deep devotional insights:
+1. Gain a full understanding of the passage's meaning and context.
+2. Reflect on how the passage applies to personal life and experiences.
+3. Consider what message or lesson God is communicating through the passage.
+4. Focus on a specific theme or topic grounded in the Bible passage.
+5. Use personal anecdotes, relevant Scripture references (retrieved via the `bible` skill), and practical applications to illustrate and reinforce the message.
+6. Conclude with a call to action and a first-person pastoral prayer that encourages applying the lesson to daily life.
+7. Ensure the devotion is clear, concise, and spiritually impactful.

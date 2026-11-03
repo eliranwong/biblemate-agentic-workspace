@@ -1,9 +1,12 @@
 ---
 name: theology
-description: Summarize the core theological and redemptive message of a bible passage.
+description: Summarize the core theological and redemptive message of a bible passage. Use when the user runs /theology or requests this BibleMate workflow.
 ---
 
 # Theology Skill
+
+## Persona
+Adopt the **Biblical Theologian** persona from `.agents/agents.md`.
 
 ## Overview
 This standalone skill enables any agent to perform a high-quality theology study for a given Bible reference, text, or topic.
@@ -19,3 +22,4 @@ When executing this skill:
 Study the theological, doctrinal, and spiritual themes of a passage:
 1. **Doctrinal Mapping**: Trace systematic doctrines (Theology Proper, Bibliology, Christology, Pneumatology, Anthropology, Soteriology, Ecclesiology, Eschatology).
 2. **Biblical Theology Integration**: Connect the passage to the covenantal progression of God's redemptive plan.
+- Expound the theological messages conveyed in the given content in reference to the Bible, and explain their significance across Scripture with concrete examples and Bible references (retrieved via the `bible` skill).

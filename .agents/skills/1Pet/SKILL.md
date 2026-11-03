@@ -1,9 +1,12 @@
 ---
 name: 1Pet
-description: Search for given words or phrases in the book of 1 Peter in one or multiple bibles, with wildcards (*, ?) and logical combinations (+, |) supported.
+description: Search for given words or phrases in the book of 1 Peter in one or multiple bibles, with wildcards (*, ?) and logical combinations (+, |) supported. Use when the user runs /1Pet or requests this BibleMate workflow.
 ---
 
 # Bible Search Skill - 1 Peter
+
+## Persona
+Adopt the **Verse Scripter** persona from `.agents/agents.md`.
 
 ## Overview
 This standalone skill enables any agent to search for words or phrases inside the book of 1 Peter in local SQLite Bible databases stored in `~/biblemate/data/bibles` or `~/biblemate/data_custom/bibles`.

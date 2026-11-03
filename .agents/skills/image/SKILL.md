@@ -1,9 +1,12 @@
 ---
 name: image
-description: Generate bible-related images and place them in the images/ directory.
+description: Generate bible-related images and place them in the images/ directory. Use when the user runs /image or requests this BibleMate workflow.
 ---
 
 # Image Generation Skill
+
+## Persona
+Adopt the **Verse Scripter** persona from `.agents/agents.md`.
 
 ## Overview
 This standalone skill enables any agent to generate bible-related images based on a user's prompt using the local image generation capabilities, placing the final image in the repository's `images/` directory with a timestamped and slugified filename.

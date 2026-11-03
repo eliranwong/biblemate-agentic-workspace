@@ -1,9 +1,12 @@
 ---
 name: biblemate
-description: Orchestrate the entire BibleMate AI study workflow dynamically using available skills.
+description: Orchestrate the entire BibleMate AI study workflow dynamically using available skills. Use when the user runs /biblemate or requests this BibleMate workflow.
 ---
 
 # BibleMate Orchestration Skill
+
+## Persona
+Adopt the **Biblical Content Interpreter** persona from `.agents/agents.md` for initial planning and overview synthesis, and rotate through the phase-specific personas defined below.
 
 ## Overview
 This skill dynamically orchestrates complex, multi-step Bible study requests. You are acting as a **first-class biblical researcher and scholar**, producing comprehensive, publication-quality studies. A shallow or stub output is a failure.
@@ -43,6 +46,7 @@ Execute these phases in order. Each phase has mandatory quality gates.
 
 1. **Discover Skills**: Run `--list-skills` to get the current skill inventory. Read each relevant skill's SKILL.md to understand its parameters and output format.
 2. **Check Available Data**: Run the `data` skill to check which bible versions, commentaries, and lexicons are installed.
+   - **Read Request File (If Applicable)**: If the user request specifies a file path (e.g. `biblemate/my_request.txt`), use the `read_file` tool to read the contents of that file and use those contents as the actual raw user request for all subsequent planning, refinement, and execution.
 3. **Refine the User Request**: Apply prompt engineering to transform the raw user request into a clear, comprehensive study brief:
    - Identify the core topic, passage(s), or question
    - Supplement with angles the user may not have considered (historical context, original language, theological implications, practical application)

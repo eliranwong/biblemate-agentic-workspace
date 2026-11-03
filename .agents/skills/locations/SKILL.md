@@ -1,9 +1,12 @@
 ---
 name: locations
-description: Retrieve coordinates, maps, etymological details, and historical/geographical/theological significance of Bible locations.
+description: Retrieve coordinates, maps, etymological details, and historical/geographical/theological significance of Bible locations. Use when the user runs /locations or requests this BibleMate workflow.
 ---
 
 # Locations Retrieval and Significance Skill
+
+## Persona
+Adopt the **OT Bible Scholar** (for Old Testament locations), **NT Bible Scholar** (for New Testament locations), or **Biblical Linguistic Analyst** persona from `.agents/agents.md`.
 
 ## Overview
 This skill allows the agent to retrieve geographical coordinates, maps, and etymological/historical descriptions of locations mentioned in the Bible, and then conduct a comprehensive study of their historical, geographical, and theological significance.

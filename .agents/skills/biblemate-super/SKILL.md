@@ -1,9 +1,12 @@
 ---
 name: biblemate-super
-description: Run a dynamically planned, multi-phase BibleMate-Super study, orchestrating specialized skills and personas with dynamic audit checkpoints.
+description: Run a dynamically planned, multi-phase BibleMate-Super study, orchestrating specialized skills and personas with dynamic audit checkpoints. Use when the user runs /biblemate-super or requests this BibleMate workflow.
 ---
 
 # BibleMate-Super Orchestration Skill
+
+## Persona
+Adopt the **Study Plan & Phase Quality Auditor** persona from `.agents/agents.md` at planning and checkpoint stages, rotating to the assigned specialist persona for each individual step.
 
 ## Overview
 This skill dynamically orchestrates custom, multi-step Bible studies. Unlike standard `biblemate` which uses a fixed 6-phase framework with rigid persona assignments, `biblemate-super` conducts a detailed initial assessment of the user request, generates a dynamic multi-phase study plan tailored specifically to the request, assigns the most appropriate personas to each step, sets clear goals for each phase, and performs rigorous phase audits. If audit goals are not fully satisfied, the auditor persona dynamically updates the plan with follow-up steps and executes them before moving to the next phase.
@@ -42,6 +45,7 @@ Execute these phases in order. Perform all audits rigorously.
 ### Phase 0: Request Assessment & Dynamic Planning (Persona: **Study Plan & Phase Quality Auditor**)
 
 1. **Discover Skills & Resources**: Run the orchestrator with `--list-skills` to find all available skills. Run the `data` skill to see which bible versions, commentaries, and lexicons are installed locally.
+   - **Read Request File (If Applicable)**: If the user request specifies a file path (e.g. `biblemate/my_request.txt`), use the `read_file` tool to read the contents of that file and use those contents as the actual raw user request for all subsequent planning, refinement, and execution.
 2. **Refine User Request**: Deeply analyze the raw request to identify specific objectives, explicit requirements (e.g. specific verses, commentary names), and implicit needs (e.g. historical setting, root word meanings, pastoral applications). Outline a refined user request.
 3. **Design Dynamic Study Plan**: Construct a tailor-made plan with $N$ custom phases suited to the request. Do not restrict yourself to the standard 5-phase structure.
    - For each phase, write a **Clear Phase Goal** (e.g., "Goal: Comprehend the original language usage of 'righteousness' in Rom 3:21-26, identifying its semantic range and morphological structure").

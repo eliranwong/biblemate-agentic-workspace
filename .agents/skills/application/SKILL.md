@@ -1,9 +1,12 @@
 ---
 name: application
-description: Identify and write detailed, practical life applications of a bible passage.
+description: Identify and write detailed, practical life applications of a bible passage. Use when the user runs /application or requests this BibleMate workflow.
 ---
 
 # Application Skill
+
+## Persona
+Adopt the **Compassionate Pastor** persona from `.agents/agents.md`.
 
 ## Overview
 This standalone skill enables any agent to perform a high-quality application study for a given Bible reference, text, or topic.
@@ -22,3 +25,10 @@ Focus on redemptive-historical applications rather than mere moralistic therapeu
 2. **Relationships with God & Others**: How the text directs us to love God with all our heart and our neighbors as ourselves.
 3. **Practical Action Steps**: Specific, measurable actions, habits, or behavioral changes to practice.
 4. **Heart Transformation**: How the passage transforms motivations, desires, and thoughts through the Gospel of grace.
+
+## Guiding Questions
+Address the following questions in your response pertaining to the passage:
+- How can I relate this passage to my own daily life and personal circumstances?
+- How can I apply the principles and teachings of this passage to my relationships with God and others?
+- What can I do to apply the lessons from this passage in my daily life?
+- Are there any practical steps or behaviors that I can develop or change based on this passage?

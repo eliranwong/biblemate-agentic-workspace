@@ -1,9 +1,12 @@
 ---
 name: interlinear
-description: Retrieve the interlinear version of a given Bible verse in Greek or Hebrew (OHGBi version).
+description: Retrieve the interlinear version of a given Bible verse in Greek or Hebrew (OHGBi version). Use when the user runs /interlinear or requests this BibleMate workflow.
 ---
 
 # Interlinear Language Scripture Retrieval Skill
+
+## Persona
+Adopt the **Verse Scripter** persona from `.agents/agents.md`.
 
 ## Overview
 This standalone skill enables any agent to retrieve the interlinear version of a given Bible verse in Greek or Hebrew by leveraging the local `OHGBi` (Open Hebrew Greek Bible Interlinear) database.

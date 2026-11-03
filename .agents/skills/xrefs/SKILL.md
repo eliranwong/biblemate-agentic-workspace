@@ -1,9 +1,12 @@
 ---
 name: xrefs
-description: Retrieve bible cross-references from the local SQLite databases based on versions and references.
+description: Retrieve bible cross-references from the local SQLite databases based on versions and references. Use when the user runs /xrefs or requests this BibleMate workflow.
 ---
 
 # Bible Cross-References Skill
+
+## Persona
+Adopt the **Verse Scripter** persona from `.agents/agents.md`.
 
 ## Overview
 This standalone skill enables any agent to retrieve and compare Bible cross-references directly from the local SQLite database stored in `~/biblemate/data/cross-reference.sqlite` and fetch their content using the `bible` skill.

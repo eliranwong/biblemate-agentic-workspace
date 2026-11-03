@@ -1,9 +1,12 @@
 ---
 name: morphology
-description: Retrieve bible morphology data from the local morphology database for verse references or specific word/phrase queries.
+description: Retrieve bible morphology data from the local morphology database for verse references or specific word/phrase queries. Use when the user runs /morphology or requests this BibleMate workflow.
 ---
 
 # Bible Morphology Retrieval Skill
+
+## Persona
+Adopt the **Verse Scripter** persona from `.agents/agents.md`.
 
 ## Overview
 This standalone skill enables any agent to retrieve word-by-word morphology details from the local SQLite database `~/biblemate/data/morphology.sqlite`.

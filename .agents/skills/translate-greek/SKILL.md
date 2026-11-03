@@ -1,9 +1,12 @@
 ---
 name: translate-greek
-description: Translate, transliterate, and provide word-by-word mapping of a Greek bible verse.
+description: Translate, transliterate, and provide word-by-word mapping of a Greek bible verse. Use when the user runs /translate-greek or requests this BibleMate workflow.
 ---
 
 # Translate Greek Skill
+
+## Persona
+Adopt the **Biblical Translator** persona from `.agents/agents.md`.
 
 ## Overview
 This standalone skill enables any agent to perform a high-quality translate greek study for a given Bible reference, text, or topic.
@@ -21,3 +24,9 @@ Translate, transliterate, and analyze a biblical verse:
 2. **Literal Contextual Translation**: Poetic, accurate, and elevated translation based on literary context.
 3. **Word-by-Word Mapping**: Formatting in pattern: `word | transliteration | meaning`.
 4. **Morphological and Syntactical Insights**: Analysis of key verbs, grammar, or structures that impact meaning.
+
+## Formatting & Direct Translation Guidelines
+- Translate directly from the Greek text provided rather than copying an existing English translation.
+- Use `"Transliteration:"`, `"Translation:"`, and `"Mapping:"` as the section titles.
+- Format each entry in the mapping section as: `word | transliteration | corresponding translation`.
+- When requested as a direct translation without grammatical commentary, do not include parsing codes, extra explanation, or repeat the verse reference.
