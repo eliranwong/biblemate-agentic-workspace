@@ -13,6 +13,7 @@ import json
 import asyncio
 import shutil
 import signal
+import tempfile
 from nicegui import ui, app
 
 # Reuse the Codex install the user is already signed into.
@@ -381,163 +382,124 @@ class BibleMateApp:
         return rules
 
     def apply_codex_event(self, event: dict, state: dict, response_card):
-        """Update the chat bubble and the live progress panels from one stream event."""
+        """Display native Codex JSONL events as chat, progress, and command output."""
         etype = event.get("type")
-
         if etype == "thread.started":
-            thread_id = event.get("thread_id")
-            if thread_id:
-                self.codex_session_id = thread_id
-                self.append_runtime_log(f"thread started {thread_id}")
+            if event.get("thread_id"):
+                self.codex_session_id = event["thread_id"]
+                self.append_runtime_log(f"thread started {self.codex_session_id}")
             return
-
         if etype == "turn.started":
             self.append_runtime_log("codex turn started")
             return
-
-        if etype in ("item.started", "item.updated"):
+        if etype in ("item.started", "item.updated", "item.completed"):
             item = event.get("item") or {}
-            item_type = item.get("type") or event.get("item_type") or "item"
-            detail = (
-                item.get("command")
-                or item.get("name")
-                or item.get("title")
-                or flatten_content(item.get("content"))
-                or flatten_content(item.get("text"))
-            )
-            if item_type in ("tool_call", "function_call", "command_execution", "exec_command"):
-                shown = detail or item_type
-                self._set_markdown(self.tool_display, f"**Executing:** `{clip_text(shown, 500)}`")
-                self._notify_progress(f"Codex executing: {clip_text(shown, 60)}")
-            elif detail:
-                self.append_runtime_log(f"{item_type}: {clip_text(detail, 300)}")
-            return
-
-        if etype == "item.completed":
-            item = event.get("item") or {}
-            item_type = item.get("type")
-            if item_type == "agent_message":
-                text = flatten_content(item.get("text") or item.get("content"))
+            item_type = item.get("type") or "item"
+            item_id = item.get("id")
+            text = flatten_content(item.get("text") or item.get("content"))
+            phase = item.get("phase") or item.get("channel") or event.get("phase")
+            if item_type == "agent_message" and phase in ("final_answer", "final"):
                 if text:
-                    state["text"] += text
+                    messages = state.setdefault("messages", {})
+                    # Updated/completed events repeat the full text for the same item.
+                    key = item_id or f"message-{len(messages)}"
+                    messages[key] = text
+                    if key in state.get("thoughts", {}):
+                        state["thoughts"].pop(key)
+                        self._refresh_thinking(state)
+                    state["text"] = "\n\n".join(messages.values())
                     self._render_response(response_card, state["text"])
                 return
-            if item_type in ("reasoning", "agent_reasoning"):
-                text = flatten_content(item.get("text") or item.get("content") or item.get("summary"))
+            if item_type in ("agent_message", "reasoning", "agent_reasoning"):
+                # exec JSONL drops message phase in current CLI versions, so
+                # agent_message includes ordinary progress commentary too.
+                # The final-message file is authoritative after a successful turn.
+                text = text or flatten_content(item.get("summary"))
                 if text:
-                    state["thinking"] = clip_text(state["thinking"] + text + "\n", 8000)
-                    self._set_markdown(self.thinking_display, state["thinking"])
+                    thoughts = state.setdefault("thoughts", {})
+                    key = item_id or f"thought-{len(thoughts)}"
+                    thoughts[key] = text
+                    if item_type == "agent_message" and not phase:
+                        state.setdefault("pending_messages", {})[key] = text
+                    self._refresh_thinking(state)
+                    if not state.get("notified_think"):
+                        state["notified_think"] = True
+                        self._notify_progress(f"Codex thinking: {clip_text(text, 60)}")
                 return
-            if item_type in ("tool_call", "function_call", "command_execution", "exec_command"):
+            tool_types = {
+                "command_execution", "exec_command", "tool_call", "function_call",
+                "mcp_tool_call", "web_search", "file_change", "collab_tool_call",
+            }
+            if item_type in tool_types:
                 detail = (
-                    item.get("command")
-                    or item.get("name")
-                    or item.get("title")
+                    item.get("command") or item.get("query") or item.get("tool")
+                    or item.get("name") or item.get("title")
                     or summarize_tool_input(item.get("arguments") or item.get("input"))
                     or item_type
                 )
-                output = flatten_content(item.get("output") or item.get("result") or item.get("content"))
-                self._set_markdown(self.tool_display, f"**Executed:** `{clip_text(detail, 500)}`")
+                if item_type == "mcp_tool_call" and item.get("server"):
+                    detail = f"{item['server']}/{detail}"
+                if item_type == "file_change":
+                    detail = "\n".join(
+                        f"{change.get('kind', 'update')}: {change.get('path', '')}"
+                        for change in item.get("changes") or []
+                    ) or detail
+                status = item.get("status") or ("completed" if etype == "item.completed" else "running")
+                self._set_markdown(
+                    self.tool_display,
+                    f"**{item_type} — {status}:**\n\n{markdown_fence(clip_text(detail, 1000))}",
+                )
+                # command_execution carries terminal stdout/stderr in aggregated_output.
+                output = flatten_content(
+                    item.get("aggregated_output") or item.get("output")
+                    or item.get("result") or item.get("error")
+                )
                 if output:
-                    self._set_markdown(self.tool_output_display, markdown_fence(clip_text(output, 4000)))
-                self.append_runtime_log(f"{item_type}: {clip_text(detail, 300)}")
+                    self._set_markdown(self.tool_output_display, markdown_fence(clip_text(output, 12000)))
+                if etype == "item.started":
+                    self._notify_progress(f"Codex executing: {clip_text(detail, 60)}")
+                exit_code = item.get("exit_code")
+                suffix = f" exit={exit_code}" if exit_code is not None else ""
+                self.append_runtime_log(f"{item_type} {status}{suffix}: {clip_text(detail, 300)}")
                 return
-            text = flatten_content(item.get("text") or item.get("content") or item.get("output"))
-            if text:
-                self.append_runtime_log(f"{item_type or 'item'}: {clip_text(text, 500)}")
+            if item_type == "todo_list":
+                todos = item.get("items") or []
+                text = "\n".join(
+                    f"- [{'x' if todo.get('completed') else ' '}] {todo.get('text', '')}"
+                    for todo in todos
+                )
+                self._set_markdown(self.tool_display, text)
+            elif item_type == "error":
+                state["error"] = flatten_content(item.get("message") or text) or "Codex reported an error."
+                self.append_runtime_log(f"error: {state['error']}")
+            elif text:
+                self.append_runtime_log(f"{item_type}: {clip_text(text, 500)}")
             return
-
         if etype == "turn.completed":
             usage = event.get("usage") or {}
-            if usage:
-                self.append_runtime_log(f"codex finished usage={json.dumps(usage, ensure_ascii=False)}")
-            else:
-                self.append_runtime_log("codex finished")
+            self.append_runtime_log("codex finished" + (f" usage={json.dumps(usage, ensure_ascii=False)}" if usage else ""))
             return
-
         if etype in ("turn.failed", "error"):
-            message = event.get("message") or event.get("error") or "Codex reported an error."
-            if not isinstance(message, str):
-                message = json.dumps(message, ensure_ascii=False)
-            state["error"] = message
-            self.append_runtime_log(f"error: {message}")
+            state["error"] = flatten_content(event.get("error") or event.get("message")) or "Codex reported an error."
+            self.append_runtime_log(f"error: {state['error']}")
             return
-
-        if etype == "text":
-            chunk = event.get("data") or ""
-            if chunk:
-                state["text"] += chunk
-                self._render_response(response_card, state["text"])
-            return
-
-        if etype == "thought":
-            chunk = event.get("data") or ""
-            if not chunk:
-                return
-            state["thinking"] = clip_text(state["thinking"] + chunk, 8000)
-            self._set_markdown(self.thinking_display, state["thinking"])
-            if not state["notified_think"]:
-                state["notified_think"] = True
-                snippet = chunk.strip().splitlines()[0] if chunk.strip() else "reasoning"
-                if len(snippet) > 50:
-                    snippet = snippet[:50] + "..."
-                self._notify_progress(f"Codex thinking: {snippet}")
-            return
-
-        if etype == "tool_call":
-            tool_name = event.get("toolName") or event.get("title") or "tool"
-            detail = summarize_tool_input(event.get("rawInput"))
-            shown = detail or tool_name
-            self._set_markdown(
-                self.tool_display,
-                f"**Executing:** `{tool_name}`" + (f"\n\n`{clip_text(shown, 500)}`" if detail else ""),
-            )
-            display_cmd = shown.replace('python3 .codex/skills/', '').replace('python3 .agents/skills/', '')
-            if len(display_cmd) > 50:
-                display_cmd = display_cmd[:50] + "..."
-            self._notify_progress(f"Codex executing: {display_cmd}")
-            self.append_runtime_log(f"tool {tool_name}: {clip_text(shown, 300)}")
-            return
-
-        if etype == "tool_call_update":
-            raw_output = event.get("rawOutput")
-            if raw_output in (None, "", [], {}):
-                content = event.get("content")
-                if content:
-                    raw_output = content
-            if raw_output in (None, "", [], {}):
-                return
-            if not isinstance(raw_output, str):
-                try:
-                    raw_output = json.dumps(raw_output, ensure_ascii=False, indent=2)
-                except Exception:
-                    raw_output = str(raw_output)
-            self._set_markdown(self.tool_output_display, markdown_fence(clip_text(raw_output, 4000)))
-            return
-
-        if etype == "error":
-            message = event.get("message") or "Codex reported an error."
-            state["error"] = message
-            self.append_runtime_log(f"error: {message}")
-            if event.get("sessionId"):
-                self.codex_session_id = event["sessionId"]
-            return
-
-        if etype == "end":
-            if event.get("sessionId"):
-                self.codex_session_id = event["sessionId"]
-            reason = event.get("stopReason") or ""
-            turns = event.get("num_turns")
-            bits = ["codex finished"]
-            if reason:
-                bits.append(reason)
-            if turns is not None:
-                bits.append(f"turns={turns}")
-            self.append_runtime_log(" ".join(bits))
-            return
-
         if etype == "_nonjson":
             self.append_runtime_log(event.get("data") or "")
+
+
+    def _refresh_thinking(self, state: dict):
+        state["thinking"] = clip_text("\n\n".join(state.get("thoughts", {}).values()), 8000)
+        self._set_markdown(self.thinking_display, state["thinking"])
+
+
+    def _display_final_message(self, state: dict, response_card, text: str):
+        """Promote the CLI's final output without including its progress messages."""
+        state["text"] = text.strip()
+        for key, pending in state.get("pending_messages", {}).items():
+            if pending.strip() == state["text"]:
+                state.get("thoughts", {}).pop(key, None)
+        self._refresh_thinking(state)
+        self._render_response(response_card, state["text"])
 
     def _render_response(self, response_card, text: str):
         if response_card is None:
@@ -590,6 +552,8 @@ class BibleMateApp:
                     proc.kill()
                 except Exception:
                     pass
+
+            await proc.wait()
 
     def build_file_tree_nodes(self):
         """Recursively builds the dictionary hierarchy for ui.tree representing files and directories."""
@@ -1018,6 +982,8 @@ class BibleMateApp:
 
         stderr_task = None
         state = {"text": "", "thinking": "", "notified_think": False, "error": ""}
+        output_dir = tempfile.TemporaryDirectory(prefix="biblemate-codex-final-")
+        final_message_path = os.path.join(output_dir.name, "final-message.md")
         try:
             cmd = [
                 CODEX_BIN,
@@ -1027,12 +993,12 @@ class BibleMateApp:
                 "--search",
             ]
             if self.codex_session_id:
-                cmd.extend(["exec", "resume", "--json"])
+                cmd.extend(["exec", "resume", "--json", "-o", final_message_path])
                 if sdk_model:
                     cmd.extend(["-m", sdk_model])
                 cmd.extend([self.codex_session_id, "-"])
             else:
-                cmd.extend(["exec", "--json"])
+                cmd.extend(["exec", "--json", "-o", final_message_path])
                 if sdk_model:
                     cmd.extend(["-m", sdk_model])
                 cmd.append("-")
@@ -1048,7 +1014,7 @@ class BibleMateApp:
             # Do not inject an API key. The CLI reuses whatever credentials it is
             # already signed in with, so this app needs no separate OpenAI API key.
 
-            self.append_runtime_log(f"starting codex model={sdk_model} resume={bool(self.codex_session_id)}")
+            self.append_runtime_log(f"starting codex model={sdk_model or 'default'} skill={active_skill} resume={bool(self.codex_session_id)}")
             self._notify_progress("Codex: Planning study...")
 
             process = await asyncio.create_subprocess_exec(
@@ -1081,15 +1047,24 @@ class BibleMateApp:
                 await stderr_task
                 stderr_task = None
 
-            if state["error"] and not state["text"]:
-                self._render_response(response_card, f"**Codex error:** {state['error']}")
-            elif returncode not in (0, None) and not state["text"]:
+            if returncode == 0 and not state["error"]:
+                try:
+                    with open(final_message_path, "r", encoding="utf-8") as handle:
+                        final_message = handle.read().strip()
+                except OSError:
+                    final_message = ""
+                if final_message:
+                    self._display_final_message(state, response_card, final_message)
+
+            if state["error"]:
+                self._render_response(response_card, state["text"] + f"\n\n**Codex error:** {state['error']}")
+            elif returncode not in (0, None):
                 self._render_response(
                     response_card,
-                    f"**Codex exited with code {returncode}.** See System Logs for details.",
+                    state["text"] + f"\n\n**Codex exited with code {returncode}.** See System Logs for details.",
                 )
             elif not state["text"]:
-                self._render_response(response_card, "Codex finished without a text reply. See System Logs.")
+                self._render_response(response_card, "Codex finished without a final reply. See System Logs.")
         finally:
             if stderr_task is not None and not stderr_task.done():
                 stderr_task.cancel()
@@ -1104,6 +1079,7 @@ class BibleMateApp:
                 except Exception:
                     pass
             self.codex_proc = None
+            output_dir.cleanup()
 
     async def execute_agent_chat(self, user_query: str):
         try:
@@ -1127,7 +1103,7 @@ class BibleMateApp:
             self.thinking_display.set_content("*Analyzing query...*")
             self.tool_display.set_content("**Awaiting agent action...**")
             self.tool_output_display.set_content("")
-            response_card = self.add_chat_bubble("Preparing Codex and BibleMate skills...", sent=False, italic=True)
+            response_card = self.add_chat_bubble("Waiting for the final response...", sent=False, italic=True)
 
             direct_skill, direct_args = parse_direct_command(user_query)
             if direct_skill:
