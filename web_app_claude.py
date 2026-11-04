@@ -99,11 +99,17 @@ MODELS_MAP = {
 }
 DEFAULT_MODEL = 'Default (session default)'
 
-# Regex to match scripture references (e.g. John 3:16, 1 Cor 13, Romans 8:28, 1Tim 3:16)
-BIBLE_REF_PATTERN = re.compile(
-    r'^\s*([1-3]\s*)?[A-Za-z\s\.\_]+?\s+\d+(\s*:\s*\d+(\s*-\s*\d+)?)?\s*$',
-    re.IGNORECASE
-)
+# Dropdown labels to `claude --effort` values. None means "use whatever effort
+# the CLI session is configured with" (no --effort flag is passed).
+EFFORT_MAP = {
+    'Default (session default)': None,
+    'low': 'low',
+    'medium': 'medium',
+    'high': 'high',
+    'xhigh': 'xhigh',
+    'max': 'max',
+}
+DEFAULT_EFFORT = 'Default (session default)'
 
 async def run_local_retriever(skill_name: str, query: str, on_process=None) -> str:
     """Runs a Python database retriever script under .claude/skills directly and returns output."""
@@ -176,8 +182,11 @@ def summarize_tool_input(raw_input) -> str:
     if not isinstance(raw_input, dict):
         return ""
     for key in (
-        "command", "cmd", "file_path", "path", "notebook_path",
-        "pattern", "query", "url", "prompt", "skill", "description",
+        "command", "cmd", "CommandLine",
+        "file_path", "path", "Path", "TargetFile", "AbsolutePath", "notebook_path",
+        "pattern", "query", "Query", "Queries",
+        "url", "Url", "prompt", "Prompt",
+        "skill", "description", "Role", "TypeName", "DirectoryPath",
     ):
         value = raw_input.get(key)
         if isinstance(value, str) and value.strip():
@@ -231,6 +240,7 @@ class BibleMateApp:
     def __init__(self):
         # Settings state
         self.selected_model = DEFAULT_MODEL
+        self.selected_effort = DEFAULT_EFFORT
         self.selected_persona = 'Auto'
         self.selected_skill = 'Auto'
         # Headless Claude session for this browser conversation. Empty means a new session.
@@ -384,6 +394,12 @@ class BibleMateApp:
                 if delta.get("type") == "text_delta":
                     chunk = delta.get("text") or ""
                     if chunk:
+                        # Insert a paragraph break when a tool step ran between
+                        # response chunks, so text around tool calls never
+                        # concatenates into broken Markdown.
+                        if state.get("needs_paragraph_break") and state["text"] and not state["text"].endswith("\n\n"):
+                            state["text"] = state["text"].rstrip("\n") + "\n\n"
+                        state["needs_paragraph_break"] = False
                         state["text"] += chunk
                         state["streamed"] = True
                         self._render_response(response_card, state["text"])
@@ -391,6 +407,11 @@ class BibleMateApp:
                     chunk = delta.get("thinking") or ""
                     if not chunk:
                         return
+                    # Separate consecutive thinking blocks (across tool calls)
+                    # and re-notify once a new reasoning phase starts.
+                    if state.get("needs_think_break") and state["thinking"] and not state["thinking"].endswith("\n\n"):
+                        state["thinking"] = state["thinking"].rstrip("\n") + "\n\n"
+                    state["needs_think_break"] = False
                     state["thinking"] = clip_text(state["thinking"] + chunk, 8000)
                     state["think_streamed"] = True
                     self._set_markdown(self.thinking_display, state["thinking"])
@@ -420,9 +441,18 @@ class BibleMateApp:
                         self._render_response(response_card, state["text"])
                 elif btype == "thinking":
                     if not state.get("think_streamed"):
-                        state["thinking"] = clip_text(block.get("thinking") or "", 8000)
+                        if state.get("needs_think_break") and state["thinking"] and not state["thinking"].endswith("\n\n"):
+                            state["thinking"] = state["thinking"].rstrip("\n") + "\n\n"
+                        state["needs_think_break"] = False
+                        state["thinking"] = clip_text(state["thinking"] + (block.get("thinking") or ""), 8000)
                         self._set_markdown(self.thinking_display, state["thinking"])
                 elif btype == "tool_use":
+                    # A tool step ran between response/thinking chunks: the next
+                    # text needs a paragraph break and the next thinking phase
+                    # should notify again.
+                    state["needs_paragraph_break"] = True
+                    state["needs_think_break"] = True
+                    state["notified_think"] = False
                     tool_name = block.get("name") or "tool"
                     detail = summarize_tool_input(block.get("input"))
                     shown = detail or tool_name
@@ -952,7 +982,8 @@ class BibleMateApp:
 
         stderr_task = None
         state = {"text": "", "thinking": "", "notified_think": False, "error": "",
-                 "streamed": False, "think_streamed": False}
+                 "streamed": False, "think_streamed": False,
+                 "needs_paragraph_break": False, "needs_think_break": False}
         try:
             cmd = [
                 CLAUDE_BIN,
@@ -968,6 +999,9 @@ class BibleMateApp:
             ]
             if sdk_model:
                 cmd.extend(['--model', sdk_model])
+            sdk_effort = EFFORT_MAP.get(self.selected_effort, EFFORT_MAP[DEFAULT_EFFORT])
+            if sdk_effort:
+                cmd.extend(['--effort', sdk_effort])
             if self.claude_session_id:
                 cmd.extend(['--resume', self.claude_session_id])
             # "--" ends option parsing so a leading-dash query cannot be read as a flag.
@@ -979,7 +1013,10 @@ class BibleMateApp:
             # already signed in with (OAuth session, keychain, or configured env),
             # so this app needs no separate Anthropic API key.
 
-            self.append_runtime_log(f"starting claude model={sdk_model or 'default'} resume={bool(self.claude_session_id)}")
+            self.append_runtime_log(
+                f"starting claude model={sdk_model or 'default'} effort={sdk_effort or 'default'} "
+                f"resume={bool(self.claude_session_id)}"
+            )
             self._notify_progress("Claude: Planning study...")
 
             process = await asyncio.create_subprocess_exec(
@@ -1203,6 +1240,11 @@ class BibleMateApp:
             ui.label('AI Model').classes('text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider')
             model_drop = ui.select(list(MODELS_MAP.keys()), value=self.selected_model).classes('w-full mb-6')
             model_drop.bind_value_to(self, 'selected_model')
+
+            # Reasoning Effort Selection
+            ui.label('Reasoning Effort').classes('text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider')
+            effort_drop = ui.select(list(EFFORT_MAP.keys()), value=self.selected_effort).classes('w-full mb-6')
+            effort_drop.bind_value_to(self, 'selected_effort')
 
             # Persona Selection
             ui.label('Active Persona').classes('text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider')

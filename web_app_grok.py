@@ -12,6 +12,7 @@ import json
 import asyncio
 import shutil
 import signal
+import subprocess
 import tempfile
 from nicegui import ui, app
 
@@ -87,18 +88,61 @@ SKILLS_LIST = get_skills()
 
 # Dropdown labels to Grok Build model ids (`grok models`).
 # These run on the signed-in grok.com subscription, not an API key.
-MODELS_MAP = {
+# Used when `grok models` cannot be queried at startup.
+FALLBACK_MODELS_MAP = {
     'Grok 4.7': 'grok-4.7',
     'Grok 4.7 Build Fast': 'grok-4.7-build-fast',
     'Grok 4.6': 'grok-4.6',
     'Grok 4.5': 'grok-4.5',
 }
-DEFAULT_MODEL = 'Grok 4.7'
 
-# Regex to match scripture references (e.g. John 3:16, 1 Cor 13, Romans 8:28, 1Tim 3:16)
-BIBLE_REF_PATTERN = re.compile(
-    r'^\s*([1-3]\s*)?[A-Za-z\s\.\_]+?\s+\d+(\s*:\s*\d+(\s*-\s*\d+)?)?\s*$',
-    re.IGNORECASE
+def _label_for_grok_model(model_id: str, fallback_map: dict) -> str:
+    """Reuse a known dropdown label, or build one from an unfamiliar model id."""
+    for label, known_id in fallback_map.items():
+        if known_id == model_id:
+            return label
+    parts = []
+    for token in model_id.split('-'):
+        if any(ch.isdigit() for ch in token):
+            parts.append(token)
+        else:
+            parts.append(token.capitalize())
+    return ' '.join(parts) if parts else model_id
+
+def discover_grok_models(fallback_map: dict) -> dict:
+    """Query `grok models` for the signed-in account. Fall back to fallback_map."""
+    try:
+        res = subprocess.run(
+            [GROK_BIN, 'models'],
+            capture_output=True,
+            text=True,
+            timeout=5,
+            cwd=WORKSPACE_DIR,
+        )
+        if res.returncode == 0 and res.stdout:
+            discovered = {}
+            for raw_line in res.stdout.splitlines():
+                # `grok models` prints "* grok-4.7 (default)" and "- grok-4.6".
+                clean_line = raw_line.rsplit('\r', 1)[-1].strip()
+                match = re.match(r'^[*+-]\s+(\S+)', clean_line)
+                if not match:
+                    continue
+                model_id = match.group(1)
+                label = _label_for_grok_model(model_id, fallback_map)
+                if label in discovered and discovered[label] != model_id:
+                    label = f"{label} ({model_id})"
+                discovered[label] = model_id
+            if discovered:
+                return discovered
+    except Exception:
+        pass
+    return dict(fallback_map)
+
+MODELS_MAP = discover_grok_models(FALLBACK_MODELS_MAP)
+DEFAULT_MODEL = (
+    'Grok 4.7'
+    if 'Grok 4.7' in MODELS_MAP
+    else next(iter(MODELS_MAP))
 )
 
 async def run_local_retriever(skill_name: str, query: str, on_process=None) -> str:
@@ -170,9 +214,16 @@ def summarize_tool_input(raw_input) -> str:
         return raw_input
     if not isinstance(raw_input, dict):
         return ""
+    # Short identifiers first. `prompt` and file `content` are large; a write
+    # or subagent call should show the path or description, not the payload.
     for key in (
-        "command", "cmd", "target_file", "file_path", "path",
-        "pattern", "query", "url", "prompt", "script_path",
+        "command", "cmd",
+        "target_file", "file_path", "path", "Path",
+        "TargetFile", "AbsolutePath", "target_directory", "DirectoryPath",
+        "pattern", "query", "Query", "Queries", "url", "Url",
+        "description", "subagent_type", "Role", "TypeName",
+        "script_path",
+        "prompt", "Prompt",
     ):
         value = raw_input.get(key)
         if isinstance(value, str) and value.strip():
@@ -353,6 +404,11 @@ class BibleMateApp:
         if etype == "text":
             chunk = event.get("data") or ""
             if chunk:
+                # A tool call between two replies would otherwise glue
+                # "I will retrieve it.# Romans 8 Study" into one line.
+                if state.get("needs_paragraph_break") and state["text"] and not state["text"].endswith("\n\n"):
+                    state["text"] = state["text"].rstrip("\n") + "\n\n"
+                state["needs_paragraph_break"] = False
                 state["text"] += chunk
                 self._render_response(response_card, state["text"])
             return
@@ -361,6 +417,9 @@ class BibleMateApp:
             chunk = event.get("data") or ""
             if not chunk:
                 return
+            if state.get("needs_think_break") and state["thinking"] and not state["thinking"].endswith("\n\n"):
+                state["thinking"] = state["thinking"].rstrip("\n") + "\n\n"
+            state["needs_think_break"] = False
             state["thinking"] = clip_text(state["thinking"] + chunk, 8000)
             self._set_markdown(self.thinking_display, state["thinking"])
             if not state["notified_think"]:
@@ -372,6 +431,9 @@ class BibleMateApp:
             return
 
         if etype == "tool_call":
+            state["needs_paragraph_break"] = True
+            state["needs_think_break"] = True
+            state["notified_think"] = False
             tool_name = event.get("toolName") or event.get("title") or "tool"
             detail = summarize_tool_input(event.get("rawInput"))
             shown = detail or tool_name
@@ -905,7 +967,14 @@ class BibleMateApp:
 
         prompt_path = None
         stderr_task = None
-        state = {"text": "", "thinking": "", "notified_think": False, "error": ""}
+        state = {
+            "text": "",
+            "thinking": "",
+            "notified_think": False,
+            "error": "",
+            "needs_paragraph_break": False,
+            "needs_think_break": False,
+        }
         try:
             fd, prompt_path = tempfile.mkstemp(prefix="biblemate-grok-", suffix=".txt")
             with os.fdopen(fd, "w", encoding="utf-8") as handle:
