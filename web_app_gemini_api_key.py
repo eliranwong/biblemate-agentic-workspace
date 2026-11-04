@@ -13,6 +13,9 @@ import re
 import json
 import asyncio
 import logging
+import shutil
+import signal
+import tempfile
 from nicegui import ui, app
 
 # Check for GEMINI_API_KEY
@@ -23,10 +26,10 @@ if not os.environ.get("GEMINI_API_KEY"):
 
 # Try to import Antigravity SDK
 try:
-    from google.antigravity import Agent, LocalAgentConfig
+    from google.antigravity import Agent, LocalAgentConfig, types
     from google.antigravity.hooks import policy
 except ImportError:
-    print("Error: google-antigravity is not installed. Please run: pip install google-antigravity")
+    print("Error: google-antigravity is not installed. Please run: pip install -U google-antigravity")
     sys.exit(1)
 
 # Ensure working directory is workspace root to auto-discover .agents/
@@ -88,14 +91,17 @@ def get_skills():
 PERSONAS_MAP = parse_personas()
 SKILLS_LIST = get_skills()
 
-# AI Models Map (Dropdown Labels to SDK Strings)
+# AI Models Map (Dropdown Labels to SDK Strings; None uses SDK DEFAULT_MODEL)
 MODELS_MAP = {
+    'Default (SDK default)': None,
+    'Gemini 3.8 Flash': 'gemini-3.8-flash',
     'Gemini 3.5 Flash': 'gemini-3.5-flash',
     'Gemini 3.5 Pro': 'gemini-3.5-pro',
+    'Gemini 2.5 Pro': 'gemini-2.5-pro',
+    'Gemini 2.5 Flash': 'gemini-2.5-flash',
     'Gemini 2.0 Flash': 'gemini-2.0-flash',
-    'Gemini 1.5 Pro': 'gemini-1.5-pro',
-    'Gemini 1.5 Flash': 'gemini-1.5-flash'
 }
+DEFAULT_MODEL = 'Gemini 3.8 Flash'
 
 # Regex to match scripture references (e.g. John 3:16, 1 Cor 13, Romans 8:28, 1Tim 3:16)
 BIBLE_REF_PATTERN = re.compile(
@@ -103,19 +109,22 @@ BIBLE_REF_PATTERN = re.compile(
     re.IGNORECASE
 )
 
-async def run_local_retriever(skill_name: str, query: str) -> str:
+async def run_local_retriever(skill_name: str, query: str, on_process=None) -> str:
     """Runs a Python database retriever script under .agents/skills directly and returns output."""
     script_path = f".agents/skills/{skill_name}/{skill_name}_retriever.py"
     if not os.path.exists(script_path):
         return f"Error: Local retriever script not found at {script_path}"
-    
+
     try:
         process = await asyncio.create_subprocess_exec(
             sys.executable, script_path, query,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
-            cwd=WORKSPACE_DIR
+            cwd=WORKSPACE_DIR,
+            start_new_session=True,
         )
+        if on_process is not None:
+            on_process(process)
         stdout, stderr = await process.communicate()
         if process.returncode == 0:
             return stdout.decode('utf-8').strip()
@@ -131,6 +140,8 @@ def parse_direct_command(query: str):
     if tokens:
         cmd = tokens[0].lower()
         args = tokens[1] if len(tokens) > 1 else ""
+        # These run the local SQLite retrievers directly without calling the SDK agent.
+        # /image and other skills are handled by the agent itself.
         cmd_mapping = {
             '/bible': 'bible',
             '/commentary': 'commentary',
@@ -139,11 +150,41 @@ def parse_direct_command(query: str):
             '/morphology': 'morphology',
             '/interlinear': 'interlinear',
             '/original': 'original',
-            '/image': 'image'
         }
         if cmd in cmd_mapping:
             return cmd_mapping[cmd], args
     return None, None
+
+def summarize_tool_input(raw_input) -> str:
+    """Pick the most useful field from an Antigravity tool-call payload."""
+    if isinstance(raw_input, str):
+        return raw_input
+    if not isinstance(raw_input, dict):
+        return ""
+    for key in (
+        "CommandLine", "command", "cmd",
+        "TargetFile", "AbsolutePath", "file_path", "path",
+        "Query", "query", "pattern",
+        "DirectoryPath", "Url", "url",
+        "Prompt", "prompt", "description",
+    ):
+        value = raw_input.get(key)
+        if isinstance(value, str) and value.strip():
+            return value.strip()
+    try:
+        return json.dumps(raw_input, ensure_ascii=False)
+    except Exception:
+        return str(raw_input)
+
+def clip_text(text: str, limit: int) -> str:
+    if len(text) <= limit:
+        return text
+    return text[:limit] + "\n… (truncated)"
+
+def markdown_fence(text: str) -> str:
+    """Wrap text in a fence that the payload cannot close early."""
+    safe = text.replace("```", "'''")
+    return f"```\n{safe}\n```"
 
 # ---------------------------------------------------------
 # Dynamic Logging Interceptor
@@ -157,12 +198,12 @@ class WebAppLogHandler(logging.Handler):
 
     def emit(self, record):
         try:
-            # Check if this log record is relevant to google.antigravity
             normalized_path = record.pathname.replace('\\', '/')
+            msg_str = record.getMessage()
             is_sdk_log = (
-                'google/antigravity' in normalized_path or 
-                record.name.startswith('google.antigravity') or 
-                (isinstance(record.msg, str) and 'RAW WS MSG:' in record.msg)
+                'google/antigravity' in normalized_path or
+                record.name.startswith('google.antigravity') or
+                'RAW WS MSG:' in msg_str
             )
             if is_sdk_log:
                 log_line = self.format(record)
@@ -178,10 +219,16 @@ class WebAppLogHandler(logging.Handler):
 class BibleMateApp:
     def __init__(self):
         # Settings state
-        self.selected_model = 'Gemini 3.5 Flash'
+        self.selected_model = DEFAULT_MODEL
         self.selected_persona = 'Auto'
         self.selected_skill = 'Auto'
-        
+
+        # Multi-turn session state for google-antigravity SDK
+        self.conversation_id = None
+        self.session_save_dir = None
+        self.active_response = None
+        self.retriever_proc = None
+
         # UI Toggles and References
         self.left_drawer = None
         self.right_drawer = None
@@ -197,28 +244,38 @@ class BibleMateApp:
         self.add_file_button = None
         self.add_folder_button = None
         self.selected_node_id = None
+        self.action_button = None
+        self.action_button_tooltip = None
         self.terminal_logs = []
         self.active_agent_running = False
         self.running_chat_task = None
-        
+
         # Slash commands auto-discovery
         self.slash_commands = self.get_slash_commands()
-        
+
         # Log Hook Registration
         self.setup_logging_interceptor()
 
     def get_slash_commands(self) -> list:
-        """Dynamically parses the .agents/workflows/ directory to retrieve available slash commands."""
-        commands = []
+        """Lists slash commands from .agents/workflows and .agents/skills."""
+        commands = set()
         workflows_dir = '.agents/workflows'
-        if os.path.exists(workflows_dir):
+        if os.path.isdir(workflows_dir):
             try:
-                for f in os.listdir(workflows_dir):
-                    if f.endswith('.md'):
-                        commands.append('/' + f[:-3])
+                for name in os.listdir(workflows_dir):
+                    if name.endswith('.md'):
+                        commands.add('/' + name[:-3])
             except Exception:
                 pass
-        return sorted(commands)
+        skills_dir = '.agents/skills'
+        if os.path.isdir(skills_dir):
+            try:
+                for name in os.listdir(skills_dir):
+                    if os.path.isdir(os.path.join(skills_dir, name)):
+                        commands.add('/' + name)
+            except Exception:
+                pass
+        return sorted(commands, key=str.lower)
 
     def setup_logging_interceptor(self):
         # Store active event loop
@@ -235,23 +292,63 @@ class BibleMateApp:
         for h in list(root_logger.handlers):
             if isinstance(h, WebAppLogHandler):
                 root_logger.removeHandler(h)
-        
+
         handler = WebAppLogHandler(self.handle_incoming_log)
         handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
         root_logger.addHandler(handler)
-        
-        # Ensure root logger is at INFO level to allow capture of SDK logs
+
+        # Ensure root and SDK loggers capture DEBUG (needed for RAW WS MSG tool output updates)
         if root_logger.level > logging.INFO:
             root_logger.setLevel(logging.INFO)
+        logging.getLogger("google.antigravity").setLevel(logging.DEBUG)
+
+    def append_runtime_log(self, log_line: str):
+        """Append one human-readable line to the on-screen system log."""
+        if not log_line:
+            return
+        self.terminal_logs.append(log_line)
+        if len(self.terminal_logs) > 500:
+            self.terminal_logs.pop(0)
+        display = getattr(self, 'terminal_display', None)
+        if display is None:
+            return
+        try:
+            display.set_content(markdown_fence("\n".join(self.terminal_logs[-30:])))
+        except Exception:
+            pass
+
+    def _notify_progress(self, message: str):
+        try:
+            ui.notify(message, group='agent_progress', type='ongoing', timeout=0)
+        except RuntimeError:
+            pass
+
+    def _set_markdown(self, widget, text: str):
+        if widget is None:
+            return
+        try:
+            widget.set_content(text)
+        except Exception:
+            pass
+
+    def _render_response(self, response_card, text: str):
+        if response_card is None:
+            return
+        try:
+            response_card.clear()
+            with response_card:
+                ui.markdown(text).classes('text-current')
+        except RuntimeError:
+            pass
 
     def handle_incoming_log(self, log_line: str):
         try:
-            # Append to raw terminal logs
-            self.terminal_logs.append(log_line)
-            if len(self.terminal_logs) > 500:
-                self.terminal_logs.pop(0)
+            is_raw_ws = "RAW WS MSG:" in log_line
+            if not is_raw_ws:
+                self.terminal_logs.append(log_line)
+                if len(self.terminal_logs) > 500:
+                    self.terminal_logs.pop(0)
 
-            # Get main event loop
             loop = getattr(self, 'loop', None)
             if not loop or not loop.is_running():
                 try:
@@ -260,39 +357,21 @@ class BibleMateApp:
                 except RuntimeError:
                     pass
 
-            # Define a coroutine to refresh the UI elements safely
             async def refresh_ui():
                 try:
-                    # Update terminal display
-                    logs_text = "\n".join(self.terminal_logs[-30:])
-                    self.terminal_display.set_content(f"```\n{logs_text}\n```")
-                    
-                    # Also parse and update progress if parsed
+                    if not is_raw_ws and self.terminal_display is not None:
+                        logs_text = "\n".join(self.terminal_logs[-30:])
+                        self.terminal_display.set_content(markdown_fence(logs_text))
+
                     parsed = self.parse_raw_log(log_line)
-                    if parsed:
-                        if 'thinking' in parsed and parsed['thinking']:
-                            self.thinking_display.set_content(parsed['thinking'])
-                            lines = [l.strip('* ') for l in parsed['thinking'].split('\n') if l.strip()]
-                            if lines:
-                                snippet = lines[0]
-                                if len(snippet) > 50:
-                                    snippet = snippet[:50] + "..."
-                                ui.notify(f"Agent thinking: {snippet}", group='agent_progress', type='ongoing', timeout=0)
-                                
-                        if 'command' in parsed and parsed['command']:
-                            cmd_line = parsed['command']
-                            display_cmd = cmd_line.replace('python3 .agents/skills/', '')
-                            if len(display_cmd) > 50:
-                                display_cmd = display_cmd[:50] + "..."
-                            self.tool_display.set_content(f"**Executing:** `{cmd_line}`")
-                            ui.notify(f"Agent executing: {display_cmd}", group='agent_progress', type='ongoing', timeout=0)
-                            
-                        if 'cmd_output' in parsed and parsed['cmd_output']:
-                            self.tool_output_display.set_content(f"```\n{parsed['cmd_output']}\n```")
+                    if parsed and parsed.get('cmd_output'):
+                        self._set_markdown(
+                            self.tool_output_display,
+                            markdown_fence(clip_text(parsed['cmd_output'], 4000)),
+                        )
                 except Exception:
                     pass
 
-            # Run the coroutine safely on the event loop
             if loop and loop.is_running():
                 try:
                     asyncio.run_coroutine_threadsafe(refresh_ui(), loop)
@@ -308,7 +387,7 @@ class BibleMateApp:
                 data = json.loads(json_str)
                 step_update = data.get('stepUpdate', {})
                 trajectory_update = data.get('trajectoryStateUpdate', {})
-                
+
                 result = {}
                 if step_update:
                     result['thinking'] = step_update.get('thinking', '')
@@ -709,10 +788,212 @@ class BibleMateApp:
         except Exception:
             pass
 
+    async def _stop_retriever_proc(self, proc=None):
+        """Stop the local retriever subprocess group started for the current turn."""
+        if proc is None:
+            proc = self.retriever_proc
+        if proc is None or proc.returncode is not None:
+            return
+        try:
+            os.killpg(proc.pid, signal.SIGTERM)
+        except ProcessLookupError:
+            return
+        except Exception:
+            try:
+                proc.terminate()
+            except Exception:
+                return
+        try:
+            await asyncio.wait_for(proc.wait(), timeout=3)
+        except asyncio.TimeoutError:
+            try:
+                os.killpg(proc.pid, signal.SIGKILL)
+            except ProcessLookupError:
+                pass
+            except Exception:
+                try:
+                    proc.kill()
+                except Exception:
+                    pass
+
     async def handle_stop(self):
+        if self.active_response is not None:
+            try:
+                await self.active_response.cancel()
+            except Exception:
+                pass
+        if self.retriever_proc is not None:
+            try:
+                await self._stop_retriever_proc(self.retriever_proc)
+            except Exception:
+                pass
         if self.running_chat_task and not self.running_chat_task.done():
             self.running_chat_task.cancel()
             ui.notify("Stopping agent execution...", type='warning')
+
+    def resolve_skill_name(self, token: str):
+        """Match a slash-command token to an .agents skill directory name."""
+        if not token:
+            return None
+        wanted = token.lower()
+        for skill in SKILLS_LIST:
+            if skill.lower() == wanted:
+                return skill
+        return None
+
+    def active_skill_for_query(self, user_query: str) -> str:
+        """Honor the settings dropdown, or a leading slash command when it is Auto."""
+        active_skill = self.selected_skill
+        if active_skill == 'Auto' and user_query.strip().startswith('/'):
+            tokens = user_query.strip().split(None, 1)
+            if tokens:
+                resolved = self.resolve_skill_name(tokens[0][1:])
+                if resolved and resolved != 'Auto':
+                    active_skill = resolved
+        return active_skill
+
+    def build_system_rules(self, active_skill: str) -> str:
+        """Rules passed to the Antigravity SDK agent."""
+        rules = (
+            "You are BibleMate AI running inside the local BibleMate web app, "
+            "backed by the google-antigravity Python SDK. Follow AGENTS.md and the skills under .agents/skills/. "
+            "Do not quote scripture from memory; retrieve verses with the local bible skill or python3 .agents/skills/bible/bible_retriever.py."
+        )
+        if self.selected_persona != 'Auto':
+            persona = PERSONAS_MAP.get(self.selected_persona, '')
+            if persona:
+                rules += f"\n\nAdopt the following persona instructions:\n{persona}"
+        else:
+            rules += (
+                "\nYou have access to specialized personas listed in .agents/agents.md. "
+                "Rotate them dynamically depending on the research phase."
+            )
+
+        if active_skill != 'Auto':
+            rules += (
+                f"\n\nCRITICAL TASK REQUIREMENT: You MUST use the local BibleMate skill "
+                f"'{active_skill}'. Read `.agents/skills/{active_skill}/SKILL.md` and follow it "
+                "before you answer. Do not answer scripture from memory. Retrieve verses with "
+                "`python3 .agents/skills/bible/bible_retriever.py`."
+            )
+
+        rules += (
+            "\n\n## WORKSPACE FILE RULES (MANDATORY)"
+            "\nThe current working directory IS the repository root. All file output MUST be saved"
+            " into this workspace using RELATIVE paths only — never absolute paths."
+            "\n- Save ALL study outputs (outlines, sermons, devotionals, analyses, etc.) to the"
+            " `biblemate/` subdirectory."
+            "\n- Every output filename MUST be prefixed with a timestamp in the format"
+            " `YYYY-MM-DD-HH-MM-SS_` followed by a short descriptive name ending in `.md`."
+            " To get the current timestamp, run this command first:"
+            " `python3 -c \"import datetime; print(datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S'))\"`"
+            " then use the printed value as the prefix."
+            " Example filename: `biblemate/2026-06-21-22-09-00_hope_theological_study.md`."
+            "\n- Save generated images to the `images/` subdirectory (images already use timestamped filenames)."
+            "\n- NEVER tell the user a file has been saved unless you have actually written it to"
+            " one of these workspace directories in this session."
+            "\n- Do NOT write files to any artifact, brain, or temporary directory outside the workspace."
+        )
+        return rules
+
+    async def run_direct_retriever(self, skill_name: str, args: str, response_card):
+        """Answer lookup commands from the local SQLite retrievers directly."""
+        self._notify_progress(f"Local retriever: {skill_name}")
+        self._set_markdown(
+            self.thinking_display,
+            f"Running the local `{skill_name}` database. This request does not call the agent.",
+        )
+        script = f"python3 .agents/skills/{skill_name}/{skill_name}_retriever.py"
+        self._set_markdown(self.tool_display, f"**Executing:** `{script}`")
+        if not args.strip():
+            text = f"Add a query after `/{skill_name}`."
+        else:
+            text = await run_local_retriever(
+                skill_name,
+                args.strip(),
+                on_process=lambda process: setattr(self, 'retriever_proc', process),
+            )
+        self._set_markdown(self.tool_output_display, markdown_fence(clip_text(text or "(no output)", 4000)))
+        self._render_response(response_card, text or "(no output)")
+
+    async def run_sdk_turn(self, user_query: str, response_card):
+        """Run one turn using the google-antigravity SDK and stream chunks into the UI."""
+        active_skill = self.active_skill_for_query(user_query)
+        system_rules = self.build_system_rules(active_skill)
+        sdk_model = MODELS_MAP.get(self.selected_model, MODELS_MAP[DEFAULT_MODEL])
+
+        if self.session_save_dir is None:
+            self.session_save_dir = tempfile.mkdtemp(prefix="biblemate_sdk_")
+
+        config = LocalAgentConfig(
+            system_instructions=system_rules,
+            model=sdk_model,
+            policies=[policy.allow_all()],  # AUTO-APPROVE POLICY
+            conversation_id=self.conversation_id,
+            session_continuation_mode=(
+                types.SessionContinuationMode.CREATE_OR_RESUME
+                if self.conversation_id
+                else None
+            ),
+            save_dir=self.session_save_dir,
+            debug_config=True,
+        )
+
+        async with Agent(config) as agent:
+            self._notify_progress("Agent: Planning study...")
+            response = await agent.chat(user_query)
+            self.active_response = response
+
+            response_text = ""
+            thinking_text = ""
+            notified_think = False
+
+            async for chunk in response.chunks:
+                if isinstance(chunk, types.Text):
+                    if chunk.text:
+                        response_text += chunk.text
+                        try:
+                            response_card.clear()
+                            with response_card:
+                                ui.markdown(response_text).classes('text-current')
+                        except RuntimeError:
+                            # Client disconnected or page reloaded, stop streaming
+                            break
+                elif isinstance(chunk, types.Thought):
+                    if chunk.text:
+                        thinking_text = clip_text(thinking_text + chunk.text, 8000)
+                        self._set_markdown(self.thinking_display, thinking_text)
+                        if not notified_think:
+                            notified_think = True
+                            lines = [l.strip('* ') for l in chunk.text.splitlines() if l.strip()]
+                            snippet = lines[0] if lines else "reasoning"
+                            if len(snippet) > 50:
+                                snippet = snippet[:50] + "..."
+                            self._notify_progress(f"Agent thinking: {snippet}")
+                elif isinstance(chunk, types.ToolCall):
+                    tool_name = str(chunk.name) if chunk.name else "tool"
+                    detail = summarize_tool_input(chunk.args)
+                    shown = detail or tool_name
+                    self._set_markdown(
+                        self.tool_display,
+                        f"**Executing:** `{tool_name}`" + (f"\n\n`{clip_text(shown, 500)}`" if detail else ""),
+                    )
+                    display_cmd = shown.replace('python3 .agents/skills/', '')
+                    if len(display_cmd) > 50:
+                        display_cmd = display_cmd[:50] + "..."
+                    self._notify_progress(f"Agent executing: {display_cmd}")
+                    self.append_runtime_log(f"tool {tool_name}: {clip_text(shown, 300)}")
+
+            # Double check final text
+            try:
+                final_text = await response.text()
+                if final_text and len(final_text) > len(response_text):
+                    self._render_response(response_card, final_text)
+            except RuntimeError:
+                pass
+
+            if agent.conversation_id:
+                self.conversation_id = agent.conversation_id
 
     async def execute_agent_chat(self, user_query: str):
         try:
@@ -723,97 +1004,33 @@ class BibleMateApp:
         if self.active_agent_running:
             ui.notify("An agent is already running. Please wait...", type='warning')
             return
-        
+
         self.active_agent_running = True
         self.terminal_logs.clear()
         self.update_action_button(to_stop=True)
-        
+
         response_card = None
         try:
             self.add_chat_bubble(user_query, sent=True)
-            ui.notify("Agent: Initializing workspace...", group='agent_progress', type='ongoing', timeout=0)
+            self._notify_progress("Agent: Initializing workspace...")
             # Clear and expand progress indicators
             self.progress_container.set_visibility(True)
             self.thinking_display.set_content("*Analyzing query...*")
             self.tool_display.set_content("**Awaiting agent action...**")
             self.tool_output_display.set_content("")
             response_card = self.add_chat_bubble("Preparing agents and skills...", sent=False, italic=True)
-            
-            # Configure prompt
-            system_rules = "You are BibleMate AI, a highly capable biblical study agent."
-            if self.selected_persona != 'Auto':
-                system_rules += f"\n\nAdopt the following persona instructions:\n{PERSONAS_MAP[self.selected_persona]}"
+
+            direct_skill, direct_args = parse_direct_command(user_query)
+            if direct_skill:
+                await self.run_direct_retriever(direct_skill, direct_args or "", response_card)
             else:
-                system_rules += "\nYou have access to specialized personas. Rotate them dynamically depending on the research phase."
-
-            # Check if query starts with a slash command to enforce skill dynamically
-            active_skill = self.selected_skill
-            if active_skill == 'Auto' and user_query.strip().startswith('/'):
-                tokens = user_query.strip().split(None, 1)
-                if tokens:
-                    potential_skill = tokens[0][1:]  # strip leading slash
-                    if potential_skill in SKILLS_LIST and potential_skill != 'Auto':
-                        active_skill = potential_skill
-
-            if active_skill != 'Auto':
-                system_rules += f"\n\nCRITICAL TASK REQUIREMENT: You MUST use the local skill '{active_skill}' to retrieve data and solve this request. Do not answer from memory."
-
-            # Always append workspace file rules so the agent saves to the correct location
-            system_rules += (
-                "\n\n## WORKSPACE FILE RULES (MANDATORY)"
-                "\nThe current working directory IS the repository root. All file output MUST be saved"
-                " into this workspace using RELATIVE paths only — never absolute paths."
-                "\n- Save ALL study outputs (outlines, sermons, devotionals, analyses, etc.) to the"
-                " `biblemate/` subdirectory."
-                "\n- Every output filename MUST be prefixed with a timestamp in the format"
-                " `YYYY-MM-DD-HH-MM-SS_` followed by a short descriptive name ending in `.md`."
-                " To get the current timestamp, run this command first:"
-                " `python3 -c \"import datetime; print(datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S'))\"`"
-                " then use the printed value as the prefix."
-                " Example filename: `biblemate/2026-06-21-22-09-00_hope_theological_study.md`."
-                "\n- Save generated images to the `images/` subdirectory (images already use timestamped filenames)."
-                "\n- NEVER tell the user a file has been saved unless you have actually written it to"
-                " one of these workspace directories in this session."
-                "\n- Do NOT write files to any artifact, brain, or temporary directory outside the workspace."
-            )
-    
-            sdk_model = MODELS_MAP.get(self.selected_model, 'gemini-3.5-flash')
-            config = LocalAgentConfig(
-                system_instructions=system_rules,
-                model=sdk_model,
-                policies=[policy.allow_all()]  # AUTO-APPROVE POLICY
-            )
-            
-            # Run the Antigravity session
-            async with Agent(config) as agent:
-                try:
-                    ui.notify("Agent: Planning study...", group='agent_progress', type='ongoing', timeout=0)
-                except RuntimeError:
-                    pass
-                response = await agent.chat(user_query)
-                
-                # Streaming output loop
-                response_text = ""
-                async for chunk in response:
-                    response_text += chunk
-                    try:
-                        response_card.clear()
-                        with response_card:
-                            ui.markdown(response_text).classes('text-current')
-                    except RuntimeError:
-                        # Client disconnected or page reloaded, stop streaming
-                        break
-                
-                # Double check final text
-                try:
-                    final_text = await response.text()
-                    if final_text and len(final_text) > len(response_text):
-                        response_card.clear()
-                        with response_card:
-                            ui.markdown(final_text).classes('text-current')
-                except RuntimeError:
-                    pass
+                await self.run_sdk_turn(user_query, response_card)
         except asyncio.CancelledError:
+            proc = self.retriever_proc
+            try:
+                await asyncio.shield(self._stop_retriever_proc(proc))
+            except Exception:
+                pass
             try:
                 self.add_chat_bubble("Agent execution stopped by user.", sent=False, italic=True)
             except RuntimeError:
@@ -830,6 +1047,8 @@ class BibleMateApp:
                 pass
         finally:
             self.active_agent_running = False
+            self.active_response = None
+            self.retriever_proc = None
             self.update_action_button(to_stop=False)
             try:
                 # Hide the progress console now that the agent is done
@@ -845,7 +1064,7 @@ class BibleMateApp:
         bubble_bg = "bg-indigo-600/90 text-white" if sent else "bg-slate-200 dark:bg-slate-800 text-slate-900 dark:text-slate-100 border border-slate-300 dark:border-slate-700/50"
         border_radius = "rounded-l-2xl rounded-tr-2xl" if sent else "rounded-r-2xl rounded-tl-2xl"
         card_width = "max-w-[85%] md:max-w-[75%]" if sent else "w-full"
-        
+
         with self.chat_container:
             with ui.row().classes(f'w-full {align_class} mb-4 items-end animate-fade-in'):
                 with ui.card().classes(f'{card_width} p-4 shadow-md backdrop-blur-sm {bubble_bg} {border_radius}') as card:
@@ -853,7 +1072,7 @@ class BibleMateApp:
                         ui.label(text).classes('italic text-slate-500 dark:text-slate-400')
                     else:
                         ui.markdown(text) if not sent else ui.label(text)
-        
+
         # Scroll to bottom using the specific client context to prevent RuntimeError in background tasks
         self.chat_container.client.run_javascript('window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });')
         return card
@@ -862,6 +1081,10 @@ class BibleMateApp:
         try:
             self.chat_container.clear()
             self.terminal_logs.clear()
+            self.conversation_id = None
+            if self.session_save_dir and os.path.isdir(self.session_save_dir):
+                shutil.rmtree(self.session_save_dir, ignore_errors=True)
+            self.session_save_dir = None
             # Hide the progress console on a new conversation
             self.progress_container.set_visibility(False)
             if hasattr(self, 'main_tabs') and self.main_tabs:
@@ -882,19 +1105,19 @@ class BibleMateApp:
                 ui.button(icon='menu', on_click=lambda: self.left_drawer.toggle()).props('flat round').classes('text-slate-700 dark:text-slate-200')
                 ui.icon('menu_book', size='md').classes('text-indigo-600 dark:text-indigo-400')
                 ui.label('BibleMate AI').classes('text-lg font-bold tracking-wide text-slate-900 dark:text-white')
-            
+
             with ui.row().classes('items-center gap-4'):
                 # New Conversation button
                 with ui.button(icon='add', on_click=self.clear_conversation).props('flat round').classes('text-slate-700 dark:text-slate-200'):
                     ui.tooltip('New Conversation')
-                
+
                 # Tabs Menu inside header to maximize content space
                 with ui.tabs().props('dense shrink active-color=indigo indicator-color=indigo').classes('text-slate-700 dark:text-slate-200') as self.main_tabs:
                     with ui.tab('chat', label='', icon='chat'):
                         ui.tooltip('Chat Workspace')
                     with ui.tab('reader', label='', icon='menu_book'):
                         ui.tooltip('Document Reader')
-                
+
                 # Settings toggle button
                 ui.button(icon='settings', on_click=lambda: self.right_drawer.toggle()).props('flat round').classes('text-slate-700 dark:text-slate-200')
 
@@ -909,29 +1132,29 @@ class BibleMateApp:
                     self.delete_button.set_visibility(False)
                     with self.delete_button:
                         ui.tooltip('Delete Item')
-                    
+
                     self.export_button = ui.button(icon='file_download', on_click=self.export_to_docx).props('flat round size=sm color=indigo').classes('text-indigo-500')
                     self.export_button.set_visibility(False)
                     with self.export_button:
                         ui.tooltip('Export to DOCX')
-                        
+
                     self.edit_button = ui.button(icon='edit', on_click=self.start_edit).props('flat round size=sm color=green').classes('text-emerald-500')
                     self.edit_button.set_visibility(False)
                     with self.edit_button:
                         ui.tooltip('Edit Markdown File')
-                        
+
                     self.add_file_button = ui.button(icon='note_add', on_click=lambda: self.prompt_create_item(is_folder=False)).props('flat round size=sm color=indigo').classes('text-indigo-500')
                     self.add_file_button.set_visibility(False)
                     with self.add_file_button:
                         ui.tooltip('Add File')
-                        
+
                     self.add_folder_button = ui.button(icon='create_new_folder', on_click=lambda: self.prompt_create_item(is_folder=True)).props('flat round size=sm color=indigo').classes('text-indigo-500')
                     self.add_folder_button.set_visibility(False)
                     with self.add_folder_button:
                         ui.tooltip('Add Folder')
-                        
+
                     ui.button(icon='refresh', on_click=self.refresh_file_tree).props('flat round size=sm').classes('text-slate-600 dark:text-slate-400')
-            
+
             # Dynamic Container
             self.file_tree = ui.column().classes('w-full')
             self.refresh_file_tree()
@@ -941,28 +1164,30 @@ class BibleMateApp:
         # ---------------------------------------------------------
         with ui.right_drawer(value=False).classes('bg-slate-50 dark:bg-slate-950 border-l border-slate-200 dark:border-slate-900 p-6') as self.right_drawer:
             ui.label('Agent Options').classes('text-lg font-bold text-slate-800 dark:text-slate-200 mb-6')
-            
+
             # Dark/Light Mode switch
             ui.label('Appearance').classes('text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2')
             ui.switch('Dark Mode').bind_value(dark).classes('mb-6')
-            
+
             # Model Selection
             ui.label('AI Model').classes('text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider')
             model_drop = ui.select(list(MODELS_MAP.keys()), value=self.selected_model).classes('w-full mb-6')
             model_drop.bind_value_to(self, 'selected_model')
-            
+
             # Persona Selection
             ui.label('Active Persona').classes('text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider')
             persona_drop = ui.select(list(PERSONAS_MAP.keys()), value=self.selected_persona).classes('w-full mb-6')
             persona_drop.bind_value_to(self, 'selected_persona')
-            
+
             # Skill Selection
             ui.label('Enforced Skill').classes('text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider')
             skill_drop = ui.select(SKILLS_LIST, value=self.selected_skill).classes('w-full mb-6')
             skill_drop.bind_value_to(self, 'selected_skill')
-            
+
             ui.markdown('---').classes('my-4')
-            ui.label('Auto-Approval: ENABLED').classes('text-xs font-bold text-emerald-500 tracking-wide uppercase')
+            ui.label('Backend: Antigravity Python SDK').classes('text-xs font-bold text-emerald-500 tracking-wide uppercase')
+            ui.label('Requires GEMINI_API_KEY in environment.').classes('text-xs text-slate-500 dark:text-slate-400 mt-1')
+            ui.label('Auto-Approval: ENABLED').classes('text-xs font-bold text-emerald-500 tracking-wide uppercase mt-3')
 
         # ---------------------------------------------------------
         # Main Layout Structure
@@ -970,11 +1195,11 @@ class BibleMateApp:
         with ui.column().classes('w-full flex flex-col pt-4 pb-32 px-4 md:px-6'):
             # Tab Content
             with ui.tab_panels(self.main_tabs, value='chat').classes('w-full bg-transparent flex-grow'):
-                
+
                 # Chat tab
                 with ui.tab_panel('chat').classes('w-full p-0 bg-transparent flex flex-col'):
                     self.chat_container = ui.column().classes('w-full flex-grow mb-6')
-                    
+
                     # Collapsible agent execution logger console (hidden by default, shown only when agent is active)
                     with ui.column().classes('w-full mb-6 transition-all duration-300') as self.progress_container:
                         self.progress_container.set_visibility(False)
@@ -982,11 +1207,11 @@ class BibleMateApp:
                             with ui.row().classes('w-full items-center gap-2 mb-2'):
                                 ui.spinner(size='sm', color='indigo')
                                 ui.label('Agent Running - Live Execution Pipeline').classes('text-xs font-bold text-indigo-500 dark:text-indigo-400 tracking-wide uppercase')
-                            
+
                             # Thinking monologue
                             with ui.expansion('Agent Thinking Monologue', icon='psychology').classes('w-full border border-slate-200 dark:border-slate-800 rounded-lg mb-2 bg-slate-50 dark:bg-slate-950'):
                                 self.thinking_display = ui.markdown().classes('text-xs text-slate-700 dark:text-slate-300 p-2 font-mono')
-                                
+
                             # Running Tool
                             with ui.expansion('Currently Executed Tool/Skill', icon='construction').classes('w-full border border-slate-200 dark:border-slate-800 rounded-lg mb-2 bg-slate-50 dark:bg-slate-950'):
                                 self.tool_display = ui.markdown().classes('text-xs text-slate-700 dark:text-slate-300 p-2 font-mono')
@@ -995,7 +1220,7 @@ class BibleMateApp:
                             # Raw standard logger updates
                             with ui.expansion('System Logs (Stdout/Logger)', icon='terminal').classes('w-full border border-slate-200 dark:border-slate-800 rounded-lg bg-slate-50 dark:bg-slate-950'):
                                 self.terminal_display = ui.markdown().classes('text-xs text-emerald-600 dark:text-emerald-500 p-2 bg-black rounded font-mono overflow-auto max-h-48')
-                
+
                 # Reader tab
                 with ui.tab_panel('reader').classes('w-full p-6 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm'):
                     self.reader_title = ui.label('No File Selected').classes('text-xl font-bold text-slate-800 dark:text-slate-100 border-b border-slate-200 dark:border-slate-800 pb-2 mb-4')
@@ -1040,9 +1265,9 @@ class BibleMateApp:
                             placeholder='Enter your study request (e.g., Write a devotion on Romans 8:28)...',
                             on_change=handle_input_change
                         ).props('outlined autogrow rows=2 input-class="text-slate-900 dark:text-slate-100"').classes('w-full rounded-xl text-slate-900 dark:text-slate-100')
-                        
+
                         autocomplete_menu = ui.menu().props('fit no-parent-event no-focus no-refocus anchor="top left" self="bottom left"').classes('max-h-60 overflow-y-auto')
-                
+
                     # Inline async sender bound to Client context to avoid RuntimeError
                     async def on_send_click():
                         await self.handle_send(message_input)
@@ -1050,7 +1275,7 @@ class BibleMateApp:
                     # Bind Control+S and Command+S keyboard shortcuts to send the request
                     message_input.on('keydown.ctrl.s.prevent', on_send_click)
                     message_input.on('keydown.meta.s.prevent', on_send_click)
-                    
+
                     # Send Button
                     with ui.button(icon='send', on_click=on_send_click).props('round size=lg color=indigo').classes('shadow-md hover:scale-105 transition-transform mb-1') as self.action_button:
                         self.action_button_tooltip = ui.tooltip('Send Request')
@@ -1059,7 +1284,7 @@ class BibleMateApp:
         if self.active_agent_running:
             await self.handle_stop()
             return
-            
+
         query = message_input.value.strip()
         if not query:
             return
@@ -1078,9 +1303,11 @@ if __name__ == '__main__':
     app.on_startup(lambda: app_instance.setup_logging_interceptor())
 
     # Start server on default port 33377
+    port = int(os.environ.get('BIBLEMATE_GEMINI_PORT', '33377'))
+    print(f"Open http://localhost:{port}")
     ui.run(
         title='BibleMate App',
-        port=33377,
+        port=port,
         reload=False,  # Disable reload for background execution safety
         show=False     # Do not open a browser window automatically on server start
     )
