@@ -103,12 +103,6 @@ MODELS_MAP = {
 }
 DEFAULT_MODEL = 'Gemini 3.8 Flash'
 
-# Regex to match scripture references (e.g. John 3:16, 1 Cor 13, Romans 8:28, 1Tim 3:16)
-BIBLE_REF_PATTERN = re.compile(
-    r'^\s*([1-3]\s*)?[A-Za-z\s\.\_]+?\s+\d+(\s*:\s*\d+(\s*-\s*\d+)?)?\s*$',
-    re.IGNORECASE
-)
-
 async def run_local_retriever(skill_name: str, query: str, on_process=None) -> str:
     """Runs a Python database retriever script under .agents/skills directly and returns output."""
     script_path = f".agents/skills/{skill_name}/{skill_name}_retriever.py"
@@ -163,10 +157,10 @@ def summarize_tool_input(raw_input) -> str:
         return ""
     for key in (
         "CommandLine", "command", "cmd",
-        "TargetFile", "AbsolutePath", "file_path", "path",
-        "Query", "query", "pattern",
+        "Path", "TargetFile", "AbsolutePath", "file_path", "path",
+        "Query", "query", "Queries", "pattern",
         "DirectoryPath", "Url", "url",
-        "Prompt", "prompt", "description",
+        "Prompt", "prompt", "Role", "TypeName", "description",
     ):
         value = raw_input.get(key)
         if isinstance(value, str) and value.strip():
@@ -947,10 +941,15 @@ class BibleMateApp:
             response_text = ""
             thinking_text = ""
             notified_think = False
+            needs_paragraph_break = False
+            needs_think_break = False
 
             async for chunk in response.chunks:
                 if isinstance(chunk, types.Text):
                     if chunk.text:
+                        if needs_paragraph_break and response_text and not response_text.endswith("\n\n"):
+                            response_text = response_text.rstrip("\n") + "\n\n"
+                        needs_paragraph_break = False
                         response_text += chunk.text
                         try:
                             response_card.clear()
@@ -961,6 +960,9 @@ class BibleMateApp:
                             break
                 elif isinstance(chunk, types.Thought):
                     if chunk.text:
+                        if needs_think_break and thinking_text and not thinking_text.endswith("\n\n"):
+                            thinking_text = thinking_text.rstrip("\n") + "\n\n"
+                        needs_think_break = False
                         thinking_text = clip_text(thinking_text + chunk.text, 8000)
                         self._set_markdown(self.thinking_display, thinking_text)
                         if not notified_think:
@@ -971,6 +973,9 @@ class BibleMateApp:
                                 snippet = snippet[:50] + "..."
                             self._notify_progress(f"Agent thinking: {snippet}")
                 elif isinstance(chunk, types.ToolCall):
+                    needs_paragraph_break = True
+                    needs_think_break = True
+                    notified_think = False
                     tool_name = str(chunk.name) if chunk.name else "tool"
                     detail = summarize_tool_input(chunk.args)
                     shown = detail or tool_name

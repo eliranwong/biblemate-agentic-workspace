@@ -13,6 +13,7 @@ import json
 import asyncio
 import shutil
 import signal
+import subprocess
 from nicegui import ui, app
 
 # Reuse the Antigravity CLI install the user is already signed into.
@@ -87,7 +88,7 @@ SKILLS_LIST = get_skills()
 
 # Dropdown labels to `agy --model` values. None means "use whatever model the
 # CLI session default is configured with" (no --model flag is passed).
-MODELS_MAP = {
+FALLBACK_MODELS_MAP = {
     'Default (session default)': None,
     'Gemini 3.8 Flash (Medium)': 'gemini-3.8-flash-medium',
     'Gemini 3.8 Flash (High)': 'gemini-3.8-flash-high',
@@ -103,12 +104,39 @@ MODELS_MAP = {
     'Claude Sonnet 5.5 (Low)': 'claude-sonnet-5-5-low',
     'GPT-OSS 120B (Medium)': 'gpt-oss-120b-medium',
 }
-DEFAULT_MODEL = 'Gemini 3.8 Flash (Medium)'
 
-# Regex to match scripture references (e.g. John 3:16, 1 Cor 13, Romans 8:28, 1Tim 3:16)
-BIBLE_REF_PATTERN = re.compile(
-    r'^\s*([1-3]\s*)?[A-Za-z\s\.\_]+?\s+\d+(\s*:\s*\d+(\s*-\s*\d+)?)?\s*$',
-    re.IGNORECASE
+def discover_agy_models(fallback_map: dict) -> dict:
+    """Queries `agy models` to dynamically populate available CLI models, falling back to fallback_map."""
+    try:
+        res = subprocess.run(
+            [AGY_BIN, 'models'],
+            capture_output=True,
+            text=True,
+            timeout=5,
+            cwd=WORKSPACE_DIR,
+        )
+        if res.returncode == 0 and res.stdout:
+            discovered = {'Default (session default)': None}
+            for raw_line in res.stdout.splitlines():
+                clean_line = raw_line.rsplit('\r', 1)[-1].strip()
+                if not clean_line or 'Fetching available models' in clean_line:
+                    continue
+                parts = re.split(r'\t|\s{2,}', clean_line, maxsplit=1)
+                if len(parts) == 2:
+                    model_id, label = parts[0].strip(), parts[1].strip()
+                    if model_id and label:
+                        discovered[label] = model_id
+            if len(discovered) > 1:
+                return discovered
+    except Exception:
+        pass
+    return dict(fallback_map)
+
+MODELS_MAP = discover_agy_models(FALLBACK_MODELS_MAP)
+DEFAULT_MODEL = (
+    'Gemini 3.8 Flash (Medium)'
+    if 'Gemini 3.8 Flash (Medium)' in MODELS_MAP
+    else next(iter(MODELS_MAP))
 )
 
 async def run_local_retriever(skill_name: str, query: str, on_process=None) -> str:
@@ -182,10 +210,10 @@ def summarize_tool_input(raw_input) -> str:
         return ""
     for key in (
         "CommandLine", "command", "cmd",
-        "TargetFile", "AbsolutePath", "file_path", "path",
-        "Query", "query", "pattern",
+        "Path", "TargetFile", "AbsolutePath", "file_path", "path",
+        "Query", "query", "Queries", "pattern",
         "DirectoryPath", "Url", "url",
-        "Prompt", "prompt", "description",
+        "Prompt", "prompt", "Role", "TypeName", "description",
     ):
         value = raw_input.get(key)
         if isinstance(value, str) and value.strip():
@@ -239,6 +267,7 @@ class BibleMateApp:
         self.selected_skill = 'Auto'
         # Headless Antigravity session for this conversation. Empty means a new session.
         self.agy_conversation_id = None
+        self.agy_last_rules_key = None
         self.agy_proc = None
 
         # UI Toggles and References
@@ -398,6 +427,9 @@ class BibleMateApp:
             if step_type == "agent_response":
                 delta = step.get("text_delta") or ""
                 if delta:
+                    if state.get("needs_paragraph_break") and state["text"] and not state["text"].endswith("\n\n"):
+                        state["text"] = state["text"].rstrip("\n") + "\n\n"
+                    state["needs_paragraph_break"] = False
                     state["text"] += delta
                     state["streamed"] = True
                     self._render_response(response_card, state["text"])
@@ -405,6 +437,9 @@ class BibleMateApp:
                 # Handle any thinking/reasoning updates
                 thinking = step.get("thinking") or step.get("thought") or ""
                 if thinking:
+                    if state.get("needs_think_break") and state["thinking"] and not state["thinking"].endswith("\n\n"):
+                        state["thinking"] = state["thinking"].rstrip("\n") + "\n\n"
+                    state["needs_think_break"] = False
                     state["thinking"] = clip_text(state["thinking"] + thinking, 8000)
                     self._set_markdown(self.thinking_display, state["thinking"])
                     if not state["notified_think"]:
@@ -415,6 +450,10 @@ class BibleMateApp:
                         self._notify_progress(f"Antigravity thinking: {snippet}")
 
             elif step_type == "tool":
+                state["needs_paragraph_break"] = True
+                state["needs_think_break"] = True
+                state["notified_think"] = False
+
                 tool_name = step.get("tool_name") or "tool"
                 tool_info = step.get("tool_info") or {}
                 params = tool_info.get("parameters") or {}
@@ -946,23 +985,36 @@ class BibleMateApp:
     async def run_agy_turn(self, user_query: str, response_card):
         """Run one headless `agy -p` turn on the signed-in Google subscription and stream it into the UI."""
         active_skill = self.active_skill_for_query(user_query)
-        system_rules = self.build_system_rules(active_skill)
         sdk_model = MODELS_MAP.get(self.selected_model, MODELS_MAP[DEFAULT_MODEL])
 
-        full_prompt = (
-            f"[System Instructions]\n{system_rules}\n\n"
-            f"[User Request]\n{user_query}"
-        )
+        rules_key = (self.selected_persona, active_skill)
+        if not self.agy_conversation_id or self.agy_last_rules_key != rules_key:
+            system_rules = self.build_system_rules(active_skill)
+            full_prompt = (
+                f"[System Instructions]\n{system_rules}\n\n"
+                f"[User Request]\n{user_query}"
+            )
+            self.agy_last_rules_key = rules_key
+        else:
+            full_prompt = user_query
 
         stderr_task = None
-        state = {"text": "", "thinking": "", "notified_think": False, "error": "",
-                 "streamed": False, "think_streamed": False}
+        state = {
+            "text": "",
+            "thinking": "",
+            "notified_think": False,
+            "error": "",
+            "streamed": False,
+            "needs_paragraph_break": False,
+            "needs_think_break": False,
+        }
         try:
             cmd = [
                 AGY_BIN,
                 '-p', full_prompt,
                 '--output-format', 'stream-json',
                 '--dangerously-skip-permissions',
+                '--disable-slash-commands',
             ]
             if sdk_model:
                 cmd.extend(['--model', sdk_model])
@@ -1109,6 +1161,7 @@ class BibleMateApp:
             self.terminal_logs.clear()
             # Next message starts a fresh Antigravity session instead of resuming this one.
             self.agy_conversation_id = None
+            self.agy_last_rules_key = None
             # Hide the progress console on a new conversation
             self.progress_container.set_visibility(False)
             if hasattr(self, 'main_tabs') and self.main_tabs:
