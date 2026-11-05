@@ -78,6 +78,39 @@ class CodexEventsTest(unittest.TestCase):
         self.assertEqual(self.state["thinking"], "Reviewing evidence.\n\nChecking sources.")
         self.assertEqual(self.state["text"], "The final answer.")
 
+    def test_tool_transitions_preserve_snapshots_and_restart_thinking_toasts(self):
+        thought = {"id": "reason", "type": "reasoning", "text": "Checking sources."}
+        self.event("item.updated", thought)
+        self.event("item.completed", thought)
+        self.assertEqual(self.instance._notify_progress.call_count, 1)
+        self.event("item.completed", {"id": "intro", "type": "agent_message",
+                                      "phase": "final_answer", "text": "Preparing the report."})
+        self.event("item.started", {"id": "tool", "type": "command_execution", "command": "read sources"})
+        self.event("item.completed", {"id": "tool", "type": "command_execution", "command": "read sources"})
+        self.instance._notify_progress.reset_mock()
+        next_thought = {"id": "next", "type": "reasoning", "text": "Writing findings."}
+        self.event("item.updated", next_thought)
+        self.event("item.completed", next_thought)
+        self.instance._notify_progress.assert_called_once()
+        self.event("item.completed", {"id": "answer", "type": "agent_message",
+                                      "phase": "final_answer", "text": "# Findings"})
+        self.assertEqual(self.state["text"], "Preparing the report.\n\n# Findings")
+        self.assertEqual(self.state["thinking"], "Checking sources.\n\nWriting findings.")
+
+    def test_tool_summaries_show_targets_instead_of_written_file_contents(self):
+        payload = {"Path": "biblemate/report.md", "Content": "private body " * 10000}
+        self.assertEqual(APP.summarize_tool_input(payload), "biblemate/report.md")
+        self.assertEqual(APP.summarize_tool_input(json.dumps(payload)), "biblemate/report.md")
+        self.assertEqual(APP.summarize_tool_input({"Queries": ["alpha", "beta"], "Content": "body"}), "alpha, beta")
+        self.event("item.started", {"type": "mcp_tool_call", "server": "files", "tool": "write",
+                                    "arguments": json.dumps(payload)})
+        detail = self.instance.tool_display.set_content.call_args.args[0]
+        self.assertIn("files/write", detail)
+        self.assertIn("biblemate/report.md", detail)
+        self.assertNotIn("private body", detail)
+        self.assertNotIn("private body", self.instance.terminal_logs[-1])
+        self.assertNotIn("private body", self.instance._notify_progress.call_args.args[0])
+
     def test_native_command_output_and_nonzero_exit_are_displayed(self):
         item = {"id": "cmd", "type": "command_execution", "command": "python3 helper.py"}
         self.event("item.started", item)
@@ -199,6 +232,69 @@ class CodexSubprocessTest(unittest.IsolatedAsyncioTestCase):
         self.assertIn("Codex error:", result)
         self.assertIn("Subscription session expired", result)
 
+    async def test_session_rules_are_deduplicated_and_resent_on_setting_or_session_changes(self):
+        thread = "11111111-2222-3333-4444-555555555555"
+        self.fixture_cli([{"type": "thread.started", "thread_id": thread}, {"type": "turn.completed"}],
+                         final_text="Done.")
+        request = await self.run_turn("First question")
+        self.assertIn("## BibleMate Web App Instructions", request["prompt"])
+        request = await self.run_turn("Follow-up\n`literal` $(literal) $literal")
+        self.assertEqual(request["prompt"], "Follow-up\n`literal` $(literal) $literal")
+        self.instance.selected_skill = "sermon"
+        request = await self.run_turn("Apply the skill")
+        self.assertIn(".codex/skills/sermon/SKILL.md", request["prompt"])
+        self.assertEqual((await self.run_turn("Continue"))["prompt"], "Continue")
+        self.instance.selected_skill = "Auto"
+        request = await self.run_turn("Use Auto again")
+        self.assertIn("## BibleMate Web App Instructions", request["prompt"])
+        self.assertNotIn("CRITICAL TASK REQUIREMENT", request["prompt"])
+        with patch.dict(APP.PERSONAS_MAP, {"Fixture Persona": "Use fixture persona instructions."}):
+            self.instance.selected_persona = "Fixture Persona"
+            request = await self.run_turn("Change persona")
+        self.assertIn("Use fixture persona instructions.", request["prompt"])
+        self.instance.codex_session_id = "another-thread"
+        self.assertIn("## BibleMate Web App Instructions", (await self.run_turn("Other session"))["prompt"])
+        self.instance.clear_conversation()
+        self.assertIn("## BibleMate Web App Instructions", (await self.run_turn("Start again"))["prompt"])
+
+    async def test_failed_rules_update_is_retried_on_the_next_turn(self):
+        self.instance.codex_session_id = "existing-thread"
+        self.instance.codex_rules_session_id = "existing-thread"
+        self.instance.codex_last_rules_key = ("Auto", "Auto")
+        self.instance.selected_skill = "sermon"
+        self.fixture_cli([{"type": "turn.failed", "error": {"message": "Temporary failure"}}], code=1)
+        await self.run_turn("Change skill")
+        self.assertEqual(self.instance.codex_last_rules_key, ("Auto", "Auto"))
+        self.fixture_cli([{"type": "turn.completed"}], final_text="Done.")
+        request = await self.run_turn("Retry")
+        self.assertIn(".codex/skills/sermon/SKILL.md", request["prompt"])
+        self.assertEqual(self.instance.codex_last_rules_key, ("Auto", "sermon"))
+
+    async def test_effort_is_model_specific_and_passed_on_new_and_resumed_turns(self):
+        models = {APP.DEFAULT_MODEL: None, "Fixture Model": "fixture-model", "Limited Model": "limited-model"}
+        efforts = {"fixture-model": ["low", "high"], "limited-model": ["low"]}
+        with patch.object(APP, "MODELS_MAP", models), patch.object(APP, "MODEL_EFFORTS", efforts):
+            self.assertEqual(self.instance.effort_options(), [APP.DEFAULT_EFFORT])
+            self.instance.effort_dropdown = MagicMock()
+            self.instance.update_effort_options("Fixture Model")
+            self.instance.effort_dropdown.set_options.assert_called_with(
+                [APP.DEFAULT_EFFORT, "low", "high"], value=APP.DEFAULT_EFFORT)
+            self.instance.selected_effort = "high"
+            self.fixture_cli([{"type": "thread.started", "thread_id": "fixture-thread"}], final_text="Done.")
+            for _ in range(2):
+                request = await self.run_turn("Question")
+                argv = request["argv"]
+                self.assertEqual(argv[argv.index("-c") + 1], 'model_reasoning_effort="high"')
+                self.assertEqual(argv[argv.index("-m") + 1], "fixture-model")
+            self.assertIn("resume", request["argv"])
+            self.instance.update_effort_options("Limited Model")
+            self.assertEqual(self.instance.selected_effort, APP.DEFAULT_EFFORT)
+            request = await self.run_turn("Use default effort")
+            self.assertNotIn("-c", request["argv"])
+            self.instance.selected_effort = "unsupported"
+            request = await self.run_turn("Ignore stale effort")
+            self.assertNotIn("-c", request["argv"])
+
     async def test_nonzero_exit_and_empty_reply_are_explicit(self):
         self.fixture_cli([], code=4)
         await self.run_turn("Question")
@@ -282,8 +378,12 @@ class CodexSubprocessTest(unittest.IsolatedAsyncioTestCase):
 
     async def test_new_conversation_clears_session(self):
         self.instance.codex_session_id = "old-thread"
+        self.instance.codex_last_rules_key = ("Auto", "Auto")
+        self.instance.codex_rules_session_id = "old-thread"
         self.instance.clear_conversation()
         self.assertIsNone(self.instance.codex_session_id)
+        self.assertIsNone(self.instance.codex_last_rules_key)
+        self.assertIsNone(self.instance.codex_rules_session_id)
         self.instance.chat_container.clear.assert_called_once()
 
     async def test_direct_bible_lookup_returns_retriever_output_without_codex(self):
@@ -296,6 +396,76 @@ class CodexSubprocessTest(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(retriever.call_args.args, ("bible", "NET John 3:16"))
         self.instance.run_codex_turn.assert_not_awaited()
         self.instance._render_response.assert_called_once_with(self.card, "Fixture database result.")
+
+
+class CodexModelDiscoveryTest(unittest.IsolatedAsyncioTestCase):
+    async def test_live_protocol_handles_initialization_pagination_and_model_efforts(self):
+        pages = [
+            {"data": [{"model": "model-a", "displayName": "Shared Name",
+                       "supportedReasoningEfforts": [{"reasoningEffort": "low"}, {"reasoningEffort": "high"}]}],
+             "nextCursor": "second-page"},
+            {"data": [{"model": "model-b", "displayName": "Shared Name"},
+                      {"model": "hidden-model", "hidden": True}], "nextCursor": None},
+        ]
+        with tempfile.TemporaryDirectory() as temp:
+            executable = Path(temp) / "codex"
+            capture = Path(temp) / "requests.json"
+            executable.write_text(
+                f"#!{sys.executable}\n"
+                "import json, sys\nfrom pathlib import Path\n"
+                f"pages = {pages!r}\n"
+                "requests = []; initialized = False; page = 0\n"
+                "for line in sys.stdin:\n"
+                "    request = json.loads(line); requests.append(request)\n"
+                f"    Path({str(capture)!r}).write_text(json.dumps(requests))\n"
+                "    if request['method'] == 'initialize':\n"
+                "        print(json.dumps({'id': request['id'], 'result': {}}), flush=True)\n"
+                "        print(json.dumps({'method': 'unrelated/notification'}), flush=True)\n"
+                "    elif request['method'] == 'initialized':\n"
+                "        initialized = True\n"
+                "    elif request['method'] == 'model/list':\n"
+                "        assert initialized\n"
+                "        print(json.dumps({'id': request['id'], 'result': pages[page]}), flush=True)\n"
+                "        page += 1\n"
+            )
+            executable.chmod(0o755)
+            with patch.object(APP, "CODEX_BIN", str(executable)):
+                models, efforts = await APP.discover_codex_models(APP.FALLBACK_MODELS_MAP)
+            self.assertEqual(models, {APP.DEFAULT_MODEL: None, "Shared Name": "model-a",
+                                      "Shared Name (model-b)": "model-b"})
+            self.assertEqual(efforts, {"model-a": ["low", "high"], "model-b": []})
+            requests = json.loads(capture.read_text())
+            self.assertEqual([request["method"] for request in requests],
+                             ["initialize", "initialized", "model/list", "model/list"])
+            self.assertEqual(requests[-1]["params"]["cursor"], "second-page")
+
+    async def test_timeout_falls_back_and_reaps_discovery_process(self):
+        created = []
+        real_create = asyncio.create_subprocess_exec
+
+        async def slow_cli(*args, **kwargs):
+            proc = await real_create(sys.executable, "-c", "import time; time.sleep(60)", **kwargs)
+            created.append(proc)
+            return proc
+
+        with patch.object(APP.asyncio, "create_subprocess_exec", side_effect=slow_cli):
+            models, efforts = await APP.discover_codex_models(APP.FALLBACK_MODELS_MAP, timeout=0.1)
+        self.assertEqual(models, APP.FALLBACK_MODELS_MAP)
+        self.assertEqual(efforts, {})
+        self.assertIsNotNone(created[0].returncode)
+
+    async def test_unavailable_or_malformed_catalog_keeps_fallback(self):
+        with patch.object(APP.asyncio, "create_subprocess_exec", side_effect=OSError("CLI unavailable")):
+            self.assertEqual(await APP.discover_codex_models(APP.FALLBACK_MODELS_MAP),
+                             (APP.FALLBACK_MODELS_MAP, {}))
+        proc = MagicMock()
+        proc.stdin.drain = AsyncMock()
+        proc.stdout.readline = AsyncMock(return_value=b'not json\n')
+        proc.wait = AsyncMock(return_value=0)
+        proc.returncode = 0
+        with patch.object(APP.asyncio, "create_subprocess_exec", return_value=proc):
+            self.assertEqual(await APP.discover_codex_models(APP.FALLBACK_MODELS_MAP),
+                             (APP.FALLBACK_MODELS_MAP, {}))
 
 
 if __name__ == "__main__":

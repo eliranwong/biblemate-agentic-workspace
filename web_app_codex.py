@@ -89,19 +89,103 @@ SKILLS_LIST = get_skills()
 # Dropdown labels to `codex --model` values. None means "use whatever model the
 # CLI is configured with". If an account lacks a model, the CLI reports the
 # error and the chat shows it in the System Logs / response.
-MODELS_MAP = {
+FALLBACK_MODELS_MAP = {
     'Default (session default)': None,
     'GPT-5 Codex': 'gpt-5-codex',
     'GPT-5': 'gpt-5',
     'GPT-5 Mini': 'gpt-5-mini',
 }
 DEFAULT_MODEL = 'Default (session default)'
+DEFAULT_EFFORT = 'Default (session default)'
+MODELS_MAP = FALLBACK_MODELS_MAP.copy()
+MODEL_EFFORTS = {}
 
-# Regex to match scripture references (e.g. John 3:16, 1 Cor 13, Romans 8:28, 1Tim 3:16)
-BIBLE_REF_PATTERN = re.compile(
-    r'^\s*([1-3]\s*)?[A-Za-z\s\.\_]+?\s+\d+(\s*:\s*\d+(\s*-\s*\d+)?)?\s*$',
-    re.IGNORECASE
-)
+
+async def discover_codex_models(fallback_map: dict, timeout: float = 5.0):
+    """Read the signed-in CLI's model picker without starting an agent turn."""
+    process = None
+
+    async def read_catalog():
+        nonlocal process
+        process = await asyncio.create_subprocess_exec(
+            CODEX_BIN, 'app-server', '--listen', 'stdio://',
+            stdin=asyncio.subprocess.PIPE,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.DEVNULL,
+            cwd=WORKSPACE_DIR,
+            limit=CODEX_STREAM_LIMIT,
+        )
+
+        async def request(request_id, method, params):
+            payload = {'id': request_id, 'method': method, 'params': params}
+            process.stdin.write((json.dumps(payload) + '\n').encode('utf-8'))
+            await process.stdin.drain()
+            while True:
+                line = await process.stdout.readline()
+                if not line:
+                    raise RuntimeError('Codex model discovery closed unexpectedly.')
+                event = json.loads(line)
+                if event.get('id') == request_id:
+                    if 'error' in event:
+                        raise RuntimeError('Codex model discovery request failed.')
+                    return event['result']
+
+        await request(1, 'initialize', {
+            'clientInfo': {'name': 'biblemate_web_app', 'version': '1.0'},
+        })
+        process.stdin.write(b'{"method":"initialized"}\n')
+        await process.stdin.drain()
+        catalog = []
+        cursor = None
+        request_id = 2
+        while True:
+            params = {'limit': 100, 'includeHidden': False}
+            if cursor:
+                params['cursor'] = cursor
+            result = await request(request_id, 'model/list', params)
+            catalog.extend(result['data'])
+            cursor = result.get('nextCursor')
+            if not cursor:
+                return catalog
+            request_id += 1
+
+    try:
+        catalog = await asyncio.wait_for(read_catalog(), timeout=timeout)
+        models = {DEFAULT_MODEL: None}
+        efforts = {}
+        for model in catalog:
+            model_id = model.get('model') or model.get('id')
+            if model.get('hidden') or not isinstance(model_id, str) or not model_id.strip():
+                continue
+            label = model.get('displayName') or model_id
+            if label in models:
+                label = f'{label} ({model_id})'
+            models[label] = model_id
+            efforts[model_id] = list(dict.fromkeys(
+                entry['reasoningEffort'] for entry in model.get('supportedReasoningEfforts') or []
+                if isinstance(entry.get('reasoningEffort'), str) and entry['reasoningEffort']
+            ))
+        if len(models) > 1:
+            return models, efforts
+    except (OSError, RuntimeError, ValueError, KeyError, TypeError, AttributeError):
+        # Older CLIs, offline startup, and unavailable catalogs keep the app usable.
+        pass
+    finally:
+        if process is not None:
+            if process.returncode is None:
+                try:
+                    process.terminate()
+                except ProcessLookupError:
+                    pass
+            try:
+                await asyncio.wait_for(process.wait(), timeout=1.0)
+            except asyncio.TimeoutError:
+                try:
+                    process.kill()
+                except ProcessLookupError:
+                    pass
+                await process.wait()
+    return fallback_map.copy(), {}
 
 async def run_local_retriever(skill_name: str, query: str, on_process=None) -> str:
     """Runs a Python database retriever script under .codex/skills directly and returns output."""
@@ -169,16 +253,27 @@ def parse_codex_stream_line(line: str):
 def summarize_tool_input(raw_input) -> str:
     """Pick the most useful field from a Codex tool-call payload."""
     if isinstance(raw_input, str):
-        return raw_input
+        try:
+            parsed = json.loads(raw_input)
+        except json.JSONDecodeError:
+            return raw_input
+        if not isinstance(parsed, dict):
+            return raw_input
+        raw_input = parsed
     if not isinstance(raw_input, dict):
         return ""
     for key in (
-        "command", "cmd", "target_file", "file_path", "path",
-        "pattern", "query", "url", "prompt", "script_path",
+        "command", "cmd", "CommandLine", "target_file", "TargetFile",
+        "file_path", "path", "Path", "AbsolutePath", "notebook_path",
+        "pattern", "query", "Query", "queries", "Queries", "url", "Url",
+        "prompt", "Prompt", "script_path", "skill", "description",
+        "Role", "TypeName", "DirectoryPath",
     ):
         value = raw_input.get(key)
         if isinstance(value, str) and value.strip():
             return value.strip()
+        if isinstance(value, list) and value and all(isinstance(part, str) for part in value):
+            return ', '.join(value)
     try:
         return json.dumps(raw_input, ensure_ascii=False)
     except Exception:
@@ -234,10 +329,14 @@ class BibleMateApp:
     def __init__(self):
         # Settings state
         self.selected_model = DEFAULT_MODEL
+        self.selected_effort = DEFAULT_EFFORT
+        self.effort_dropdown = None
         self.selected_persona = 'Auto'
         self.selected_skill = 'Auto'
         # Headless Codex session for this browser conversation. Empty means a new session.
         self.codex_session_id = None
+        self.codex_last_rules_key = None
+        self.codex_rules_session_id = None
         self.codex_proc = None
         
         # UI Toggles and References
@@ -381,6 +480,19 @@ class BibleMateApp:
         )
         return rules
 
+    def effort_options(self, model_label=None):
+        """Only offer efforts advertised for an explicitly selected model."""
+        model_id = MODELS_MAP.get(model_label or self.selected_model)
+        return [DEFAULT_EFFORT] + MODEL_EFFORTS.get(model_id, [])
+
+    def update_effort_options(self, model_label):
+        self.selected_model = model_label
+        options = self.effort_options(model_label)
+        if self.selected_effort not in options:
+            self.selected_effort = DEFAULT_EFFORT
+        if self.effort_dropdown is not None:
+            self.effort_dropdown.set_options(options, value=self.selected_effort)
+
     def apply_codex_event(self, event: dict, state: dict, response_card):
         """Display native Codex JSONL events as chat, progress, and command output."""
         etype = event.get("type")
@@ -431,12 +543,17 @@ class BibleMateApp:
                 "mcp_tool_call", "web_search", "file_change", "collab_tool_call",
             }
             if item_type in tool_types:
+                if etype in ('item.started', 'item.completed'):
+                    state['notified_think'] = False
+                input_detail = summarize_tool_input(item.get('arguments') or item.get('input'))
+                tool_name = item.get('tool') or item.get('name')
                 detail = (
-                    item.get("command") or item.get("query") or item.get("tool")
-                    or item.get("name") or item.get("title")
-                    or summarize_tool_input(item.get("arguments") or item.get("input"))
+                    item.get("command") or item.get("query") or input_detail
+                    or tool_name or item.get("title")
                     or item_type
                 )
+                if tool_name and input_detail:
+                    detail = f'{tool_name}: {detail}'
                 if item_type == "mcp_tool_call" and item.get("server"):
                     detail = f"{item['server']}/{detail}"
                 if item_type == "file_change":
@@ -977,8 +1094,23 @@ class BibleMateApp:
     async def run_codex_turn(self, user_query: str, response_card):
         """Run one headless `codex exec --json` turn and stream it into the UI."""
         active_skill = self.active_skill_for_query(user_query)
-        system_rules = self.build_system_rules(active_skill)
         sdk_model = MODELS_MAP.get(self.selected_model, MODELS_MAP[DEFAULT_MODEL])
+        effort = self.selected_effort if self.selected_effort in self.effort_options() else DEFAULT_EFFORT
+        rules_key = (self.selected_persona, active_skill)
+        send_rules = (
+            not self.codex_session_id
+            or self.codex_rules_session_id != self.codex_session_id
+            or self.codex_last_rules_key != rules_key
+        )
+        prompt = user_query
+        if send_rules:
+            prompt = (
+                '## BibleMate Web App Instructions\n'
+                'These instructions replace previous BibleMate Web App Instructions in this conversation.\n'
+                f'{self.build_system_rules(active_skill)}\n\n'
+                '## User Request\n'
+                f'{user_query}\n'
+            )
 
         stderr_task = None
         state = {"text": "", "thinking": "", "notified_think": False, "error": ""}
@@ -992,6 +1124,8 @@ class BibleMateApp:
                 "-a", "never",
                 "--search",
             ]
+            if effort != DEFAULT_EFFORT:
+                cmd.extend(['-c', f'model_reasoning_effort={json.dumps(effort)}'])
             if self.codex_session_id:
                 cmd.extend(["exec", "resume", "--json", "-o", final_message_path])
                 if sdk_model:
@@ -1005,16 +1139,10 @@ class BibleMateApp:
 
             env = os.environ.copy()
             env["CODEX_DISABLE_AUTOUPDATER"] = "1"
-            prompt = (
-                "## BibleMate Web App Instructions\n"
-                f"{system_rules}\n\n"
-                "## User Request\n"
-                f"{user_query}\n"
-            )
             # Do not inject an API key. The CLI reuses whatever credentials it is
             # already signed in with, so this app needs no separate OpenAI API key.
 
-            self.append_runtime_log(f"starting codex model={sdk_model or 'default'} skill={active_skill} resume={bool(self.codex_session_id)}")
+            self.append_runtime_log(f"starting codex model={sdk_model or 'default'} effort={effort} skill={active_skill} resume={bool(self.codex_session_id)}")
             self._notify_progress("Codex: Planning study...")
 
             process = await asyncio.create_subprocess_exec(
@@ -1048,6 +1176,9 @@ class BibleMateApp:
                 stderr_task = None
 
             if returncode == 0 and not state["error"]:
+                if self.codex_session_id:
+                    self.codex_last_rules_key = rules_key
+                    self.codex_rules_session_id = self.codex_session_id
                 try:
                     with open(final_message_path, "r", encoding="utf-8") as handle:
                         final_message = handle.read().strip()
@@ -1165,6 +1296,8 @@ class BibleMateApp:
             self.terminal_logs.clear()
             # Next message starts a fresh Codex session instead of resuming this one.
             self.codex_session_id = None
+            self.codex_last_rules_key = None
+            self.codex_rules_session_id = None
             # Hide the progress console on a new conversation
             self.progress_container.set_visibility(False)
             if hasattr(self, 'main_tabs') and self.main_tabs:
@@ -1253,6 +1386,11 @@ class BibleMateApp:
             ui.label('AI Model').classes('text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider')
             model_drop = ui.select(list(MODELS_MAP.keys()), value=self.selected_model).classes('w-full mb-6')
             model_drop.bind_value_to(self, 'selected_model')
+            model_drop.on_value_change(lambda event: self.update_effort_options(event.value))
+
+            ui.label('Reasoning Effort').classes('text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider')
+            self.effort_dropdown = ui.select(self.effort_options(), value=self.selected_effort).classes('w-full mb-6')
+            self.effort_dropdown.bind_value(self, 'selected_effort')
             
             # Persona Selection
             ui.label('Active Persona').classes('text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider')
@@ -1375,6 +1513,8 @@ class BibleMateApp:
         await self.execute_agent_chat(query)
 
 if __name__ == '__main__':
+    # Query the CLI before constructing the model and effort dropdowns.
+    MODELS_MAP, MODEL_EFFORTS = asyncio.run(discover_codex_models(FALLBACK_MODELS_MAP))
     # Initialize application UI
     app_instance = BibleMateApp()
     app_instance.build_ui()
