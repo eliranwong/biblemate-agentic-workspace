@@ -82,7 +82,7 @@ git clone https://github.com/eliranwong/antigravity-biblemate-workspace.git /wor
 ### How It Works
 
 Adding startup logic to your login configuration file (`~/.bashrc` or `~/.profile`) guarantees that:
-1. **Port Detection**: It checks whether the target port (e.g. `33379`) is currently in use with `ss -H -ltn`.
+1. **Port Detection**: It checks whether the target port (e.g. `33382`) is currently in use with `ss -H -ltn`.
 2. **Conditional Launch**: If the port is **not** listening, it starts the web app in the background via `nohup` using the virtual environment's Python interpreter.
 3. **Idempotence**: If the service is already running, it prints a notice and avoids launching duplicate processes.
 4. **Log Redirection**: Output and errors are captured in `/tmp/` for effortless debugging.
@@ -103,7 +103,7 @@ Add the following block to your `~/.bashrc` or `~/.profile`:
 # ==============================================================================
 BIBLEMATE_DIR="/workspace/biblemate_studies"
 BIBLEMATE_VENV_PY="/workspace/ai/bin/python3"
-BIBLEMATE_PORT=33379
+BIBLEMATE_PORT=33382
 BIBLEMATE_LOG="/tmp/biblemate-claude-${BIBLEMATE_PORT}.log"
 
 start_biblemate_claude() {
@@ -120,7 +120,7 @@ start_biblemate_claude() {
   echo "BibleMate Claude started (PID: $!). Logs: ${BIBLEMATE_LOG}"
 }
 
-# Start only when port 33379 is not already listening
+# Start only when port 33382 is not already listening
 if ! ss -H -ltn "sport = :${BIBLEMATE_PORT}" 2>/dev/null | grep -q .; then
   start_biblemate_claude
 else
@@ -140,7 +140,7 @@ If you run another platform variant (or switch between them), use this adaptable
 # ==============================================================================
 # Target script: web_app_agy.py | web_app_claude.py | web_app_codex.py | web_app_grok.py | web_app_gemini_api_key.py
 APP_SCRIPT="web_app_claude.py"
-APP_PORT=33379
+APP_PORT=33382
 WORKSPACE_DIR="/workspace/biblemate_studies"
 PYTHON_BIN="/workspace/ai/bin/python3"
 LOG_FILE="/tmp/biblemate-${APP_PORT}.log"
@@ -163,11 +163,11 @@ fi
 
 | Platform | Script | Port | Env Override |
 | :--- | :--- | :--- | :--- |
-| **Antigravity CLI** | `web_app_agy.py` | `33380` | `BIBLEMATE_AGY_PORT` |
-| **Claude Code** | `web_app_claude.py` | `33379` | `BIBLEMATE_CLAUDE_PORT` |
-| **Codex** | `web_app_codex.py` | `33376` | `BIBLEMATE_CODEX_PORT` |
-| **Grok Build** | `web_app_grok.py` | `33378` | `BIBLEMATE_GROK_PORT` |
-| **Google Antigravity SDK** | `web_app_gemini_api_key.py` | `33377` | *(fixed)* |
+| **Antigravity CLI** | `web_app_agy.py` | `33381` | `BIBLEMATE_AGY_PORT` |
+| **Claude Code** | `web_app_claude.py` | `33382` | `BIBLEMATE_CLAUDE_PORT` |
+| **Codex** | `web_app_codex.py` | `33383` | `BIBLEMATE_CODEX_PORT` |
+| **Grok Build** | `web_app_grok.py` | `33384` | `BIBLEMATE_GROK_PORT` |
+| **Google Antigravity SDK** | `web_app_gemini_api_key.py` | `33380` | `BIBLEMATE_GEMINI_PORT` |
 
 ---
 
@@ -177,7 +177,7 @@ You can define quick alias functions in `~/.bashrc` to control and monitor the a
 
 ```bash
 # Check if BibleMate port is listening
-alias bm-status="ss -tulpn | grep -E '33376|33377|33378|33379|33380'"
+alias bm-status="ss -tulpn | grep -E '33380|33381|33382|33383|33384'"
 
 # Follow live server logs
 alias bm-logs="tail -f /tmp/biblemate-*.log"
@@ -193,9 +193,9 @@ stop_biblemate() {
 To verify that the service is running and listening:
 
 ```bash
-ss -H -ltn 'sport = :33379'
+ss -H -ltn 'sport = :33382'
 # or:
-lsof -i :33379
+lsof -i :33382
 ```
 
 ### Viewing Live Logs
@@ -203,7 +203,7 @@ lsof -i :33379
 To inspect stdout/stderr or debug agent errors:
 
 ```bash
-tail -f /tmp/biblemate-claude-33379.log
+tail -f /tmp/biblemate-claude-33382.log
 ```
 
 ### Stopping the Server
@@ -213,7 +213,7 @@ tail -f /tmp/biblemate-claude-33379.log
 pkill -f "web_app_claude.py"
 
 # Or terminate by port:
-fuser -k 33379/tcp
+fuser -k 33382/tcp
 ```
 
 ---

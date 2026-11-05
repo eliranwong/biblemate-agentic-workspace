@@ -6,11 +6,11 @@ This workspace provides **five browser app variants** sharing the identical UI a
 
 | Platform | Entry Script | Default Port | Port Override Env | Backend / Credentials |
 | :--- | :--- | :--- | :--- | :--- |
-| **Antigravity CLI (`agy`)** | [`web_app_agy.py`](../web_app_agy.py) | `33380` | `BIBLEMATE_AGY_PORT` | Signed-in Antigravity CLI (`agy -p` headless mode; Google subscription, no API key needed) |
-| **Google Antigravity (SDK)** | [`web_app_gemini_api_key.py`](../web_app_gemini_api_key.py) | `33377` | *(fixed)* | `google-antigravity` SDK (requires `GEMINI_API_KEY`) |
-| **Claude Code** | [`web_app_claude.py`](../web_app_claude.py) | `33379` | `BIBLEMATE_CLAUDE_PORT` | Signed-in Claude Code CLI (`claude -p` headless mode; no API key needed) |
-| **Codex** | [`web_app_codex.py`](../web_app_codex.py) | `33376` | `BIBLEMATE_CODEX_PORT` | Signed-in Codex CLI (`codex exec --json` headless mode; no API key needed) |
-| **Grok Build** | [`web_app_grok.py`](../web_app_grok.py) | `33378` | `BIBLEMATE_GROK_PORT` | Signed-in Grok Build session via `grok login` (headless mode; no API key needed) |
+| **Antigravity CLI (`agy`)** | [`web_app_agy.py`](../web_app_agy.py) | `33381` | `BIBLEMATE_AGY_PORT` | Signed-in Antigravity CLI (`agy -p` headless mode; Google subscription, no API key needed) |
+| **Google Antigravity (SDK)** | [`web_app_gemini_api_key.py`](../web_app_gemini_api_key.py) | `33380` | `BIBLEMATE_GEMINI_PORT` | `google-antigravity` SDK (requires `GEMINI_API_KEY`) |
+| **Claude Code** | [`web_app_claude.py`](../web_app_claude.py) | `33382` | `BIBLEMATE_CLAUDE_PORT` | Signed-in Claude Code CLI (`claude -p` headless mode; no API key needed) |
+| **Codex** | [`web_app_codex.py`](../web_app_codex.py) | `33383` | `BIBLEMATE_CODEX_PORT` | Signed-in Codex CLI (`codex exec --json` headless mode; no API key needed) |
+| **Grok Build** | [`web_app_grok.py`](../web_app_grok.py) | `33384` | `BIBLEMATE_GROK_PORT` | Signed-in Grok Build session via `grok login` (headless mode; no API key needed) |
 
 **Cursor** runs in the IDE through `.cursor/skills/` and `.cursor/rules/biblemate-skills.mdc`. Studies started there land in the same `biblemate/`, `images/`, and `~/biblemate/data` folders these apps use. See [cursor_ecosystem.md](cursor_ecosystem.md).
 
@@ -139,36 +139,36 @@ rm ~/biblemate/data.zip
 
 Run the script corresponding to your platform from the workspace root directory:
 
-### Option A: Antigravity CLI Web App (Port 33380) — *Recommended for Google Subscription*
+### Option A: Antigravity CLI Web App (Port 33381) — *Recommended for Google Subscription*
 ```bash
 python3 web_app_agy.py
 ```
-Open **[http://localhost:33380](http://localhost:33380)** in your browser. (Override port with `BIBLEMATE_AGY_PORT=<port>`). Uses your signed-in Antigravity CLI session without requiring an API key.
+Open **[http://localhost:33381](http://localhost:33381)** in your browser. (Override port with `BIBLEMATE_AGY_PORT=<port>`). Uses your signed-in Antigravity CLI session without requiring an API key.
 
-### Option B: Claude Code Web App (Port 33379)
+### Option B: Claude Code Web App (Port 33382)
 ```bash
 python3 web_app_claude.py
 ```
-Open **[http://localhost:33379](http://localhost:33379)** in your browser. (Override port with `BIBLEMATE_CLAUDE_PORT=<port>`).
+Open **[http://localhost:33382](http://localhost:33382)** in your browser. (Override port with `BIBLEMATE_CLAUDE_PORT=<port>`).
 
-### Option C: Codex Web App (Port 33376)
+### Option C: Codex Web App (Port 33383)
 ```bash
 python3 web_app_codex.py
 ```
-Open **[http://localhost:33376](http://localhost:33376)** in your browser. (Override port with `BIBLEMATE_CODEX_PORT=<port>`).
+Open **[http://localhost:33383](http://localhost:33383)** in your browser. (Override port with `BIBLEMATE_CODEX_PORT=<port>`).
 
-### Option D: Grok Build Web App (Port 33378)
+### Option D: Grok Build Web App (Port 33384)
 ```bash
 python3 web_app_grok.py
 ```
-Open **[http://localhost:33378](http://localhost:33378)** in your browser. (Override port with `BIBLEMATE_GROK_PORT=<port>`).
+Open **[http://localhost:33384](http://localhost:33384)** in your browser. (Override port with `BIBLEMATE_GROK_PORT=<port>`).
 
-### Option E: Google Antigravity SDK Web App (Port 33377)
+### Option E: Google Antigravity SDK Web App (Port 33380)
 ```bash
 export GEMINI_API_KEY="your-gemini-api-key"
 python3 web_app_gemini_api_key.py
 ```
-Open **[http://localhost:33377](http://localhost:33377)** in your browser.
+Open **[http://localhost:33380](http://localhost:33380)** in your browser. (Override port with `BIBLEMATE_GEMINI_PORT=<port>`).
 
 > **Note:** The web apps **do not open a browser automatically** by design. You must open the URL manually. The server runs in the foreground — press `Ctrl+C` to stop it. Because each variant uses a distinct port, you can run multiple apps concurrently!
 
@@ -208,17 +208,17 @@ kill $(pgrep -f "web_app_agy.py")
 For cloud instances, container workspaces, or headless remote servers (e.g. Grok Bot, remote VPS, or Docker environments), you can configure your shell profile (`~/.bashrc` or `~/.profile`) to **automatically check if the port is already listening and launch the web app on login**:
 
 ```bash
-# Example ~/.bashrc startup snippet for Claude Code (port 33379)
+# Example ~/.bashrc startup snippet for Claude Code (port 33382)
 start_biblemate_claude() {
-  echo "Starting BibleMate Claude on port 33379..."
-  nohup /workspace/ai/bin/python3 /workspace/biblemate_studies/web_app_claude.py >> /tmp/biblemate-claude-33379.log 2>&1 &
+  echo "Starting BibleMate Claude on port 33382..."
+  nohup /workspace/ai/bin/python3 /workspace/biblemate_studies/web_app_claude.py >> /tmp/biblemate-claude-33382.log 2>&1 &
 }
 
-# Auto-start only if port 33379 is not already active
-if ! ss -H -ltn 'sport = :33379' 2>/dev/null | grep -q .; then
+# Auto-start only if port 33382 is not already active
+if ! ss -H -ltn 'sport = :33382' 2>/dev/null | grep -q .; then
   start_biblemate_claude
 else
-  echo "BibleMate Claude is already active on port 33379."
+  echo "BibleMate Claude is already active on port 33382."
 fi
 ```
 
@@ -526,17 +526,18 @@ Toggle **Dark Mode / Light Mode** using the switch in the settings panel.
 
 ```bash
 # Check and free default ports:
-lsof -ti tcp:33380 | xargs kill -9  # web_app_agy.py
-lsof -ti tcp:33379 | xargs kill -9  # web_app_claude.py
-lsof -ti tcp:33378 | xargs kill -9  # web_app_grok.py
-lsof -ti tcp:33377 | xargs kill -9  # web_app_gemini_api_key.py
-lsof -ti tcp:33376 | xargs kill -9  # web_app_codex.py
+lsof -ti tcp:33384 | xargs kill -9  # web_app_grok.py
+lsof -ti tcp:33383 | xargs kill -9  # web_app_codex.py
+lsof -ti tcp:33382 | xargs kill -9  # web_app_claude.py
+lsof -ti tcp:33381 | xargs kill -9  # web_app_agy.py
+lsof -ti tcp:33380 | xargs kill -9  # web_app_gemini_api_key.py
 
 # Or launch with a custom port:
-BIBLEMATE_AGY_PORT=33390 python3 web_app_agy.py
-BIBLEMATE_CLAUDE_PORT=33391 python3 web_app_claude.py
-BIBLEMATE_GROK_PORT=33392 python3 web_app_grok.py
+BIBLEMATE_GEMINI_PORT=33390 python3 web_app_gemini_api_key.py
+BIBLEMATE_AGY_PORT=33391 python3 web_app_agy.py
+BIBLEMATE_CLAUDE_PORT=33392 python3 web_app_claude.py
 BIBLEMATE_CODEX_PORT=33393 python3 web_app_codex.py
+BIBLEMATE_GROK_PORT=33394 python3 web_app_grok.py
 ```
 
 ---

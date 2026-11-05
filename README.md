@@ -251,7 +251,7 @@ directory. You can use **any one platform or any combination** interchangeably:
 | Personas | `agents.md` (single file) | `.claude/agents/<slug>.md` + `.claude/agents.md` | `.codex/agents.md` | `.grok/agents/<slug>.md` + `.grok/personas/<slug>.toml` + `.grok/agents.md` | `.cursor/agents.md` (Task subagent slugs) |
 | Skills | `.agents/skills/<name>/SKILL.md` | `.claude/skills/<name>/SKILL.md` | `.codex/skills/<name>/SKILL.md` | `.grok/skills/<name>/SKILL.md` | `.cursor/skills/<name>/SKILL.md` |
 | Slash commands | `.agents/workflows/<name>.md` | `.claude/commands/<name>.md` | Same slash-style names through Codex skill descriptions | `.grok/commands/<name>.md` (+ skills as `/name`) | Same skill names; the project rule maps `/bible`-style requests to `.cursor/skills/` |
-| Web App | [`web_app_agy.py`](web_app_agy.py) (CLI, port 33380) / [`web_app_gemini_api_key.py`](web_app_gemini_api_key.py) (SDK, port 33377) | [`web_app_claude.py`](web_app_claude.py) (port 33379) | [`web_app_codex.py`](web_app_codex.py) (port 33376) | [`web_app_grok.py`](web_app_grok.py) (port 33378) | Cursor Agent in the IDE |
+| Web App | [`web_app_agy.py`](web_app_agy.py) (CLI, port 33381) / [`web_app_gemini_api_key.py`](web_app_gemini_api_key.py) (SDK, port 33380) | [`web_app_claude.py`](web_app_claude.py) (port 33382) | [`web_app_codex.py`](web_app_codex.py) (port 33383) | [`web_app_grok.py`](web_app_grok.py) (port 33384) | Cursor Agent in the IDE |
 | Runtime data | `~/biblemate/data` (or `BIBLEMATE_DATA`) | same | same | same | same |
 | Study outputs | `biblemate/` | `biblemate/` | `biblemate/` | `biblemate/` | `biblemate/` |
 
@@ -290,7 +290,7 @@ re-opened on another.
    pip install nicegui Pillow
    python3 web_app_claude.py
    ```
-   Then open **[http://localhost:33379](http://localhost:33379)** in your browser.
+   Then open **[http://localhost:33382](http://localhost:33382)** in your browser.
    It loads personas and skills from `.claude/` and lets you select Claude models
    (`Default (session default)`, `opus`, `sonnet`, `fable`, `haiku`).
 
@@ -378,7 +378,7 @@ Full usage guide: **[docs/codex_ecosystem.md](docs/codex_ecosystem.md)**.
    pip install nicegui Pillow
    python3 web_app_codex.py
    ```
-   Then open **[http://localhost:33376](http://localhost:33376)** in your browser.
+   Then open **[http://localhost:33383](http://localhost:33383)** in your browser.
    It loads personas and skills from `.codex/`.
 
 ### Portability (no absolute paths)
@@ -465,7 +465,7 @@ Full usage guide: **[docs/grok_build_ecosystem.md](docs/grok_build_ecosystem.md)
    pip install nicegui Pillow
    python3 web_app_grok.py
    ```
-   Then open **[http://localhost:33378](http://localhost:33378)** in your browser.
+   Then open **[http://localhost:33384](http://localhost:33384)** in your browser.
    It loads personas and skills from `.grok/` and lets you select Grok models
    (`Grok 4.7`, `Grok 4.7 Build Fast`, `Grok 4.6`, `Grok 4.5`).
 
@@ -591,11 +591,11 @@ skill to regenerate the skills after refreshing sources.
 
 In addition to native IDE integrations and CLI workflows, this workspace ships with **five dedicated, browser-based web applications** built with [NiceGUI](https://nicegui.io). Each app connects directly to its respective agentic platform backend while sharing the exact same intuitive visual layout, real-time agent console, study document browser, markdown editor, and local scripture databases. **Cursor** runs in the IDE Agent (see [Cursor Equivalent Ecosystem](#-cursor-equivalent-ecosystem-optional-bonus)) and writes to the same `biblemate/` folder these apps browse.
 
-- **[Antigravity CLI (`agy`)](https://antigravity.google/download)**: [`web_app_agy.py`](web_app_agy.py) (default port `33380`) — backed by your signed-in Google subscription via Antigravity CLI (`agy -p` headless mode; no Gemini API key required). *(Recommended for subscription users)*
-- **[Google Antigravity SDK](https://antigravity.google/download)**: [`web_app_gemini_api_key.py`](web_app_gemini_api_key.py) (default port `33377`) — powered by the `google-antigravity` Python SDK (requires `GEMINI_API_KEY`).
-- **[Claude Code](https://claude.com/claude-code)**: [`web_app_claude.py`](web_app_claude.py) (default port `33379`) — backed by your signed-in Claude Code CLI (`claude -p` headless mode; no separate Anthropic API key needed).
-- **[Codex](https://openai.com/codex/)**: [`web_app_codex.py`](web_app_codex.py) (default port `33376`) — backed by your signed-in Codex CLI (`codex exec --json` headless mode; no separate OpenAI API key needed).
-- **[Grok Build](https://docs.x.ai/build/overview)**: [`web_app_grok.py`](web_app_grok.py) (default port `33378`) — backed by your signed-in Grok Build session via `grok login` (headless mode; no separate xAI API key needed).
+- **[Antigravity CLI (`agy`)](https://antigravity.google/download)**: [`web_app_agy.py`](web_app_agy.py) (default port `33381`) — backed by your signed-in Google subscription via Antigravity CLI (`agy -p` headless mode; no Gemini API key required). *(Recommended for subscription users)*
+- **[Google Antigravity SDK](https://antigravity.google/download)**: [`web_app_gemini_api_key.py`](web_app_gemini_api_key.py) (default port `33380`) — powered by the `google-antigravity` Python SDK (requires `GEMINI_API_KEY`).
+- **[Claude Code](https://claude.com/claude-code)**: [`web_app_claude.py`](web_app_claude.py) (default port `33382`) — backed by your signed-in Claude Code CLI (`claude -p` headless mode; no separate Anthropic API key needed).
+- **[Codex](https://openai.com/codex/)**: [`web_app_codex.py`](web_app_codex.py) (default port `33383`) — backed by your signed-in Codex CLI (`codex exec --json` headless mode; no separate OpenAI API key needed).
+- **[Grok Build](https://docs.x.ai/build/overview)**: [`web_app_grok.py`](web_app_grok.py) (default port `33384`) — backed by your signed-in Grok Build session via `grok login` (headless mode; no separate xAI API key needed).
 
 <img width="1511" height="860" alt="Image" src="https://github.com/user-attachments/assets/c76d8e4b-5188-4f02-92aa-79d985f68523" />
 
@@ -603,11 +603,11 @@ In addition to native IDE integrations and CLI workflows, this workspace ships w
 
 | Platform | Web App Script | Default Port | Port Environment Variable | Backend Execution | Authentication & Credentials | Selectable Models |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **Antigravity CLI** | [`web_app_agy.py`](web_app_agy.py) | `33380` | `BIBLEMATE_AGY_PORT` | `agy -p` headless mode | Signed-in Google subscription session (no API key required) | Gemini 3.6 Flash (Low/Medium/High), Gemini 3.1 Pro, Claude Opus/Sonnet 5.5, GPT-OSS 120B |
-| **Google Antigravity (SDK)** | [`web_app_gemini_api_key.py`](web_app_gemini_api_key.py) | `33377` | *(fixed)* | `google-antigravity` SDK | Requires `GEMINI_API_KEY` environment variable | Gemini 3.5 Flash/Pro, Gemini 2.0 Flash, Gemini 1.5 Pro/Flash |
-| **Claude Code** | [`web_app_claude.py`](web_app_claude.py) | `33379` | `BIBLEMATE_CLAUDE_PORT` | `claude -p` headless mode | Signed-in Claude Code CLI session (no API key required) | Default (session default), `opus`, `sonnet`, `fable`, `haiku` |
-| **Codex** | [`web_app_codex.py`](web_app_codex.py) | `33376` | `BIBLEMATE_CODEX_PORT` | `codex exec --json` headless mode | Signed-in Codex CLI session (no API key required) | Default (session default), `gpt-5-codex`, `gpt-5`, `gpt-5-mini` |
-| **Grok Build** | [`web_app_grok.py`](web_app_grok.py) | `33378` | `BIBLEMATE_GROK_PORT` | `grok` headless mode | Signed-in `grok login` session in `~/.grok/auth.json` (no API key required) | `Grok 4.7`, `Grok 4.7 Build Fast`, `Grok 4.6`, `Grok 4.5` |
+| **Antigravity CLI** | [`web_app_agy.py`](web_app_agy.py) | `33381` | `BIBLEMATE_AGY_PORT` | `agy -p` headless mode | Signed-in Google subscription session (no API key required) | Gemini 3.6 Flash (Low/Medium/High), Gemini 3.1 Pro, Claude Opus/Sonnet 5.5, GPT-OSS 120B |
+| **Google Antigravity (SDK)** | [`web_app_gemini_api_key.py`](web_app_gemini_api_key.py) | `33380` | `BIBLEMATE_GEMINI_PORT` | `google-antigravity` SDK | Requires `GEMINI_API_KEY` environment variable | Gemini 3.5 Flash/Pro, Gemini 2.0 Flash, Gemini 1.5 Pro/Flash |
+| **Claude Code** | [`web_app_claude.py`](web_app_claude.py) | `33382` | `BIBLEMATE_CLAUDE_PORT` | `claude -p` headless mode | Signed-in Claude Code CLI session (no API key required) | Default (session default), `opus`, `sonnet`, `fable`, `haiku` |
+| **Codex** | [`web_app_codex.py`](web_app_codex.py) | `33383` | `BIBLEMATE_CODEX_PORT` | `codex exec --json` headless mode | Signed-in Codex CLI session (no API key required) | Default (session default), `gpt-5-codex`, `gpt-5`, `gpt-5-mini` |
+| **Grok Build** | [`web_app_grok.py`](web_app_grok.py) | `33384` | `BIBLEMATE_GROK_PORT` | `grok` headless mode | Signed-in `grok login` session in `~/.grok/auth.json` (no API key required) | `Grok 4.7`, `Grok 4.7 Build Fast`, `Grok 4.6`, `Grok 4.5` |
 
 ### Key Shared Features
 
@@ -620,7 +620,7 @@ In addition to native IDE integrations and CLI workflows, this workspace ships w
 - **Image Generation (`/image`)** — generate Bible-related images on demand; files are saved to `images/` with a timestamped filename
 - **Settings Drawer** — switch platform AI models, select any of the 15 personas, or enforce a specific exegesis skill
 - **Dark / Light Mode** — fully themeable UI
-- **Zero Port Collisions** — distinct default ports (`33380`, `33379`, `33378`, `33377`, `33376`) allow running all applications simultaneously on the same machine
+- **Zero Port Collisions** — distinct default ports (`33380`, `33381`, `33382`, `33383`, `33384`) allow running all applications simultaneously on the same machine
 - **Shared Workspace Data** — all web apps share the same local SQLite databases (`~/biblemate/data`), study output folder (`biblemate/`), notes directory (`notes/`), and images directory (`images/`)
 
 ### Quick Launch
@@ -634,41 +634,41 @@ biblematedata
 
 Then launch the web application for your platform:
 
-#### 1. Antigravity CLI Web App (Port 33380) — *Google Subscription*
+#### 1. Antigravity CLI Web App (Port 33381) — *Google Subscription*
 ```bash
 # Requires Antigravity CLI (`agy`) signed in with Google subscription
 python3 web_app_agy.py
 ```
-Open **[http://localhost:33380](http://localhost:33380)**.
+Open **[http://localhost:33381](http://localhost:33381)**.
 
-#### 2. Claude Code Web App (Port 33379)
+#### 2. Claude Code Web App (Port 33382)
 ```bash
 # Requires Claude Code CLI installed and signed in
 python3 web_app_claude.py
 ```
-Open **[http://localhost:33379](http://localhost:33379)**.
+Open **[http://localhost:33382](http://localhost:33382)**.
 
-#### 3. Codex Web App (Port 33376)
+#### 3. Codex Web App (Port 33383)
 ```bash
 # Requires Codex CLI installed and signed in via `codex login`
 python3 web_app_codex.py
 ```
-Open **[http://localhost:33376](http://localhost:33376)**.
+Open **[http://localhost:33383](http://localhost:33383)**.
 
-#### 4. Grok Build Web App (Port 33378)
+#### 4. Grok Build Web App (Port 33384)
 ```bash
 # Requires Grok Build CLI installed and signed in via `grok login`
 python3 web_app_grok.py
 ```
-Open **[http://localhost:33378](http://localhost:33378)**.
+Open **[http://localhost:33384](http://localhost:33384)**.
 
-#### 5. Google Antigravity SDK Web App (Port 33377)
+#### 5. Google Antigravity SDK Web App (Port 33380)
 ```bash
 pip install google-antigravity
 export GEMINI_API_KEY="your-gemini-api-key"
 python3 web_app_gemini_api_key.py
 ```
-Open **[http://localhost:33377](http://localhost:33377)**.
+Open **[http://localhost:33380](http://localhost:33380)**.
 
 > **Full setup guide:** [`docs/standalone_web_app.md`](docs/standalone_web_app.md)
 
@@ -730,7 +730,7 @@ Because this repository is already configured with standard multi-platform works
    pip install nicegui Pillow
    python3 web_app_agy.py
    ```
-   Then open **[http://localhost:33380](http://localhost:33380)** in your browser. It loads personas and skills from `.agents/` and lets you select available models (`Gemini 3.6 Flash`, `Gemini 3.1 Pro`, `Claude Sonnet/Opus 5.5`, etc.). (If you prefer using the `google-antigravity` SDK with an API key instead, run `python3 web_app_gemini_api_key.py` on port 33377).
+   Then open **[http://localhost:33381](http://localhost:33381)** in your browser. It loads personas and skills from `.agents/` and lets you select available models (`Gemini 3.6 Flash`, `Gemini 3.1 Pro`, `Claude Sonnet/Opus 5.5`, etc.). (If you prefer using the `google-antigravity` SDK with an API key instead, run `python3 web_app_gemini_api_key.py` on port 33380).
 
 ### Claude Code, Codex, Grok Build & Cursor (optional)
 

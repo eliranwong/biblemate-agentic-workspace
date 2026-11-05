@@ -1307,8 +1307,8 @@ if __name__ == '__main__':
     # Setup logging interceptor after uvicorn initializes on server startup to capture the active event loop
     app.on_startup(lambda: app_instance.setup_logging_interceptor())
 
-    # Start server on default port 33377
-    port = int(os.environ.get('BIBLEMATE_GEMINI_PORT', '33377'))
+    # Start server on default port 33380
+    port = int(os.environ.get('BIBLEMATE_GEMINI_PORT', '33380'))
     print(f"Open http://localhost:{port}")
     ui.run(
         title='BibleMate App',

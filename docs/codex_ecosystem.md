@@ -136,7 +136,7 @@ Run the browser-based UI backed by your signed-in Codex CLI:
 python3 web_app_codex.py
 ```
 
-Then open [http://localhost:33376](http://localhost:33376). Override the port with `BIBLEMATE_CODEX_PORT=<port>`.
+Then open [http://localhost:33383](http://localhost:33383). Override the port with `BIBLEMATE_CODEX_PORT=<port>`.
 
 The app runs `codex exec --json` in headless mode, streams JSONL events into the live execution console, loads personas and skills from `.codex/`, and writes outputs to the same `biblemate/`, `images/`, and `export/` folders as the other platform apps.
 

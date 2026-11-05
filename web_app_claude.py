@@ -1374,8 +1374,8 @@ if __name__ == '__main__':
     # Setup logging interceptor after uvicorn initializes on server startup to capture the active event loop
     app.on_startup(lambda: app_instance.setup_logging_interceptor())
 
-    # 33379 keeps this app from colliding with web_app_gemini_api_key.py (33377), web_app_grok.py (33378), and web_app_agy.py (33380).
-    port = int(os.environ.get('BIBLEMATE_CLAUDE_PORT', '33379'))
+    # 33382 keeps this app from colliding with web_app_gemini_api_key.py (33380), and web_app_agy.py (33381), and web_app_codex.py (33383), web_app_grok.py (33384).
+    port = int(os.environ.get('BIBLEMATE_CLAUDE_PORT', '33382'))
     print(f"BibleMate Claude uses your signed-in Claude Code session (no API key).")
     print(f"Open http://localhost:{port}")
     ui.run(

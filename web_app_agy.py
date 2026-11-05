@@ -1379,8 +1379,8 @@ if __name__ == '__main__':
     # Setup logging interceptor after uvicorn initializes on server startup to capture the active event loop
     app.on_startup(lambda: app_instance.setup_logging_interceptor())
 
-    # 33380 keeps this app from colliding with web_app_gemini_api_key.py on 33377, web_app_grok.py on 33378, web_app_claude.py on 33379
-    port = int(os.environ.get('BIBLEMATE_AGY_PORT', '33380'))
+    # 33381 keeps this app from colliding with web_app_gemini_api_key.py (33380), web_app_claude.py (33382), and web_app_codex.py (33383), and web_app_grok.py (33384).
+    port = int(os.environ.get('BIBLEMATE_AGY_PORT', '33381'))
     print(f"BibleMate Antigravity uses your signed-in Google subscription via Antigravity CLI (no API key required).")
     print(f"Open http://localhost:{port}")
     ui.run(
