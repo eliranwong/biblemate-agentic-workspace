@@ -240,6 +240,13 @@ class BibleMateApp:
         self.selected_node_id = None
         self.action_button = None
         self.action_button_tooltip = None
+        self.header = None
+        self.footer = None
+        self.page_column = None
+        self.focus_button = None
+        self.focus_button_tooltip = None
+        self.reading_focus = False
+        self._drawer_open_before_focus = False
         self.terminal_logs = []
         self.active_agent_running = False
         self.running_chat_task = None
@@ -1098,18 +1105,237 @@ class BibleMateApp:
         except Exception as e:
             ui.notify(f"Error clearing conversation: {e}", type='warning')
 
+    def toggle_reading_focus(self):
+        """Hide or restore the header, footer, and studies drawer for reading."""
+        self.reading_focus = not self.reading_focus
+        if self.reading_focus:
+            self._drawer_open_before_focus = bool(self.left_drawer.value)
+            self.header.hide()
+            self.footer.hide()
+            self.left_drawer.hide()
+            self.page_column.classes(remove="pb-32", add="pb-4 reading-focus")
+            self.focus_button.set_icon("fullscreen_exit")
+            self.focus_button_tooltip.set_text("Show header, footer, and studies")
+            self.focus_button.props["aria-label"] = "Show header, footer, and studies"
+            return
+        self.header.show()
+        self.footer.show()
+        if self._drawer_open_before_focus:
+            self.left_drawer.show()
+        self.page_column.classes(remove="pb-4 reading-focus", add="pb-32")
+        self.focus_button.set_icon("fullscreen")
+        self.focus_button_tooltip.set_text("Maximise reading view")
+        self.focus_button.props["aria-label"] = "Maximise reading view"
+
+    def _install_reading_focus_control(self):
+        """Floating button: drag to move, click to maximise the reader. Position stays in localStorage."""
+        ui.add_css(
+            """
+            button.reading-focus-btn.q-btn {
+                position: fixed;
+                z-index: 4500;
+                width: 36px;
+                height: 36px;
+                min-width: 36px;
+                min-height: 36px;
+                padding: 0;
+                right: 28px;
+                bottom: 118px;
+                border-radius: 9999px;
+                background: #1e293b !important;
+                color: #c7d2fe !important;
+                border: 1px solid rgba(165, 180, 252, 0.7);
+                box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
+                touch-action: none;
+                cursor: grab;
+                user-select: none;
+            }
+            button.reading-focus-btn.q-btn .q-icon {
+                font-size: 18px;
+            }
+            button.reading-focus-btn.reading-focus-dragging {
+                cursor: grabbing;
+            }
+            .reading-focus {
+                min-height: 100vh;
+                box-sizing: border-box;
+            }
+            .reading-focus .q-tab-panel {
+                min-height: calc(100vh - 1.25rem);
+                box-sizing: border-box;
+            }
+            """
+        )
+        ui.add_body_html(
+            """
+            <script>
+            (function () {
+                if (window.__tradingGrokReadingFocusBound) return;
+                window.__tradingGrokReadingFocusBound = true;
+                var STORAGE_KEY = "tradingGrok.readingFocusButton";
+                var DRAG_THRESHOLD = 5;
+
+                function clamp(value, min, max) {
+                    return Math.max(min, Math.min(max, value));
+                }
+
+                function readSaved() {
+                    try {
+                        var parsed = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
+                        if (!parsed || !Number.isFinite(parsed.left) || !Number.isFinite(parsed.top)) return null;
+                        return parsed;
+                    } catch (err) {
+                        return null;
+                    }
+                }
+
+                function save(pos) {
+                    try {
+                        localStorage.setItem(STORAGE_KEY, JSON.stringify({
+                            left: Math.round(pos.left),
+                            top: Math.round(pos.top)
+                        }));
+                    } catch (err) {}
+                }
+
+                function place(btn, left, top) {
+                    var maxLeft = Math.max(8, window.innerWidth - btn.offsetWidth - 8);
+                    var maxTop = Math.max(8, window.innerHeight - btn.offsetHeight - 8);
+                    left = clamp(left, 8, maxLeft);
+                    top = clamp(top, 8, maxTop);
+                    btn.style.left = left + "px";
+                    btn.style.top = top + "px";
+                    btn.style.right = "auto";
+                    btn.style.bottom = "auto";
+                    return {left: left, top: top};
+                }
+
+                function defaultPosition(btn) {
+                    var footer = document.querySelector(".q-footer");
+                    var footerTop = window.innerHeight - 96;
+                    if (footer) {
+                        var rect = footer.getBoundingClientRect();
+                        if (rect.height > 8 && rect.top > 0) footerTop = rect.top;
+                    }
+                    return {
+                        left: window.innerWidth - btn.offsetWidth - 28,
+                        top: footerTop - btn.offsetHeight - 16
+                    };
+                }
+
+                function init(btn) {
+                    if (btn.dataset.dragBound === "1") return;
+                    if (!btn.offsetWidth) {
+                        var tries = Number(btn.dataset.dragTries || "0") + 1;
+                        btn.dataset.dragTries = String(tries);
+                        if (tries < 40) requestAnimationFrame(function () { init(btn); });
+                        return;
+                    }
+                    btn.dataset.dragBound = "1";
+                    var saved = readSaved();
+                    var initial = saved || defaultPosition(btn);
+                    place(btn, initial.left, initial.top);
+                    var userPlaced = !!saved;
+                    var dragging = false;
+                    var moved = false;
+                    var offsetX = 0;
+                    var offsetY = 0;
+                    var startLeft = 0;
+                    var startTop = 0;
+
+                    btn.addEventListener("pointerdown", function (event) {
+                        if (event.button !== undefined && event.button !== 0) return;
+                        dragging = true;
+                        moved = false;
+                        var rect = btn.getBoundingClientRect();
+                        offsetX = event.clientX - rect.left;
+                        offsetY = event.clientY - rect.top;
+                        startLeft = rect.left;
+                        startTop = rect.top;
+                        btn.classList.add("reading-focus-dragging");
+                        if (btn.setPointerCapture) btn.setPointerCapture(event.pointerId);
+                    });
+
+                    btn.addEventListener("pointermove", function (event) {
+                        if (!dragging) return;
+                        var left = event.clientX - offsetX;
+                        var top = event.clientY - offsetY;
+                        if (Math.abs(left - startLeft) > DRAG_THRESHOLD || Math.abs(top - startTop) > DRAG_THRESHOLD) {
+                            moved = true;
+                        }
+                        if (moved) place(btn, left, top);
+                    });
+
+                    function endDrag(event) {
+                        if (!dragging) return;
+                        dragging = false;
+                        btn.classList.remove("reading-focus-dragging");
+                        var rect = btn.getBoundingClientRect();
+                        var pos = place(btn, rect.left, rect.top);
+                        if (moved) {
+                            userPlaced = true;
+                            save(pos);
+                            btn.dataset.suppressClick = "1";
+                        }
+                        if (event && btn.releasePointerCapture) {
+                            try { btn.releasePointerCapture(event.pointerId); } catch (err) {}
+                        }
+                    }
+
+                    btn.addEventListener("pointerup", endDrag);
+                    btn.addEventListener("pointercancel", endDrag);
+                    btn.addEventListener("click", function (event) {
+                        if (btn.dataset.suppressClick !== "1") return;
+                        btn.dataset.suppressClick = "0";
+                        event.preventDefault();
+                        event.stopPropagation();
+                        event.stopImmediatePropagation();
+                    }, true);
+                    window.addEventListener("resize", function () {
+                        var rect = btn.getBoundingClientRect();
+                        var pos = place(btn, rect.left, rect.top);
+                        if (userPlaced) save(pos);
+                    });
+                    if (!saved) {
+                        setTimeout(function () {
+                            if (userPlaced || dragging) return;
+                            var again = defaultPosition(btn);
+                            place(btn, again.left, again.top);
+                        }, 400);
+                    }
+                }
+
+                function scan() {
+                    var buttons = document.querySelectorAll(".reading-focus-btn");
+                    for (var i = 0; i < buttons.length; i++) init(buttons[i]);
+                }
+
+                var observer = new MutationObserver(scan);
+                function boot() {
+                    if (!document.body) return;
+                    observer.observe(document.body, {childList: true, subtree: true});
+                    scan();
+                }
+                if (document.body) boot();
+                else document.addEventListener("DOMContentLoaded", boot);
+            })();
+            </script>
+            """
+        )
+
     def build_ui(self):
         # Premium dark mode configuration (Default to Dark)
         dark = ui.dark_mode(value=True)
+        self._install_reading_focus_control()
 
         # ---------------------------------------------------------
         # Header Area
         # ---------------------------------------------------------
-        with ui.header().classes('bg-slate-100/90 dark:bg-slate-900/90 border-b border-slate-200 dark:border-slate-800 p-4 justify-between items-center fixed top-0 left-0 right-0 z-10 backdrop-blur-md'):
+        with ui.header().classes('bg-slate-100/90 dark:bg-slate-900/90 border-b border-slate-200 dark:border-slate-800 p-4 justify-between items-center fixed top-0 left-0 right-0 z-10 backdrop-blur-md') as self.header:
             with ui.row().classes('items-center gap-3'):
                 ui.button(icon='menu', on_click=lambda: self.left_drawer.toggle()).props('flat round').classes('text-slate-700 dark:text-slate-200')
                 ui.icon('menu_book', size='md').classes('text-indigo-600 dark:text-indigo-400')
-                ui.label('BibleMate AI').classes('text-lg font-bold tracking-wide text-slate-900 dark:text-white')
+                ui.label('BibleMate AI').classes('max-sm:hidden text-lg font-bold tracking-wide text-slate-900 dark:text-white')
 
             with ui.row().classes('items-center gap-4'):
                 # New Conversation button
@@ -1197,7 +1423,7 @@ class BibleMateApp:
         # ---------------------------------------------------------
         # Main Layout Structure
         # ---------------------------------------------------------
-        with ui.column().classes('w-full flex flex-col pt-4 pb-32 px-4 md:px-6'):
+        with ui.column().classes('w-full flex flex-col pt-4 pb-32 px-4 md:px-6') as self.page_column:
             # Tab Content
             with ui.tab_panels(self.main_tabs, value='chat').classes('w-full bg-transparent flex-grow'):
 
@@ -1236,7 +1462,7 @@ class BibleMateApp:
         # ---------------------------------------------------------
         # Footer Area (Multiline Input Chat Bar)
         # ---------------------------------------------------------
-        with ui.footer().classes('bg-slate-100/90 dark:bg-slate-900/90 border-t border-slate-200 dark:border-slate-800 p-4 fixed bottom-0 left-0 right-0 z-10 backdrop-blur-md'):
+        with ui.footer().classes('bg-slate-100/90 dark:bg-slate-900/90 border-t border-slate-200 dark:border-slate-800 p-4 fixed bottom-0 left-0 right-0 z-10 backdrop-blur-md') as self.footer:
             with ui.column().classes('w-full gap-1'):
                 with ui.row().classes('w-full items-end gap-3'):
                     # Wrapper column for message input & autocomplete menu
@@ -1284,6 +1510,16 @@ class BibleMateApp:
                     # Send Button
                     with ui.button(icon='send', on_click=on_send_click).props('round size=lg color=indigo').classes('shadow-md hover:scale-105 transition-transform mb-1') as self.action_button:
                         self.action_button_tooltip = ui.tooltip('Send Request')
+
+        self.focus_button = ui.button(
+            icon="fullscreen",
+            color=None,
+            on_click=self.toggle_reading_focus,
+        ).props(
+            'round dense :ripple=false type=button aria-label="Maximise reading view"'
+        ).classes("reading-focus-btn")
+        with self.focus_button:
+            self.focus_button_tooltip = ui.tooltip("Maximise reading view")
 
     async def handle_send(self, message_input):
         if self.active_agent_running:
