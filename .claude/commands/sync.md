@@ -1,12 +1,14 @@
 ---
-description: Git add, commit, and push all latest changes to the remote repository.
+description: Fetch origin/main, rebase main, commit local changes, and push. Use a custom commit message when provided.
 ---
 
 Adopt the **Verse Scripter** persona from `.claude/agents.md`.
 
-Use the **sync** skill to stage, commit, and push all latest changes in the workspace to the remote repository.
+Read and follow `.claude/skills/sync/SKILL.md` completely. Use Claude Code's `Bash` tool for Git operations from the repository root.
 
-Please perform the git sync. If a commit message is provided as input, use it as the commit message. Otherwise, generate a descriptive commit message based on the modified files, or default to a message like "Sync latest changes".
+Perform all four sync phases: fetch and integrate `origin/main`, commit local changes, push unpushed commits, and verify both directions on `main`. Stop on rebase or stash-pop conflicts; do not create merge commits or force-push.
+
+If a commit message is provided as input, use it. Otherwise, generate a descriptive message from the staged diff.
 
 # Input
 

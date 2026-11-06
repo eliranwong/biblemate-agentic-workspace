@@ -18,6 +18,7 @@ or `.cursor` skills.
 """
 from __future__ import annotations
 
+import json
 import os
 import re
 import shutil
@@ -142,6 +143,19 @@ def add_codex_skill_footer(text: str, skill_name: str) -> str:
 
 def transform_skill_md(text: str, skill_name: str) -> str:
     text = transform_text(text)
+    if skill_name == "sync":
+        # Two-way sync descriptions contain colons; quote them as YAML scalars.
+        text = re.sub(
+            r"(?m)^description: (?![\"'])(.+)$",
+            lambda match: "description: " + json.dumps(match[1]),
+            text,
+            count=1,
+        )
+        text = text.replace(
+            "## Overview\n\n",
+            "## Overview\n\nUse `exec_command` for the Git operations below, running from the repository root.\n\n",
+            1,
+        )
     text = add_codex_skill_footer(text, skill_name)
     return text + ("\n" if not text.endswith("\n") else "")
 
