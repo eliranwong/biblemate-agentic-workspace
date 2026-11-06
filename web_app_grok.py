@@ -1163,7 +1163,7 @@ class BibleMateApp:
             self.header.hide()
             self.footer.hide()
             self.left_drawer.hide()
-            self.page_column.classes(remove="pb-32", add="pb-4 reading-focus")
+            self.page_column.classes(add="reading-focus")
             self.focus_button.set_icon("fullscreen_exit")
             self.focus_button_tooltip.set_text("Show header, footer, and studies")
             self.focus_button.props["aria-label"] = "Show header, footer, and studies"
@@ -1172,7 +1172,7 @@ class BibleMateApp:
         self.footer.show()
         if self._drawer_open_before_focus:
             self.left_drawer.show()
-        self.page_column.classes(remove="pb-4 reading-focus", add="pb-32")
+        self.page_column.classes(remove="reading-focus")
         self.focus_button.set_icon("fullscreen")
         self.focus_button_tooltip.set_text("Maximise reading view")
         self.focus_button.props["aria-label"] = "Maximise reading view"
@@ -1206,13 +1206,44 @@ class BibleMateApp:
             button.reading-focus-btn.reading-focus-dragging {
                 cursor: grabbing;
             }
+            /* Remove both NiceGUI's page gutter and the workspace gutter. */
+            .nicegui-content:has(.document-reader),
+            .nicegui-content:has(.reading-focus) {
+                padding: 0;
+                gap: 0;
+            }
+            .workspace-page:has(.document-reader),
             .reading-focus {
-                min-height: 100vh;
+                padding: 0 !important;
+                margin: 0;
+                gap: 0;
                 box-sizing: border-box;
             }
+            .workspace-page:has(.document-reader) .q-tab-panels,
+            .workspace-page:has(.document-reader) .q-panel,
+            .workspace-page:has(.document-reader) .q-tab-panel,
+            .reading-focus .q-tab-panels,
+            .reading-focus .q-panel,
             .reading-focus .q-tab-panel {
-                min-height: calc(100vh - 1.25rem);
+                min-height: inherit;
                 box-sizing: border-box;
+            }
+            .document-reader {
+                padding: 8px;
+                gap: 8px;
+                border: 0;
+                border-radius: 0;
+                box-shadow: none;
+            }
+            .document-reader > *,
+            .document-reader .nicegui-markdown {
+                min-width: 0;
+                max-width: 100%;
+                overflow-wrap: anywhere;
+            }
+            .document-reader .nicegui-markdown {
+                width: 100%;
+                overflow-x: auto;
             }
             """
         )
@@ -1473,7 +1504,10 @@ class BibleMateApp:
         # ---------------------------------------------------------
         # Main Layout Structure
         # ---------------------------------------------------------
-        with ui.column().classes('w-full flex flex-col pt-4 pb-32 px-4 md:px-6') as self.page_column:
+        # Quasar accounts for the actual header/footer heights, including mobile wrapping.
+        with ui.element("q-page").props(
+            ':style-fn="offset => ({ minHeight: \'calc(100dvh - \' + offset + \'px)\' })"'
+        ).classes("workspace-page w-full flex flex-col gap-4 pt-4 pb-32 px-4 md:px-6") as self.page_column:
             # Tab Content
             with ui.tab_panels(self.main_tabs, value='chat').classes('w-full bg-transparent flex-grow'):
                 
@@ -1503,7 +1537,7 @@ class BibleMateApp:
                                 self.terminal_display = ui.markdown().classes('text-xs text-emerald-600 dark:text-emerald-500 p-2 bg-black rounded font-mono overflow-auto max-h-48')
                 
                 # Reader tab
-                with ui.tab_panel('reader').classes('w-full p-6 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm'):
+                with ui.tab_panel('reader').classes('document-reader w-full bg-slate-50 dark:bg-slate-950'):
                     self.reader_title = ui.label('No File Selected').classes('text-xl font-bold text-slate-800 dark:text-slate-100 border-b border-slate-200 dark:border-slate-800 pb-2 mb-4')
                     self.reader_container = ui.column().classes('w-full')
                     with self.reader_container:
