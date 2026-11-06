@@ -26,7 +26,7 @@ start_web_app() {
 
 ## biblemate studies agy web app
 start_biblemate_agy() {
-  start_web_app "BibleMate Studies Antigravity" 33381 \
+  start_web_app "BibleMate Antigravity" 33381 \
     "$HOME/biblemate_studies/web_app_agy.py" /tmp/biblemate-agy-33381.log \
     BIBLEMATE_AGY_PORT=33381
 }
@@ -34,7 +34,7 @@ start_biblemate_agy
 
 ## biblemate studies claude web app
 start_biblemate_claude() {
-  start_web_app "BibleMate Studies Claude" 33382 \
+  start_web_app "BibleMate Claude" 33382 \
     "$HOME/biblemate_studies/web_app_claude.py" /tmp/biblemate-claude-33382.log \
     BIBLEMATE_CLAUDE_PORT=33382
 }
@@ -42,7 +42,7 @@ start_biblemate_claude
 
 ## biblemate studies codex web app
 start_biblemate_codex() {
-  start_web_app "BibleMate Studies Codex" 33383 \
+  start_web_app "BibleMate Codex" 33383 \
     "$HOME/biblemate_studies/web_app_codex.py" /tmp/biblemate-codex-33383.log \
     BIBLEMATE_CODEX_PORT=33383
 }
@@ -50,7 +50,7 @@ start_biblemate_codex
 
 ## biblemate studies grok web app
 start_biblemate_grok() {
-  start_web_app "BibleMate Studies Grok" 33384 \
+  start_web_app "BibleMate Grok" 33384 \
     "$HOME/biblemate_studies/web_app_grok.py" /tmp/biblemate-grok-33384.log \
     BIBLEMATE_GROK_PORT=33384
 }
