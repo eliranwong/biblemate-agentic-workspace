@@ -13,12 +13,17 @@ import json
 import asyncio
 import shutil
 import signal
+import sqlite3
 import subprocess
 from nicegui import ui, app
 
 # Reuse the Antigravity CLI install the user is already signed into.
 AGY_BIN = shutil.which("agy") or os.path.expanduser("~/.local/bin/agy")
-# Claude stream-json writes each tool result as one line. A file read can
+AGY_DATA_DIRS = (
+    os.path.expanduser("~/.gemini/antigravity-cli"),
+    os.path.expanduser("~/.gemini/antigravity"),
+)
+# Antigravity stream-json writes each tool result as one line. A file read can
 # exceed asyncio's default 64 KiB StreamReader limit and abort the turn.
 AGY_STREAM_LIMIT = 8 * 1024 * 1024
 if not AGY_BIN or not os.path.isfile(AGY_BIN) or not os.access(AGY_BIN, os.X_OK):
@@ -205,23 +210,316 @@ def parse_agy_stream_line(line: str):
 def summarize_tool_input(raw_input) -> str:
     """Pick the most useful field from an Antigravity tool-call payload."""
     if isinstance(raw_input, str):
-        return raw_input
+        try:
+            parsed = json.loads(raw_input)
+        except json.JSONDecodeError:
+            return raw_input
+        if not isinstance(parsed, dict):
+            return raw_input
+        raw_input = parsed
     if not isinstance(raw_input, dict):
         return ""
     for key in (
         "CommandLine", "command", "cmd",
         "Path", "TargetFile", "AbsolutePath", "file_path", "path",
-        "Query", "query", "Queries", "pattern",
+        "Query", "query", "Queries", "queries", "pattern",
         "DirectoryPath", "Url", "url",
-        "Prompt", "prompt", "Role", "TypeName", "description",
+        "Prompt", "prompt", "Role", "TypeName", "description", "script_path",
+        "toolSummary",
     ):
         value = raw_input.get(key)
         if isinstance(value, str) and value.strip():
             return value.strip()
+        if isinstance(value, list) and value and all(isinstance(part, str) for part in value):
+            return ", ".join(value)
     try:
         return json.dumps(raw_input, ensure_ascii=False)
     except Exception:
         return str(raw_input)
+
+
+def summarize_tool_intent(tool_name: str, raw_input) -> str:
+    """Build a concise human-readable reasoning/intent line for a tool step."""
+    if isinstance(raw_input, str):
+        try:
+            parsed = json.loads(raw_input)
+            if isinstance(parsed, dict):
+                raw_input = parsed
+        except json.JSONDecodeError:
+            pass
+    if isinstance(raw_input, dict):
+        summary = raw_input.get("toolSummary")
+        if isinstance(summary, str) and summary.strip():
+            return summary.strip()
+        if tool_name == "search_web":
+            q = raw_input.get("query") or raw_input.get("Query")
+            if isinstance(q, str) and q.strip():
+                return f"Searching web: {q.strip()}"
+        if tool_name in ("read_file", "view_file"):
+            p = raw_input.get("Path") or raw_input.get("path") or raw_input.get("file_path")
+            if isinstance(p, str) and p.strip():
+                rel = os.path.relpath(p.strip(), WORKSPACE_DIR) if p.strip().startswith("/") else p.strip()
+                return f"Reading {rel}"
+        if tool_name in ("write_file", "create_file"):
+            p = raw_input.get("Path") or raw_input.get("path") or raw_input.get("file_path")
+            if isinstance(p, str) and p.strip():
+                rel = os.path.relpath(p.strip(), WORKSPACE_DIR) if p.strip().startswith("/") else p.strip()
+                return f"Writing {rel}"
+        if tool_name == "edit_file":
+            p = raw_input.get("Path") or raw_input.get("path") or raw_input.get("file_path")
+            if isinstance(p, str) and p.strip():
+                rel = os.path.relpath(p.strip(), WORKSPACE_DIR) if p.strip().startswith("/") else p.strip()
+                return f"Editing {rel}"
+        if tool_name == "invoke_subagent":
+            role = raw_input.get("Role") or raw_input.get("TypeName") or "subagent"
+            prompt = raw_input.get("Prompt") or ""
+            if isinstance(prompt, str) and prompt.strip():
+                return f"Delegating to {role}: {clip_text(prompt.strip().splitlines()[0], 100)}"
+            return f"Delegating to {role}"
+    detail = summarize_tool_input(raw_input)
+    if detail:
+        return f"{tool_name}: {clip_text(detail.splitlines()[0], 120)}"
+    return f"Running {tool_name}"
+
+
+def _read_proto_varint(buf: bytes, pos: int):
+    val = 0
+    shift = 0
+    n = len(buf)
+    while pos < n:
+        b = buf[pos]
+        pos += 1
+        val |= (b & 0x7F) << shift
+        if not (b & 0x80):
+            return val, pos
+        shift += 7
+        if shift > 63:
+            break
+    return val, pos
+
+
+def _iter_proto_fields(buf: bytes):
+    pos = 0
+    n = len(buf)
+    while pos < n:
+        tag, pos = _read_proto_varint(buf, pos)
+        field_num = tag >> 3
+        wire_type = tag & 7
+        if field_num <= 0:
+            break
+        if wire_type == 0:
+            val, pos = _read_proto_varint(buf, pos)
+            yield field_num, wire_type, val
+        elif wire_type == 2:
+            length, pos = _read_proto_varint(buf, pos)
+            if length < 0 or pos + length > n:
+                break
+            yield field_num, wire_type, buf[pos:pos + length]
+            pos += length
+        elif wire_type == 1:
+            if pos + 8 > n:
+                break
+            yield field_num, wire_type, buf[pos:pos + 8]
+            pos += 8
+        elif wire_type == 5:
+            if pos + 4 > n:
+                break
+            yield field_num, wire_type, buf[pos:pos + 4]
+            pos += 4
+        else:
+            break
+
+
+def parse_planner_step_payload(blob: bytes):
+    """Extract (thinking, response, tool_calls) from a CortexStep PLANNER_RESPONSE protobuf blob."""
+    thinking_parts = []
+    response_parts = []
+    tool_calls = []
+    if not isinstance(blob, (bytes, bytearray)):
+        return "", "", []
+    for fnum, wtype, val in _iter_proto_fields(blob):
+        if fnum == 20 and wtype == 2:
+            for pfnum, pwtype, pval in _iter_proto_fields(val):
+                if pfnum == 3 and pwtype == 2:
+                    text = pval.decode("utf-8", errors="replace").strip()
+                    if text:
+                        thinking_parts.append(text)
+                elif pfnum == 1 and pwtype == 2:
+                    text = pval.decode("utf-8", errors="replace").strip()
+                    if text:
+                        response_parts.append(text)
+                elif pfnum == 7 and pwtype == 2:
+                    tname = ""
+                    targs = ""
+                    for tfnum, twtype, tval in _iter_proto_fields(pval):
+                        if tfnum == 2 and twtype == 2:
+                            tname = tval.decode("utf-8", errors="replace").strip()
+                        elif tfnum == 3 and twtype == 2:
+                            targs = tval.decode("utf-8", errors="replace").strip()
+                    if tname:
+                        tool_calls.append((tname, targs))
+    return "\n\n".join(thinking_parts), "\n\n".join(response_parts), tool_calls
+
+
+def find_agy_conversation_db(conversation_id: str, data_dirs=AGY_DATA_DIRS):
+    """Locate the SQLite conversation store `<conversation_id>.db` written by `agy`."""
+    if not conversation_id or "/" in conversation_id or "\\" in conversation_id:
+        return None
+    candidates = []
+    for base in data_dirs:
+        path = os.path.join(base, "conversations", f"{conversation_id}.db")
+        if os.path.isfile(path):
+            try:
+                candidates.append((os.path.getmtime(path), path))
+            except OSError:
+                candidates.append((0.0, path))
+    if not candidates:
+        return None
+    candidates.sort(key=lambda item: item[0], reverse=True)
+    return candidates[0][1]
+
+
+def find_agy_transcript_jsonl(conversation_id: str, log_uri: str = "", data_dirs=AGY_DATA_DIRS):
+    """Locate `transcript_full.jsonl` or `transcript.jsonl` for an `agy` conversation."""
+    if log_uri:
+        clean_uri = log_uri[7:] if log_uri.startswith("file://") else log_uri
+        if os.path.isfile(clean_uri):
+            full_sibling = os.path.join(os.path.dirname(clean_uri), "transcript_full.jsonl")
+            if os.path.isfile(full_sibling):
+                return full_sibling
+            return clean_uri
+    if not conversation_id or "/" in conversation_id or "\\" in conversation_id:
+        return None
+    for base in data_dirs:
+        logs_dir = os.path.join(base, "brain", conversation_id, ".system_generated", "logs")
+        for filename in ("transcript_full.jsonl", "transcript.jsonl"):
+            path = os.path.join(logs_dir, filename)
+            if os.path.isfile(path):
+                return path
+    return None
+
+
+def read_agy_db_planner_steps(conversation_id: str, min_step_index: int = 0, data_dirs=AGY_DATA_DIRS) -> list:
+    """Read live PLANNER_RESPONSE steps from the `agy` SQLite conversation database."""
+    db_path = find_agy_conversation_db(conversation_id, data_dirs=data_dirs)
+    if not db_path:
+        return []
+    steps = []
+    conn = None
+    try:
+        conn = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True, timeout=0.2)
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT idx, status, step_payload FROM steps WHERE step_type = 15 AND idx >= ? ORDER BY idx",
+            (int(min_step_index),),
+        )
+        for idx, status, blob in cur.fetchall():
+            thinking, response, tool_calls = parse_planner_step_payload(blob)
+            steps.append({
+                "step_index": int(idx),
+                "status": status,
+                "thinking": thinking,
+                "content": response,
+                "tool_calls": tool_calls,
+            })
+    except Exception:
+        pass
+    finally:
+        if conn is not None:
+            try:
+                conn.close()
+            except Exception:
+                pass
+    return steps
+
+
+def read_agy_transcript_planner_steps(
+    conversation_id: str,
+    min_step_index: int = 0,
+    log_uri: str = "",
+    data_dirs=AGY_DATA_DIRS,
+) -> list:
+    """Read PLANNER_RESPONSE steps from `transcript_full.jsonl` / `transcript.jsonl`."""
+    jsonl_path = find_agy_transcript_jsonl(conversation_id, log_uri=log_uri, data_dirs=data_dirs)
+    if not jsonl_path:
+        return []
+    steps = []
+    try:
+        with open(jsonl_path, "r", encoding="utf-8", errors="replace") as handle:
+            for line in handle:
+                text = line.strip()
+                if not text:
+                    continue
+                try:
+                    obj = json.loads(text)
+                except json.JSONDecodeError:
+                    continue
+                if not isinstance(obj, dict) or obj.get("type") != "PLANNER_RESPONSE":
+                    continue
+                idx = obj.get("step_index")
+                if not isinstance(idx, int) or idx < min_step_index:
+                    continue
+                thinking = (obj.get("thinking") or obj.get("thought") or "").strip()
+                content = (obj.get("content") or "").strip()
+                tool_calls = []
+                for tc in obj.get("tool_calls") or []:
+                    if isinstance(tc, dict):
+                        tname = tc.get("name") or tc.get("tool_name") or ""
+                        targs = tc.get("args") or tc.get("arguments") or tc.get("input") or {}
+                        if tname:
+                            tool_calls.append((tname, targs))
+                steps.append({
+                    "step_index": idx,
+                    "status": obj.get("status"),
+                    "thinking": thinking,
+                    "content": content,
+                    "tool_calls": tool_calls,
+                })
+    except Exception:
+        pass
+    return steps
+
+
+def get_agy_max_step_index(conversation_id: str, data_dirs=AGY_DATA_DIRS) -> int:
+    """Return the highest recorded step index for a conversation before starting a resumed turn."""
+    if not conversation_id:
+        return -1
+    max_idx = -1
+    db_path = find_agy_conversation_db(conversation_id, data_dirs=data_dirs)
+    if db_path:
+        conn = None
+        try:
+            conn = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True, timeout=0.2)
+            cur = conn.cursor()
+            cur.execute("SELECT MAX(idx) FROM steps")
+            row = cur.fetchone()
+            if row and isinstance(row[0], int):
+                max_idx = max(max_idx, row[0])
+        except Exception:
+            pass
+        finally:
+            if conn is not None:
+                try:
+                    conn.close()
+                except Exception:
+                    pass
+    jsonl_path = find_agy_transcript_jsonl(conversation_id, data_dirs=data_dirs)
+    if jsonl_path:
+        try:
+            with open(jsonl_path, "r", encoding="utf-8", errors="replace") as handle:
+                for line in handle:
+                    text = line.strip()
+                    if not text:
+                        continue
+                    try:
+                        obj = json.loads(text)
+                    except json.JSONDecodeError:
+                        continue
+                    if isinstance(obj, dict) and isinstance(obj.get("step_index"), int):
+                        max_idx = max(max_idx, obj["step_index"])
+        except Exception:
+            pass
+    return max_idx
 
 def clip_text(text: str, limit: int) -> str:
     if len(text) <= limit:
@@ -415,21 +713,162 @@ class BibleMateApp:
         )
         return rules
 
+    def _refresh_thinking(self, state: dict):
+        """Render the accumulated thinking monologue (or live step intents) into thinking_display."""
+        thoughts = state.get("thoughts") or {}
+        step_intents = state.get("step_intents") or {}
+
+        blocks = [text.strip() for text in thoughts.values() if isinstance(text, str) and text.strip()]
+        if blocks:
+            max_thought_step_by_conv = {}
+            for (cid, sidx), text in thoughts.items():
+                if isinstance(text, str) and text.strip() and isinstance(sidx, int):
+                    prev_max = max_thought_step_by_conv.get(cid, -1)
+                    if sidx > prev_max:
+                        max_thought_step_by_conv[cid] = sidx
+
+            trailing_intents = []
+            for (cid, sidx), intent in step_intents.items():
+                if not isinstance(intent, str) or not intent.strip():
+                    continue
+                if isinstance(sidx, int) and sidx > max_thought_step_by_conv.get(cid, -1):
+                    line = f"*→ {intent.strip()}*"
+                    if line not in trailing_intents:
+                        trailing_intents.append(line)
+
+            body = "\n\n".join(blocks)
+            if trailing_intents:
+                body = body + "\n\n" + "\n".join(trailing_intents[-3:])
+            rendered = clip_text(body, 8000)
+
+            latest_key = next(reversed(thoughts))
+            if state.get("last_notified_thought_key") != latest_key:
+                state["last_notified_thought_key"] = latest_key
+                state["notified_think"] = True
+                latest_text = blocks[-1]
+                snippet = latest_text.splitlines()[0].strip("*# ") if latest_text else "reasoning"
+                if len(snippet) > 50:
+                    snippet = snippet[:50] + "..."
+                self._notify_progress(f"Antigravity thinking: {snippet}")
+        elif step_intents:
+            intent_lines = []
+            for intent in step_intents.values():
+                if isinstance(intent, str) and intent.strip():
+                    item = f"*• {intent.strip()}*"
+                    if item not in intent_lines:
+                        intent_lines.append(item)
+            rendered = clip_text("\n".join(intent_lines), 8000) if intent_lines else "*Analyzing query...*"
+        elif state.get("streamed"):
+            rendered = "*Synthesizing response...*"
+        else:
+            rendered = "*Analyzing query...*"
+
+        state["thinking"] = rendered
+        if state.get("_last_rendered_thinking") != rendered:
+            state["_last_rendered_thinking"] = rendered
+            self._set_markdown(self.thinking_display, rendered)
+
+    def _sync_agy_thinking(self, state: dict):
+        """Pull live PLANNER_RESPONSE thinking blocks from SQLite and transcript JSONL."""
+        root_conv_id = state.get("conversation_id") or self.agy_conversation_id
+        targets = []
+        if root_conv_id:
+            targets.append((root_conv_id, "", state.get("min_step_index", 0), ""))
+        for sub_id, sub_meta in list((state.get("subagents") or {}).items()):
+            if isinstance(sub_meta, dict):
+                targets.append((
+                    sub_id,
+                    sub_meta.get("label") or "subagent",
+                    0,
+                    sub_meta.get("log_uri") or "",
+                ))
+
+        for cid, label, min_idx, log_uri in targets:
+            prefix = f"**[{label}]**\n" if label else ""
+            combined_steps = {}
+            for item in read_agy_db_planner_steps(cid, min_step_index=min_idx):
+                combined_steps[item["step_index"]] = item
+            for item in read_agy_transcript_planner_steps(cid, min_step_index=min_idx, log_uri=log_uri):
+                sidx = item["step_index"]
+                if sidx not in combined_steps:
+                    combined_steps[sidx] = item
+                else:
+                    existing = combined_steps[sidx]
+                    if item.get("thinking") and len(item["thinking"]) > len(existing.get("thinking") or ""):
+                        existing["thinking"] = item["thinking"]
+                    if item.get("content") and not existing.get("content"):
+                        existing["content"] = item["content"]
+                    if item.get("tool_calls") and not existing.get("tool_calls"):
+                        existing["tool_calls"] = item["tool_calls"]
+
+            for sidx in sorted(combined_steps):
+                item = combined_steps[sidx]
+                key = (cid, sidx)
+                thinking = (item.get("thinking") or "").strip()
+                content = (item.get("content") or "").strip()
+                tool_calls = item.get("tool_calls") or []
+                if thinking:
+                    state.setdefault("thoughts", {})[key] = prefix + thinking
+                elif content and tool_calls:
+                    state.setdefault("thoughts", {})[key] = prefix + content
+
+                if tool_calls:
+                    intents = [
+                        summarize_tool_intent(tname, targs)
+                        for tname, targs in tool_calls[:3]
+                        if tname
+                    ]
+                    if intents:
+                        intent_prefix = f"[{label}] " if label else ""
+                        state.setdefault("step_intents", {})[key] = intent_prefix + "; ".join(intents)
+
+        self._refresh_thinking(state)
+
+    async def _poll_agy_thinking(self, state: dict):
+        """Continuously poll the live conversation store while `agy -p` is executing."""
+        try:
+            while True:
+                self._sync_agy_thinking(state)
+                await asyncio.sleep(0.25)
+        except asyncio.CancelledError:
+            return
+
     def apply_agy_event(self, event: dict, state: dict, response_card):
         """Update the chat bubble and the live progress panels from one Antigravity stream event."""
-        etype = event.get("event")
+        etype = event.get("event") or event.get("type")
 
         if etype == "init":
             conv_id = event.get("conversation_id")
             if conv_id:
                 self.agy_conversation_id = conv_id
+                state["conversation_id"] = conv_id
                 self.append_runtime_log(f"init session={conv_id}")
+                self._sync_agy_thinking(state)
             return
 
         if etype == "step_update":
             step = event.get("step_update") or {}
             step_type = step.get("step_type")
             step_state = step.get("state")
+            conv_id = step.get("conversation_id") or state.get("conversation_id") or self.agy_conversation_id or "default"
+            if step.get("conversation_id") and not state.get("conversation_id"):
+                state["conversation_id"] = step["conversation_id"]
+                self.agy_conversation_id = step["conversation_id"]
+
+            step_index = step.get("step_index")
+            idx_key = step_index if isinstance(step_index, int) else 0
+
+            if step_type == "user_input" and isinstance(step_index, int):
+                state["min_step_index"] = max(state.get("min_step_index", 0), step_index + 1)
+
+            subagent_info = step.get("subagent_info")
+            if isinstance(subagent_info, dict) and subagent_info.get("conversation_id"):
+                sub_id = subagent_info["conversation_id"]
+                sub_label = subagent_info.get("role") or subagent_info.get("type_name") or "subagent"
+                state.setdefault("subagents", {})[sub_id] = {
+                    "label": sub_label,
+                    "log_uri": subagent_info.get("log_uri") or "",
+                }
 
             if step_type == "agent_response":
                 delta = step.get("text_delta") or ""
@@ -439,32 +878,40 @@ class BibleMateApp:
                     state["needs_paragraph_break"] = False
                     state["text"] += delta
                     state["streamed"] = True
+                    step_texts = state.setdefault("step_texts", {})
+                    step_texts[(conv_id, idx_key)] = step_texts.get((conv_id, idx_key), "") + delta
                     self._render_response(response_card, state["text"])
 
-                # Handle any thinking/reasoning updates
+                thinking_delta = step.get("thinking_delta") or ""
                 thinking = step.get("thinking") or step.get("thought") or ""
-                if thinking:
-                    if state.get("needs_think_break") and state["thinking"] and not state["thinking"].endswith("\n\n"):
-                        state["thinking"] = state["thinking"].rstrip("\n") + "\n\n"
-                    state["needs_think_break"] = False
-                    state["thinking"] = clip_text(state["thinking"] + thinking, 8000)
-                    self._set_markdown(self.thinking_display, state["thinking"])
-                    if not state["notified_think"]:
-                        state["notified_think"] = True
-                        snippet = thinking.strip().splitlines()[0] if thinking.strip() else "reasoning"
-                        if len(snippet) > 50:
-                            snippet = snippet[:50] + "..."
-                        self._notify_progress(f"Antigravity thinking: {snippet}")
+                if thinking_delta:
+                    stream_thoughts = state.setdefault("stream_thoughts", {})
+                    combined = stream_thoughts.get((conv_id, idx_key), "") + thinking_delta
+                    stream_thoughts[(conv_id, idx_key)] = combined
+                    if combined.strip():
+                        state.setdefault("thoughts", {})[(conv_id, idx_key)] = combined.strip()
+                elif thinking and thinking.strip():
+                    state.setdefault("thoughts", {})[(conv_id, idx_key)] = thinking.strip()
 
             elif step_type == "tool":
                 state["needs_paragraph_break"] = True
                 state["needs_think_break"] = True
                 state["notified_think"] = False
 
+                # If an earlier agent_response step streamed pre-tool commentary without a separate
+                # thinking block, promote that commentary into the thinking monologue.
+                for (tcid, tsidx), stext in list((state.get("step_texts") or {}).items()):
+                    if tcid == conv_id and tsidx < idx_key and stext.strip():
+                        state.setdefault("thoughts", {}).setdefault((tcid, tsidx), stext.strip())
+
                 tool_name = step.get("tool_name") or "tool"
                 tool_info = step.get("tool_info") or {}
                 params = tool_info.get("parameters") or {}
                 output = tool_info.get("output")
+
+                intent = summarize_tool_intent(tool_name, params)
+                if intent:
+                    state.setdefault("step_intents", {})[(conv_id, idx_key)] = intent
 
                 detail = summarize_tool_input(params)
                 shown = detail or tool_name
@@ -486,6 +933,7 @@ class BibleMateApp:
                         raw_output = flatten_tool_result(output)
                         self._set_markdown(self.tool_output_display, markdown_fence(clip_text(raw_output, 4000)))
 
+            self._sync_agy_thinking(state)
             return
 
         if etype == "result":
@@ -493,6 +941,9 @@ class BibleMateApp:
             conv_id = res.get("conversation_id")
             if conv_id:
                 self.agy_conversation_id = conv_id
+                state["conversation_id"] = conv_id
+
+            self._sync_agy_thinking(state)
 
             status = res.get("status")
             duration = res.get("duration_seconds")
@@ -1006,10 +1457,24 @@ class BibleMateApp:
             full_prompt = user_query
 
         stderr_task = None
+        thinking_task = None
+        min_step_index = 0
+        if self.agy_conversation_id:
+            prev_max = get_agy_max_step_index(self.agy_conversation_id)
+            if prev_max >= 0:
+                min_step_index = prev_max + 1
         state = {
             "text": "",
             "thinking": "",
+            "thoughts": {},
+            "step_intents": {},
+            "step_texts": {},
+            "stream_thoughts": {},
+            "subagents": {},
+            "conversation_id": self.agy_conversation_id or "",
+            "min_step_index": min_step_index,
             "notified_think": False,
+            "last_notified_thought_key": None,
             "error": "",
             "streamed": False,
             "needs_paragraph_break": False,
@@ -1032,7 +1497,9 @@ class BibleMateApp:
             # Do not inject an API key. The CLI reuses whatever Google subscription
             # session it is signed in with, so this app needs no Gemini API key.
 
-            self.append_runtime_log(f"starting agy model={sdk_model or 'default'} resume={bool(self.agy_conversation_id)}")
+            self.append_runtime_log(
+                f"starting agy model={sdk_model or 'default'} skill={active_skill} resume={bool(self.agy_conversation_id)}"
+            )
             self._notify_progress("Antigravity: Planning study...")
 
             process = await asyncio.create_subprocess_exec(
@@ -1046,6 +1513,7 @@ class BibleMateApp:
             )
             self.agy_proc = process
             stderr_task = asyncio.create_task(self._drain_stderr(process))
+            thinking_task = asyncio.create_task(self._poll_agy_thinking(state))
 
             while True:
                 line = await process.stdout.readline()
@@ -1056,6 +1524,14 @@ class BibleMateApp:
                     self.apply_agy_event(event, state, response_card)
 
             returncode = await process.wait()
+            if thinking_task is not None and not thinking_task.done():
+                thinking_task.cancel()
+                try:
+                    await thinking_task
+                except asyncio.CancelledError:
+                    pass
+                thinking_task = None
+            self._sync_agy_thinking(state)
             if stderr_task is not None:
                 await stderr_task
                 stderr_task = None
@@ -1070,6 +1546,12 @@ class BibleMateApp:
             elif not state["text"]:
                 self._render_response(response_card, "Antigravity finished without a text reply. See System Logs.")
         finally:
+            if thinking_task is not None and not thinking_task.done():
+                thinking_task.cancel()
+                try:
+                    await thinking_task
+                except asyncio.CancelledError:
+                    pass
             if stderr_task is not None and not stderr_task.done():
                 stderr_task.cancel()
                 try:
@@ -1547,7 +2029,7 @@ class BibleMateApp:
 
                             # Thinking monologue
                             with ui.expansion('Agent Thinking Monologue', icon='psychology').classes('w-full border border-slate-200 dark:border-slate-800 rounded-lg mb-2 bg-slate-50 dark:bg-slate-950'):
-                                self.thinking_display = ui.markdown().classes('text-xs text-slate-700 dark:text-slate-300 p-2 font-mono')
+                                self.thinking_display = ui.markdown().classes('text-xs text-slate-700 dark:text-slate-300 p-2 font-mono overflow-auto max-h-60')
 
                             # Running Tool
                             with ui.expansion('Currently Executed Tool/Skill', icon='construction').classes('w-full border border-slate-200 dark:border-slate-800 rounded-lg mb-2 bg-slate-50 dark:bg-slate-950'):
