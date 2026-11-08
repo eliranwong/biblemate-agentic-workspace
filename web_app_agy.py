@@ -1108,10 +1108,10 @@ class BibleMateApp:
                     if is_markdown:
                         with open(file_path, 'r', encoding='utf-8') as f:
                             content = f.read()
-                        ui.markdown(content).classes('text-slate-700 dark:text-slate-300')
+                        ui.markdown(content).classes('theme-text')
                     elif is_image:
                         web_path = f"/{node_id}"
-                        ui.image(web_path).classes('w-full max-w-2xl mx-auto rounded-lg shadow-lg border border-slate-200 dark:border-slate-800')
+                        ui.image(web_path).classes('w-full max-w-2xl mx-auto rounded-lg shadow-lg border theme-border')
 
                 ui.notify(f"Loaded: {os.path.basename(node_id)}", type='positive')
             except Exception as e:
@@ -1158,11 +1158,11 @@ class BibleMateApp:
         item_type = "folder" if is_dir else "file"
 
         with ui.dialog() as dialog, ui.card().classes('p-6 max-w-sm'):
-            ui.label('Confirm Deletion').classes('text-lg font-bold text-slate-900 dark:text-white mb-2')
-            ui.label(f'Are you sure you want to permanently delete the {item_type} "{os.path.basename(node_id)}"? This action cannot be undone.').classes('text-sm text-slate-600 dark:text-slate-400 mb-6')
+            ui.label('Confirm Deletion').classes('text-lg font-bold theme-text mb-2')
+            ui.label(f'Are you sure you want to permanently delete the {item_type} "{os.path.basename(node_id)}"? This action cannot be undone.').classes('text-sm theme-muted mb-6')
             with ui.row().classes('w-full justify-end gap-3'):
                 ui.button('Cancel', on_click=dialog.close).props('flat')
-                ui.button('Delete', color='red', on_click=lambda: self.perform_delete(node_id, dialog)).props('elevated')
+                ui.button('Delete', color='negative', on_click=lambda: self.perform_delete(node_id, dialog)).props('elevated')
         dialog.open()
 
     def perform_delete(self, node_id: str, dialog):
@@ -1198,7 +1198,7 @@ class BibleMateApp:
                 self.reader_title.set_text("No File Selected")
                 self.reader_container.clear()
                 with self.reader_container:
-                    ui.markdown('Select a file from the left sidebar tree to view it. New exegesis results are written directly to `biblemate/` and `export/`, and images to `images/`.').classes('text-slate-700 dark:text-slate-300')
+                    ui.markdown('Select a file from the left sidebar tree to view it. New exegesis results are written directly to `biblemate/` and `export/`, and images to `images/`.').classes('theme-text')
 
             self.refresh_file_tree()
         except Exception as e:
@@ -1269,10 +1269,10 @@ class BibleMateApp:
                 editor = ui.textarea(
                     value=content,
                     label='Edit Content (Markdown)'
-                ).props('outlined autogrow input-class="font-mono text-slate-900 dark:text-slate-100"').classes('w-full min-h-[400px] mb-4 text-slate-900 dark:text-slate-100')
+                ).props('outlined autogrow input-class="font-mono theme-text"').classes('w-full min-h-[400px] mb-4 theme-text')
 
                 with ui.row().classes('w-full gap-4'):
-                    ui.button('Save', icon='save', color='green', on_click=lambda: self.save_edit(node_id, editor.value)).props('elevated')
+                    ui.button('Save', icon='save', color='positive', on_click=lambda: self.save_edit(node_id, editor.value)).props('elevated')
                     ui.button('Cancel', icon='cancel', color='grey', on_click=lambda: self.handle_file_select(node_id)).props('flat')
 
             ui.notify("Editor opened", type='info')
@@ -1303,7 +1303,7 @@ class BibleMateApp:
 
         with ui.dialog() as dialog, ui.card().classes('p-6 w-80'):
             ui.label(f'Add New {item_type}').classes('text-lg font-bold mb-2')
-            ui.label(f'Inside: {parent_dir}').classes('text-xs text-slate-500 mb-4')
+            ui.label(f'Inside: {parent_dir}').classes('text-xs theme-muted mb-4')
             name_input = ui.input(f'{item_type} Name').classes('w-full mb-6')
 
             with ui.row().classes('w-full justify-end gap-3'):
@@ -1395,10 +1395,10 @@ class BibleMateApp:
     def update_action_button(self, to_stop: bool):
         try:
             if to_stop:
-                self.action_button.props('icon=stop color=red', remove='icon=send color=indigo')
+                self.action_button.props('icon=stop color=negative', remove='icon=send')
                 self.action_button_tooltip.set_text('Stop Execution')
             else:
-                self.action_button.props('icon=send color=indigo', remove='icon=stop color=red')
+                self.action_button.props('icon=send', remove='icon=stop color=negative')
                 self.action_button_tooltip.set_text('Send Request')
             self.action_button.update()
         except Exception:
@@ -1610,7 +1610,7 @@ class BibleMateApp:
                 if response_card:
                     response_card.clear()
                     with response_card:
-                        ui.label(f"Execution Error: {str(e)}").classes('text-rose-400 font-semibold')
+                        ui.label(f"Execution Error: {str(e)}").classes('text-negative font-semibold')
                 else:
                     self.add_chat_bubble(f"Execution Error: {str(e)}", sent=False)
             except RuntimeError:
@@ -1628,7 +1628,7 @@ class BibleMateApp:
 
     def add_chat_bubble(self, text: str, sent: bool, italic: bool = False):
         align_class = "justify-end" if sent else "justify-start"
-        bubble_bg = "bg-indigo-600/90 text-white" if sent else "bg-slate-200 dark:bg-slate-800 text-slate-900 dark:text-slate-100 border border-slate-300 dark:border-slate-700/50"
+        bubble_bg = "theme-inset theme-text border theme-border" if sent else "theme-panel theme-text border theme-border"
         border_radius = "rounded-l-2xl rounded-tr-2xl" if sent else "rounded-r-2xl rounded-tl-2xl"
         card_width = "max-w-[85%] md:max-w-[75%]" if sent else "w-full"
 
@@ -1636,7 +1636,7 @@ class BibleMateApp:
             with ui.row().classes(f'w-full {align_class} mb-4 items-end animate-fade-in'):
                 with ui.card().classes(f'{card_width} p-4 shadow-md backdrop-blur-sm {bubble_bg} {border_radius}') as card:
                     if italic:
-                        ui.label(text).classes('italic text-slate-500 dark:text-slate-400')
+                        ui.label(text).classes('italic theme-muted')
                     else:
                         ui.markdown(text) if not sent else ui.label(text)
 
@@ -1681,6 +1681,106 @@ class BibleMateApp:
         self.focus_button_tooltip.set_text("Maximise reading view")
         self.focus_button.props["aria-label"] = "Maximise reading view"
 
+    def _install_theme(self):
+        """GitHub-style charcoal surfaces and quiet, accessible controls."""
+        ui.colors(
+            primary="#57606a", secondary="#57606a", accent="#57606a",
+            dark="#161b22", dark_page="#0d1117",
+            positive="#1a7f37", negative="#cf222e", info="#57606a", warning="#9a6700",
+        )
+        ui.add_css(
+            """
+            body {
+                --theme-bg: #ffffff;
+                --theme-panel: #f6f8fa;
+                --theme-inset: #eff2f5;
+                --theme-text: #24292f;
+                --theme-muted: #57606a;
+                --theme-border: #d0d7de;
+                --theme-link: #0969da;
+                --theme-selection: #ddf4ff;
+                background: var(--theme-bg);
+                color: var(--theme-text);
+            }
+            body.body--dark {
+                color-scheme: dark;
+                --theme-bg: #0d1117;
+                --theme-panel: #161b22;
+                --theme-inset: #21262d;
+                --theme-text: #c9d1d9;
+                --theme-muted: #8b949e;
+                --theme-border: #30363d;
+                --theme-link: #9ecbff;
+                --theme-selection: #30363d;
+                /* NiceGUI sets these inline; keep them in sync with dark mode. */
+                --q-primary: #8b949e !important;
+                --q-secondary: #8b949e !important;
+                --q-accent: #8b949e !important;
+                --q-positive: #3fb950 !important;
+                --q-negative: #f85149 !important;
+                --q-info: #57606a !important;
+                --q-warning: #d29922 !important;
+            }
+            .q-card, .q-menu, .q-dialog__inner > div, .q-tooltip {
+                background: var(--theme-panel);
+                color: var(--theme-text);
+            }
+            .q-header, .q-footer, .q-tab-panel { color: var(--theme-text); }
+            .theme-bg { background: var(--theme-bg); }
+            .theme-panel { background: var(--theme-panel); }
+            .theme-inset { background: var(--theme-inset); }
+            .theme-text { color: var(--theme-text); }
+            .theme-muted { color: var(--theme-muted); }
+            .theme-border { border-color: var(--theme-border); }
+            .q-btn.send-button:not(.bg-negative) {
+                background: var(--theme-inset);
+                color: var(--theme-text);
+                border: 1px solid var(--theme-border);
+            }
+            .q-field__native, .q-field__input, .q-field__prefix, .q-field__suffix {
+                color: var(--theme-text);
+                caret-color: var(--theme-text);
+            }
+            .q-field__label, .q-field__marginal { color: var(--theme-muted); }
+            .q-field--outlined .q-field__control:before { border-color: var(--theme-border); }
+            .q-tree__node-header, .q-tree__node-header .q-tree__node-header-content {
+                color: var(--theme-text);
+            }
+            .q-tree__node--selected > .q-tree__node-header,
+            .q-item.q-item--active { background: var(--theme-inset); }
+            .q-separator { background: var(--theme-border); }
+            ::selection { background: var(--theme-selection); color: var(--theme-text); }
+            .nicegui-markdown { color: var(--theme-text); }
+            .nicegui-markdown a, .nicegui-markdown a:visited { color: var(--theme-link); }
+            .nicegui-markdown h1, .nicegui-markdown h2, .nicegui-markdown hr,
+            .nicegui-markdown th, .nicegui-markdown td {
+                border-color: var(--theme-border);
+            }
+            .nicegui-markdown th { background: var(--theme-panel); }
+            .nicegui-markdown hr { background: var(--theme-border); }
+            .nicegui-markdown tr:nth-child(even) { background: var(--theme-panel); }
+            .nicegui-markdown blockquote {
+                color: var(--theme-muted);
+                border-left: 3px solid var(--theme-border);
+            }
+            .nicegui-markdown :not(pre) > code {
+                background: var(--theme-inset);
+                color: inherit;
+                border-radius: 4px;
+                padding: 0.15em 0.35em;
+            }
+            .nicegui-markdown pre {
+                background: var(--theme-panel);
+                color: var(--theme-text);
+                border: 1px solid var(--theme-border);
+                border-radius: 6px;
+                padding: 12px;
+                overflow-x: auto;
+            }
+            """
+        )
+
+
     def _install_reading_focus_control(self):
         """Floating button: drag to move, click to maximise the reader. Position stays in localStorage."""
         ui.add_css(
@@ -1696,9 +1796,9 @@ class BibleMateApp:
                 right: 28px;
                 bottom: 118px;
                 border-radius: 9999px;
-                background: #1e293b !important;
-                color: #c7d2fe !important;
-                border: 1px solid rgba(165, 180, 252, 0.7);
+                background: var(--theme-panel) !important;
+                color: var(--theme-text) !important;
+                border: 1px solid var(--theme-border);
                 box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
                 touch-action: none;
                 cursor: grab;
@@ -1911,65 +2011,66 @@ class BibleMateApp:
     def build_ui(self):
         # Premium dark mode configuration (Default to Dark)
         dark = ui.dark_mode(value=True)
+        self._install_theme()
         self._install_reading_focus_control()
 
         # ---------------------------------------------------------
         # Header Area
         # ---------------------------------------------------------
-        with ui.header().classes('bg-slate-100/90 dark:bg-slate-900/90 border-b border-slate-200 dark:border-slate-800 p-4 justify-between items-center fixed top-0 left-0 right-0 z-10 backdrop-blur-md') as self.header:
+        with ui.header().classes('theme-panel border-b theme-border p-4 justify-between items-center fixed top-0 left-0 right-0 z-10 backdrop-blur-md') as self.header:
             with ui.row().classes('items-center gap-3'):
-                ui.button(icon='menu', on_click=lambda: self.left_drawer.toggle()).props('flat round').classes('text-slate-700 dark:text-slate-200')
-                ui.icon('menu_book', size='md').classes('text-indigo-600 dark:text-indigo-400')
-                ui.label('BibleMate Antigravity').classes('max-sm:hidden text-lg font-bold tracking-wide text-slate-900 dark:text-white')
+                ui.button(icon='menu', on_click=lambda: self.left_drawer.toggle()).props('flat round').classes('theme-text')
+                ui.icon('menu_book', size='md').classes('theme-muted')
+                ui.label('BibleMate Antigravity').classes('max-sm:hidden text-lg font-bold tracking-wide theme-text')
 
             with ui.row().classes('items-center gap-4'):
                 # New Conversation button
-                with ui.button(icon='add', on_click=self.clear_conversation).props('flat round').classes('text-slate-700 dark:text-slate-200'):
+                with ui.button(icon='add', on_click=self.clear_conversation).props('flat round').classes('theme-text'):
                     ui.tooltip('New Conversation')
 
                 # Tabs Menu inside header to maximize content space
-                with ui.tabs().props('dense shrink active-color=indigo indicator-color=indigo').classes('text-slate-700 dark:text-slate-200') as self.main_tabs:
+                with ui.tabs().props('dense shrink active-color=primary indicator-color=primary').classes('theme-text') as self.main_tabs:
                     with ui.tab('chat', label='', icon='chat'):
                         ui.tooltip('Chat Workspace')
                     with ui.tab('reader', label='', icon='menu_book'):
                         ui.tooltip('Document Reader')
 
                 # Settings toggle button
-                ui.button(icon='settings', on_click=lambda: self.right_drawer.toggle()).props('flat round').classes('text-slate-700 dark:text-slate-200')
+                ui.button(icon='settings', on_click=lambda: self.right_drawer.toggle()).props('flat round').classes('theme-text')
 
         # ---------------------------------------------------------
         # Left Drawer (Collapsible File Tree)
         # ---------------------------------------------------------
-        with ui.left_drawer(value=False).classes('bg-slate-50 dark:bg-slate-950 border-r border-slate-200 dark:border-slate-900 p-4') as self.left_drawer:
+        with ui.left_drawer(value=False).classes('theme-bg border-r theme-border p-4') as self.left_drawer:
             with ui.row().classes('w-full justify-between items-center mb-4'):
-                ui.label('Saved Studies').classes('text-md font-bold text-slate-800 dark:text-slate-200')
+                ui.label('Saved Studies').classes('text-md font-bold theme-text')
                 with ui.row().classes('items-center gap-1'):
-                    self.delete_button = ui.button(icon='delete', on_click=self.confirm_delete).props('flat round size=sm color=red').classes('text-rose-500')
+                    self.delete_button = ui.button(icon='delete', on_click=self.confirm_delete).props('flat round size=sm color=negative').classes('text-negative')
                     self.delete_button.set_visibility(False)
                     with self.delete_button:
                         ui.tooltip('Delete Item')
 
-                    self.export_button = ui.button(icon='file_download', on_click=self.export_to_docx).props('flat round size=sm color=indigo').classes('text-indigo-500')
+                    self.export_button = ui.button(icon='file_download', on_click=self.export_to_docx).props('flat round size=sm color=primary').classes('theme-muted')
                     self.export_button.set_visibility(False)
                     with self.export_button:
                         ui.tooltip('Export to DOCX')
 
-                    self.edit_button = ui.button(icon='edit', on_click=self.start_edit).props('flat round size=sm color=green').classes('text-emerald-500')
+                    self.edit_button = ui.button(icon='edit', on_click=self.start_edit).props('flat round size=sm color=positive').classes('text-positive')
                     self.edit_button.set_visibility(False)
                     with self.edit_button:
                         ui.tooltip('Edit Markdown File')
 
-                    self.add_file_button = ui.button(icon='note_add', on_click=lambda: self.prompt_create_item(is_folder=False)).props('flat round size=sm color=indigo').classes('text-indigo-500')
+                    self.add_file_button = ui.button(icon='note_add', on_click=lambda: self.prompt_create_item(is_folder=False)).props('flat round size=sm color=primary').classes('theme-muted')
                     self.add_file_button.set_visibility(False)
                     with self.add_file_button:
                         ui.tooltip('Add File')
 
-                    self.add_folder_button = ui.button(icon='create_new_folder', on_click=lambda: self.prompt_create_item(is_folder=True)).props('flat round size=sm color=indigo').classes('text-indigo-500')
+                    self.add_folder_button = ui.button(icon='create_new_folder', on_click=lambda: self.prompt_create_item(is_folder=True)).props('flat round size=sm color=primary').classes('theme-muted')
                     self.add_folder_button.set_visibility(False)
                     with self.add_folder_button:
                         ui.tooltip('Add Folder')
 
-                    ui.button(icon='refresh', on_click=self.refresh_file_tree).props('flat round size=sm').classes('text-slate-600 dark:text-slate-400')
+                    ui.button(icon='refresh', on_click=self.refresh_file_tree).props('flat round size=sm').classes('theme-muted')
 
             # Dynamic Container
             self.file_tree = ui.column().classes('w-full')
@@ -1978,32 +2079,32 @@ class BibleMateApp:
         # ---------------------------------------------------------
         # Right Drawer (Settings Panel)
         # ---------------------------------------------------------
-        with ui.right_drawer(value=False).classes('bg-slate-50 dark:bg-slate-950 border-l border-slate-200 dark:border-slate-900 p-6') as self.right_drawer:
-            ui.label('Agent Options').classes('text-lg font-bold text-slate-800 dark:text-slate-200 mb-6')
+        with ui.right_drawer(value=False).classes('theme-bg border-l theme-border p-6') as self.right_drawer:
+            ui.label('Agent Options').classes('text-lg font-bold theme-text mb-6')
 
             # Dark/Light Mode switch
-            ui.label('Appearance').classes('text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2')
+            ui.label('Appearance').classes('text-xs font-semibold theme-muted uppercase tracking-wider mb-2')
             ui.switch('Dark Mode').bind_value(dark).classes('mb-6')
 
             # Model Selection
-            ui.label('AI Model').classes('text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider')
+            ui.label('AI Model').classes('text-xs font-semibold theme-muted uppercase tracking-wider')
             model_drop = ui.select(list(MODELS_MAP.keys()), value=self.selected_model).classes('w-full mb-6')
             model_drop.bind_value_to(self, 'selected_model')
 
             # Persona Selection
-            ui.label('Active Persona').classes('text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider')
+            ui.label('Active Persona').classes('text-xs font-semibold theme-muted uppercase tracking-wider')
             persona_drop = ui.select(list(PERSONAS_MAP.keys()), value=self.selected_persona).classes('w-full mb-6')
             persona_drop.bind_value_to(self, 'selected_persona')
 
             # Skill Selection
-            ui.label('Enforced Skill').classes('text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider')
+            ui.label('Enforced Skill').classes('text-xs font-semibold theme-muted uppercase tracking-wider')
             skill_drop = ui.select(SKILLS_LIST, value=self.selected_skill).classes('w-full mb-6')
             skill_drop.bind_value_to(self, 'selected_skill')
 
             ui.markdown('---').classes('my-4')
-            ui.label('Backend: Antigravity CLI (`agy`)').classes('text-xs font-bold text-emerald-500 tracking-wide uppercase')
-            ui.label('Uses your signed-in Google subscription. No Gemini API key required.').classes('text-xs text-slate-500 dark:text-slate-400 mt-1')
-            ui.label('Auto-Approval: ENABLED').classes('text-xs font-bold text-emerald-500 tracking-wide uppercase mt-3')
+            ui.label('Backend: Antigravity CLI (`agy`)').classes('text-xs font-bold text-positive tracking-wide uppercase')
+            ui.label('Uses your signed-in Google subscription. No Gemini API key required.').classes('text-xs theme-muted mt-1')
+            ui.label('Auto-Approval: ENABLED').classes('text-xs font-bold text-positive tracking-wide uppercase mt-3')
 
         # ---------------------------------------------------------
         # Main Layout Structure
@@ -2022,35 +2123,35 @@ class BibleMateApp:
                     # Collapsible agent execution logger console (hidden by default, shown only when agent is active)
                     with ui.column().classes('w-full mb-6 transition-all duration-300') as self.progress_container:
                         self.progress_container.set_visibility(False)
-                        with ui.card().classes('w-full border border-slate-300 dark:border-slate-800 bg-slate-100 dark:bg-slate-900 p-4 rounded-xl shadow-inner'):
+                        with ui.card().classes('w-full border theme-border theme-panel p-4 rounded-xl shadow-inner'):
                             with ui.row().classes('w-full items-center gap-2 mb-2'):
-                                ui.spinner(size='sm', color='indigo')
-                                ui.label('Antigravity Running - Live Execution Pipeline').classes('text-xs font-bold text-indigo-500 dark:text-indigo-400 tracking-wide uppercase')
+                                ui.spinner(size='sm', color='primary')
+                                ui.label('Antigravity Running - Live Execution Pipeline').classes('text-xs font-bold theme-muted tracking-wide uppercase')
 
                             # Thinking monologue
-                            with ui.expansion('Agent Thinking Monologue', icon='psychology').classes('w-full border border-slate-200 dark:border-slate-800 rounded-lg mb-2 bg-slate-50 dark:bg-slate-950'):
-                                self.thinking_display = ui.markdown().classes('text-xs text-slate-700 dark:text-slate-300 p-2 font-mono overflow-auto max-h-60')
+                            with ui.expansion('Agent Thinking Monologue', icon='psychology').classes('w-full border theme-border rounded-lg mb-2 theme-bg'):
+                                self.thinking_display = ui.markdown().classes('text-xs theme-text p-2 font-mono overflow-auto max-h-60')
 
                             # Running Tool
-                            with ui.expansion('Currently Executed Tool/Skill', icon='construction').classes('w-full border border-slate-200 dark:border-slate-800 rounded-lg mb-2 bg-slate-50 dark:bg-slate-950'):
-                                self.tool_display = ui.markdown().classes('text-xs text-slate-700 dark:text-slate-300 p-2 font-mono')
-                                self.tool_output_display = ui.markdown().classes('text-xs text-slate-600 dark:text-slate-400 p-2 bg-slate-100 dark:bg-slate-900 rounded font-mono overflow-auto max-h-48')
+                            with ui.expansion('Currently Executed Tool/Skill', icon='construction').classes('w-full border theme-border rounded-lg mb-2 theme-bg'):
+                                self.tool_display = ui.markdown().classes('text-xs theme-text p-2 font-mono')
+                                self.tool_output_display = ui.markdown().classes('text-xs theme-muted p-2 theme-panel rounded font-mono overflow-auto max-h-48')
 
                             # Raw standard logger updates
-                            with ui.expansion('System Logs (Stdout/Logger)', icon='terminal').classes('w-full border border-slate-200 dark:border-slate-800 rounded-lg bg-slate-50 dark:bg-slate-950'):
-                                self.terminal_display = ui.markdown().classes('text-xs text-emerald-600 dark:text-emerald-500 p-2 bg-black rounded font-mono overflow-auto max-h-48')
+                            with ui.expansion('System Logs (Stdout/Logger)', icon='terminal').classes('w-full border theme-border rounded-lg theme-bg'):
+                                self.terminal_display = ui.markdown().classes('text-xs theme-text p-2 theme-bg rounded font-mono overflow-auto max-h-48')
 
                 # Reader tab
-                with ui.tab_panel('reader').classes('document-reader w-full bg-slate-50 dark:bg-slate-950'):
-                    self.reader_title = ui.label('No File Selected').classes('text-xl font-bold text-slate-800 dark:text-slate-100 border-b border-slate-200 dark:border-slate-800 pb-2 mb-4')
+                with ui.tab_panel('reader').classes('document-reader w-full theme-bg'):
+                    self.reader_title = ui.label('No File Selected').classes('text-xl font-bold theme-text border-b theme-border pb-2 mb-4')
                     self.reader_container = ui.column().classes('w-full')
                     with self.reader_container:
-                        self.reader_content = ui.markdown('Select a file from the left sidebar tree to view it. New exegesis results are written directly to `biblemate/` and `export/`, and images to `images/`.').classes('text-slate-700 dark:text-slate-300')
+                        self.reader_content = ui.markdown('Select a file from the left sidebar tree to view it. New exegesis results are written directly to `biblemate/` and `export/`, and images to `images/`.').classes('theme-text')
 
         # ---------------------------------------------------------
         # Footer Area (Multiline Input Chat Bar)
         # ---------------------------------------------------------
-        with ui.footer().classes('bg-slate-100/90 dark:bg-slate-900/90 border-t border-slate-200 dark:border-slate-800 p-4 fixed bottom-0 left-0 right-0 z-10 backdrop-blur-md') as self.footer:
+        with ui.footer().classes('theme-panel border-t theme-border p-4 fixed bottom-0 left-0 right-0 z-10 backdrop-blur-md') as self.footer:
             with ui.column().classes('w-full gap-1'):
                 with ui.row().classes('w-full items-end gap-3'):
                     # Wrapper column for message input & autocomplete menu
@@ -2083,7 +2184,7 @@ class BibleMateApp:
                             label='Ask BibleMate Antigravity',
                             placeholder='Enter your study request (e.g., Write a devotion on Romans 8:28)...',
                             on_change=handle_input_change
-                        ).props('outlined autogrow rows=2 input-class="text-slate-900 dark:text-slate-100"').classes('w-full rounded-xl text-slate-900 dark:text-slate-100')
+                        ).props('outlined autogrow rows=2 input-class="theme-text"').classes('w-full rounded-xl theme-text')
 
                         autocomplete_menu = ui.menu().props('fit no-parent-event no-focus no-refocus anchor="top left" self="bottom left"').classes('max-h-60 overflow-y-auto')
 
@@ -2096,7 +2197,7 @@ class BibleMateApp:
                     message_input.on('keydown.meta.s.prevent', on_send_click)
 
                     # Send Button
-                    with ui.button(icon='send', on_click=on_send_click).props('round size=lg color=indigo').classes('shadow-md hover:scale-105 transition-transform mb-1') as self.action_button:
+                    with ui.button(icon='send', color=None, on_click=on_send_click).props('round size=lg').classes('send-button shadow-md hover:scale-105 transition-transform mb-1') as self.action_button:
                         self.action_button_tooltip = ui.tooltip('Send Request')
 
         self.focus_button = ui.button(
