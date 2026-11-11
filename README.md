@@ -620,6 +620,7 @@ In addition to native IDE integrations and CLI workflows, this workspace ships w
 - **Image Generation (`/image`)** — generate Bible-related images on demand; files are saved to `images/` with a timestamped filename
 - **Settings Drawer** — switch platform AI models, select any of the 15 personas, or enforce a specific exegesis skill
 - **Dark / Light Mode** — fully themeable UI
+- **Reader / Chat Font Sizes** — choose separate sizes from 12–32 px in Settings → Appearance; chat messages, the chat input, and Markdown headings resize with your selection, and each app remembers your choices in the browser
 - **Zero Port Collisions** — distinct default ports (`33380`, `33381`, `33382`, `33383`, `33384`) allow running all applications simultaneously on the same machine
 - **Shared Workspace Data** — all web apps share the same local SQLite databases (`~/biblemate/data`), study output folder (`biblemate/`), notes directory (`notes/`), and images directory (`images/`)
 

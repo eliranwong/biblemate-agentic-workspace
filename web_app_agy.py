@@ -32,6 +32,11 @@ if not AGY_BIN or not os.path.isfile(AGY_BIN) or not os.access(AGY_BIN, os.X_OK)
     print("Expected the `agy` executable on PATH or at ~/.local/bin/agy.")
     sys.exit(1)
 
+DEFAULT_READER_FONT_SIZE = 14
+READER_FONT_SIZES = tuple(range(12, 33, 2))
+DEFAULT_CHAT_FONT_SIZE = 14
+CHAT_FONT_SIZES = READER_FONT_SIZES
+
 # Ensure working directory is workspace root to auto-discover .agents/
 WORKSPACE_DIR = os.path.dirname(os.path.abspath(__file__))
 if WORKSPACE_DIR:
@@ -572,6 +577,12 @@ class BibleMateApp:
         self.left_drawer = None
         self.right_drawer = None
         self.chat_container = None
+        self.message_input = None
+        self.chat_font_size = DEFAULT_CHAT_FONT_SIZE
+        self.chat_font_size_select = None
+        self.reader_container = None
+        self.reader_font_size = DEFAULT_READER_FONT_SIZE
+        self.reader_font_size_select = None
         self.progress_container = None
         self.thinking_display = None
         self.tool_display = None
@@ -1659,6 +1670,61 @@ class BibleMateApp:
         except Exception as e:
             ui.notify(f"Error clearing conversation: {e}", type='warning')
 
+    def set_chat_font_size(self, font_size):
+        """Resize chat messages and input, and remember this browser's choice."""
+        if font_size not in CHAT_FONT_SIZES:
+            return
+        self.chat_font_size = font_size
+        for element in (self.chat_container, self.message_input):
+            if element is not None:
+                element.style(f"--chat-font-size: {font_size}px")
+        ui.run_javascript(
+            'try { localStorage.setItem("biblemateAgy.chatFontSize", '
+            f'{json.dumps(font_size)}); }} catch (err) {{}}'
+        )
+
+    async def restore_chat_font_size(self):
+        """Restore a saved chat size after the browser connects."""
+        await ui.context.client.connected()
+        font_size = await ui.run_javascript(
+            '''return (() => {
+                try {
+                    return JSON.parse(localStorage.getItem("biblemateAgy.chatFontSize") || "null");
+                } catch (err) {
+                    return null;
+                }
+            })();'''
+        )
+        if font_size in CHAT_FONT_SIZES:
+            self.chat_font_size_select.set_value(font_size)
+
+    def set_reader_font_size(self, font_size):
+        """Resize reader content and remember the choice in this browser."""
+        if font_size not in READER_FONT_SIZES:
+            return
+        self.reader_font_size = font_size
+        if self.reader_container is not None:
+            self.reader_container.style(f"--reader-font-size: {font_size}px")
+        ui.run_javascript(
+            'try { localStorage.setItem("biblemateAgy.readerFontSize", '
+            f'{json.dumps(font_size)}); }} catch (err) {{}}'
+        )
+
+    async def restore_reader_font_size(self):
+        """Restore a saved size after the browser connects; ignore invalid storage."""
+        await ui.context.client.connected()
+        font_size = await ui.run_javascript(
+            '''return (() => {
+                try {
+                    return JSON.parse(localStorage.getItem("biblemateAgy.readerFontSize") || "null");
+                } catch (err) {
+                    return null;
+                }
+            })();'''
+        )
+        if font_size in READER_FONT_SIZES:
+            self.reader_font_size_select.set_value(font_size)
+
     def toggle_reading_focus(self):
         """Hide or restore the header, footer, and studies drawer for reading."""
         self.reading_focus = not self.reading_focus
@@ -1777,6 +1843,16 @@ class BibleMateApp:
                 padding: 12px;
                 overflow-x: auto;
             }
+            .chat-content .q-card,
+            .chat-content .nicegui-markdown,
+            .chat-input .q-field__native {
+                font-size: var(--chat-font-size, 14px);
+            }
+            .chat-input .q-field__native { line-height: 1.5; }
+            .chat-content .nicegui-markdown {
+                --markdown-font-size: var(--chat-font-size, 14px);
+                overflow-wrap: anywhere;
+            }
             """
         )
 
@@ -1848,6 +1924,32 @@ class BibleMateApp:
             .document-reader .nicegui-markdown {
                 width: 100%;
                 overflow-x: auto;
+                --markdown-font-size: var(--reader-font-size, 14px);
+                font-size: var(--reader-font-size, 14px);
+            }
+            /* Scale NiceGUI's fixed headings with each display's text size. */
+            :is(.document-reader, .chat-content) .nicegui-markdown h1 {
+                font-size: calc(var(--markdown-font-size, 14px) * 48 / 14);
+            }
+            :is(.document-reader, .chat-content) .nicegui-markdown h2 {
+                font-size: calc(var(--markdown-font-size, 14px) * 36 / 14);
+                line-height: calc(var(--markdown-font-size, 14px) * 40 / 14);
+            }
+            :is(.document-reader, .chat-content) .nicegui-markdown h3 {
+                font-size: calc(var(--markdown-font-size, 14px) * 30 / 14);
+                line-height: calc(var(--markdown-font-size, 14px) * 36 / 14);
+            }
+            :is(.document-reader, .chat-content) .nicegui-markdown h4 {
+                font-size: calc(var(--markdown-font-size, 14px) * 24 / 14);
+                line-height: calc(var(--markdown-font-size, 14px) * 32 / 14);
+            }
+            :is(.document-reader, .chat-content) .nicegui-markdown h5 {
+                font-size: calc(var(--markdown-font-size, 14px) * 20 / 14);
+                line-height: calc(var(--markdown-font-size, 14px) * 28 / 14);
+            }
+            :is(.document-reader, .chat-content) .nicegui-markdown h6 {
+                font-size: calc(var(--markdown-font-size, 14px) * 18 / 14);
+                line-height: calc(var(--markdown-font-size, 14px) * 28 / 14);
             }
             """
         )
@@ -2085,6 +2187,18 @@ class BibleMateApp:
             # Dark/Light Mode switch
             ui.label('Appearance').classes('text-xs font-semibold theme-muted uppercase tracking-wider mb-2')
             ui.switch('Dark Mode').bind_value(dark).classes('mb-6')
+            self.reader_font_size_select = ui.select(
+                {size: f"{size} px" for size in READER_FONT_SIZES},
+                value=self.reader_font_size,
+                label="Reader font size",
+                on_change=lambda event: self.set_reader_font_size(event.value),
+            ).classes("w-full mb-6")
+            self.chat_font_size_select = ui.select(
+                {size: f"{size} px" for size in CHAT_FONT_SIZES},
+                value=self.chat_font_size,
+                label="Chat font size",
+                on_change=lambda event: self.set_chat_font_size(event.value),
+            ).classes("w-full mb-6")
 
             # Model Selection
             ui.label('AI Model').classes('text-xs font-semibold theme-muted uppercase tracking-wider')
@@ -2118,7 +2232,9 @@ class BibleMateApp:
 
                 # Chat tab
                 with ui.tab_panel('chat').classes('w-full p-0 bg-transparent flex flex-col'):
-                    self.chat_container = ui.column().classes('w-full flex-grow mb-6')
+                    self.chat_container = ui.column().classes("chat-content w-full flex-grow mb-6").style(
+                        f"--chat-font-size: {self.chat_font_size}px"
+                    )
 
                     # Collapsible agent execution logger console (hidden by default, shown only when agent is active)
                     with ui.column().classes('w-full mb-6 transition-all duration-300') as self.progress_container:
@@ -2144,7 +2260,9 @@ class BibleMateApp:
                 # Reader tab
                 with ui.tab_panel('reader').classes('document-reader w-full theme-bg'):
                     self.reader_title = ui.label('No File Selected').classes('text-xl font-bold theme-text border-b theme-border pb-2 mb-4')
-                    self.reader_container = ui.column().classes('w-full')
+                    self.reader_container = ui.column().classes("w-full").style(
+                        f"--reader-font-size: {self.reader_font_size}px"
+                    )
                     with self.reader_container:
                         self.reader_content = ui.markdown('Select a file from the left sidebar tree to view it. New exegesis results are written directly to `biblemate/` and `export/`, and images to `images/`.').classes('theme-text')
 
@@ -2180,11 +2298,13 @@ class BibleMateApp:
                                 autocomplete_menu.close()
 
                         # Multi-line textarea for entry requests
-                        message_input = ui.textarea(
+                        self.message_input = message_input = ui.textarea(
                             label='Ask BibleMate Antigravity',
                             placeholder='Enter your study request (e.g., Write a devotion on Romans 8:28)...',
                             on_change=handle_input_change
-                        ).props('outlined autogrow rows=2 input-class="theme-text"').classes('w-full rounded-xl theme-text')
+                        ).props('outlined autogrow rows=2 input-class="theme-text"').classes("chat-input w-full rounded-xl theme-text").style(
+                            f"--chat-font-size: {self.chat_font_size}px"
+                        )
 
                         autocomplete_menu = ui.menu().props('fit no-parent-event no-focus no-refocus anchor="top left" self="bottom left"').classes('max-h-60 overflow-y-auto')
 
@@ -2209,6 +2329,8 @@ class BibleMateApp:
         ).classes("reading-focus-btn")
         with self.focus_button:
             self.focus_button_tooltip = ui.tooltip("Maximise reading view")
+        ui.timer(0.1, self.restore_reader_font_size, once=True)
+        ui.timer(0.1, self.restore_chat_font_size, once=True)
 
     async def handle_send(self, message_input):
         if self.active_agent_running:
