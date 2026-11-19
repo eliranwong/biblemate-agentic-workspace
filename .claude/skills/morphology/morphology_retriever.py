@@ -400,8 +400,8 @@ def main():
         ref_str = f"{book_name} {row['Chapter']}:{row['Verse']}"
         
         # Clean any trailing commas/spacing in morphology and entries
-        morph_details = row['Morphology'].strip().rstrip(',')
-        lex_entry = row['LexicalEntry'].strip().rstrip(',')
+        morph_details = (row.get('Morphology') or '').strip().rstrip(',')
+        lex_entry = (row.get('LexicalEntry') or '').strip().rstrip(',')
         
         print(f"### {ref_str} (Word ID: {row['WordID']}, Clause ID: {row['ClauseID']})")
         print("| Attribute | Value |")
@@ -413,6 +413,18 @@ def main():
         print(f"| **Morphology Details** | {morph_details} |")
         print(f"| **Translation / Gloss** | **{row['Translation']}** (gloss: *{row['Gloss']}*) |")
         print(f"| **Interlinear** | `{row['Interlinear']}` |")
+        for col, label in (
+            ('eStrong', 'eStrong'),
+            ('eStrongContextSpecific', 'eStrong (Context-Specific)'),
+            ('BDBE', 'BDBE'),
+            ('CHALOT', 'CHALOT'),
+            ('HALOT', 'HALOT'),
+            ('BDAG', 'BDAG'),
+            ('LSJ', 'LSJ'),
+        ):
+            val = (row.get(col) or '').strip().rstrip(',')
+            if val:
+                print(f"| **{label}** | `{val}` |")
         print()
 
 if __name__ == '__main__':
