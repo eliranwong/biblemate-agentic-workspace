@@ -35,3 +35,5 @@ Thumbs.db
 /scratch/*
 !/scratch/README.md
 
+biblemate_bibles/*.bible
+biblemate_tagged_bibles/*.bible
