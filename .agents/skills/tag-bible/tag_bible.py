@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """
-tag_bible.py — Reusable Bible word-ID tagger & morphology.sqlite mapper.
+tag_bible.py — Reusable Bible word-ID tagger & tagged_translations.sqlite mapper.
 
 Supports:
   - English (--lang en), Chinese (--lang zh), or generic (--lang other) Bibles.
   - Optional helping materials (*x.bible SQLite) for initial phrase boundaries
     and Stage 3 validated Strong's refinement.
-  - Standalone mode (no helper) seeded by morphology.sqlite's existing columns
+  - Standalone mode (no helper) seeded by tagged_translations.sqlite's existing columns
     (NET, KJV, LEB, BSB, Translation, Interlinear, Gloss for English; CUV + PMI for Chinese).
-  - Tags `Verses` table first, updates `morphology.sqlite` by `rowid`, then tags `Bible` table.
+  - Tags `Verses` table first, updates `tagged_translations.sqlite` by `rowid`, then tags `Bible` table.
 """
 
 import argparse
@@ -329,7 +329,7 @@ def split_punct_zh(aligned_pieces):
 
 
 def build_en_phrase_lexicon(m_cur, existing_cols):
-    """Build known multi-word English phrases from morphology.sqlite existing columns."""
+    """Build known multi-word English phrases from tagged_translations.sqlite existing columns."""
     cols = [c for c in ("NET", "KJV", "LEB", "BSB", "Translation", "Interlinear", "Gloss") if c in existing_cols]
     phrases = set()
     if not cols:
@@ -590,16 +590,16 @@ def tag_bible_table(bible_db: str, tag_name: str):
 def resolve_default_morph_path(morph_arg: str) -> str:
     if morph_arg:
         return os.path.expanduser(morph_arg)
-    custom = os.path.expanduser("~/biblemate/data_custom/morphology.sqlite")
+    custom = os.path.expanduser("~/biblemate/data_custom/tagged_translations.sqlite")
     if os.path.exists(custom):
         return custom
-    return os.path.expanduser("~/biblemate/data/morphology.sqlite")
+    return os.path.expanduser("~/biblemate/data/tagged_translations.sqlite")
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Tag a .bible file and optionally populate morphology.sqlite.")
+    parser = argparse.ArgumentParser(description="Tag a .bible file and optionally populate tagged_translations.sqlite.")
     parser.add_argument("--bible", required=True, help="Path to source .bible SQLite file")
-    parser.add_argument("--morph", default="", help="Path to morphology.sqlite (default: ~/biblemate/data_custom/morphology.sqlite if exists, else ~/biblemate/data/morphology.sqlite)")
+    parser.add_argument("--morph", default="", help="Path to tagged_translations.sqlite (default: ~/biblemate/data_custom/tagged_translations.sqlite if exists, else ~/biblemate/data/tagged_translations.sqlite)")
     parser.add_argument("--out-dir", default="biblemate_tagged_bibles", help="Output directory for tagged .bible (default: biblemate_tagged_bibles)")
     parser.add_argument("--col", default="", help="Column name to add/update in morphology table (default: bible filename without .bible)")
     parser.add_argument("--lang", default="en", choices=["en", "zh", "other"], help="Bible language")
@@ -1220,7 +1220,7 @@ def main():
     b_conn.close()
     print(f"Verses updated & verified: {mismatches} mismatches out of {len(target_verses)} verses.")
 
-    # Always update morphology.sqlite column via rowid (default: bible filename without .bible)
+    # Always update tagged_translations.sqlite column via rowid (default: bible filename without .bible)
     col_name = args.col or os.path.splitext(os.path.basename(args.bible))[0]
     q_col = '"' + col_name.replace('"', '""') + '"'
     if col_name not in existing_cols:
