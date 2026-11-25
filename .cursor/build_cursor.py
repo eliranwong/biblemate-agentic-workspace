@@ -20,9 +20,15 @@ Text transforms so the copies run in Cursor, independent of `.grok/`:
   * image generation uses Cursor's GenerateImage tool
   * the update-biblemate skill regenerates this tree
 
+Bible file skills that exist only under `.agents/skills/` are ported after the
+Grok copy, with `.agents/` paths rewritten to `.cursor/`:
+
+  * export-bible, copy-bible-notes, covert-bible, tag-bible
+
 This script is idempotent. It rewrites `skills/`, `preferences/`, `agents.md`,
 and `rules/biblemate-skills.mdc` under `.cursor/`. It does not modify
-`build_cursor.py` or anything outside `.cursor/` except reading `.grok/`.
+`build_cursor.py` or anything outside `.cursor/` except reading `.grok/` and
+`.agents/skills/`.
 """
 from __future__ import annotations
 
@@ -35,6 +41,27 @@ SRC_GROK = os.path.join(REPO_ROOT, ".grok")
 SRC_SKILLS = os.path.join(SRC_GROK, "skills")
 SRC_AGENTS_MD = os.path.join(SRC_GROK, "agents.md")
 SRC_PREFERENCES = os.path.join(SRC_GROK, "preferences")
+SRC_AGENTS_SKILLS = os.path.join(REPO_ROOT, ".agents", "skills")
+
+# Present in .agents, absent from the Grok tree. Ported after the Grok copy
+# so a full refresh does not drop them.
+AGENT_BIBLE_SKILLS = (
+    "export-bible",
+    "copy-bible-notes",
+    "covert-bible",
+    "tag-bible",
+)
+
+CURSOR_SECTIONS = {
+    "default": """## Cursor
+Run this skill from the repository root with the `Shell` tool. Use the helper script in this directory.
+""",
+    "covert-bible": """## Cursor
+Run this skill from the repository root.
+- Inspect source files with `Read`, `Grep`, and `Glob`.
+- Write the converter with `Write`, then run and verify it with `Shell`.
+""",
+}
 
 DST_CURSOR = os.path.join(REPO_ROOT, ".cursor")
 DST_SKILLS = os.path.join(DST_CURSOR, "skills")
@@ -128,6 +155,131 @@ def copy_tree_transformed(src: str, dst: str) -> None:
                 f.write(content)
         else:
             shutil.copy2(spath, dpath)
+
+
+def rewrite_agent_paths(text: str) -> str:
+    text = text.replace(".agents/skills/", ".cursor/skills/")
+    text = text.replace(".agents/agents.md", ".cursor/agents.md")
+    return text
+
+
+def inject_cursor_section(text: str, skill_name: str) -> str:
+    """Insert a Cursor tool section after the first H1."""
+    if "\n## Cursor\n" in "\n" + text:
+        return text
+    blurb = CURSOR_SECTIONS.get(skill_name, CURSOR_SECTIONS["default"]).strip() + "\n"
+    start = 0
+    if text.startswith("---\n"):
+        end_fm = text.find("\n---\n", 4)
+        if end_fm != -1:
+            start = end_fm + len("\n---\n")
+    body = text[start:]
+    stripped = body.lstrip("\n")
+    prefix_newlines = len(body) - len(stripped)
+    if not stripped.startswith("# "):
+        return text
+    nl = stripped.find("\n")
+    if nl == -1:
+        return text
+    head = stripped[: nl + 1]
+    rest = stripped[nl + 1 :]
+    if rest.startswith("\n"):
+        rest = rest[1:]
+    return text[: start + prefix_newlines] + head + "\n" + blurb + "\n" + rest
+
+
+def patch_bible_retriever() -> None:
+    """Prefer VersesPlain, then Verses. Reapplied after a Grok refresh."""
+    retriever = os.path.join(DST_SKILLS, "bible", "bible_retriever.py")
+    skill_md = os.path.join(DST_SKILLS, "bible", "SKILL.md")
+    if os.path.isfile(retriever):
+        with open(retriever, "r", encoding="utf-8") as f:
+            text = f.read()
+        old = """        return []
+        
+    ref_type = ref_info['type']
+    if ref_type == 'verse_range':
+        query = "SELECT Chapter, Verse, Scripture FROM Verses WHERE Book = ? AND Chapter = ? AND Verse >= ? AND Verse <= ? ORDER BY Chapter, Verse"
+        params = (book_num, ref_info['chapter'], ref_info['verse_start'], ref_info['verse_end'])
+    elif ref_type == 'single_verse':
+        query = "SELECT Chapter, Verse, Scripture FROM Verses WHERE Book = ? AND Chapter = ? AND Verse = ? ORDER BY Chapter, Verse"
+        params = (book_num, ref_info['chapter'], ref_info['verse'])
+    elif ref_type == 'chapter_range':
+        query = "SELECT Chapter, Verse, Scripture FROM Verses WHERE Book = ? AND Chapter >= ? AND Chapter <= ? ORDER BY Chapter, Verse"
+        params = (book_num, ref_info['chapter_start'], ref_info['chapter_end'])
+    elif ref_type == 'single_chapter':
+        query = "SELECT Chapter, Verse, Scripture FROM Verses WHERE Book = ? AND Chapter = ? ORDER BY Chapter, Verse"
+"""
+        new = """        return []
+
+    cursor.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='VersesPlain'")
+    table_name = "VersesPlain" if cursor.fetchone() else "Verses"
+
+    ref_type = ref_info['type']
+    if ref_type == 'verse_range':
+        query = f"SELECT Chapter, Verse, Scripture FROM {table_name} WHERE Book = ? AND Chapter = ? AND Verse >= ? AND Verse <= ? ORDER BY Chapter, Verse"
+        params = (book_num, ref_info['chapter'], ref_info['verse_start'], ref_info['verse_end'])
+    elif ref_type == 'single_verse':
+        query = f"SELECT Chapter, Verse, Scripture FROM {table_name} WHERE Book = ? AND Chapter = ? AND Verse = ? ORDER BY Chapter, Verse"
+        params = (book_num, ref_info['chapter'], ref_info['verse'])
+    elif ref_type == 'chapter_range':
+        query = f"SELECT Chapter, Verse, Scripture FROM {table_name} WHERE Book = ? AND Chapter >= ? AND Chapter <= ? ORDER BY Chapter, Verse"
+        params = (book_num, ref_info['chapter_start'], ref_info['chapter_end'])
+    elif ref_type == 'single_chapter':
+        query = f"SELECT Chapter, Verse, Scripture FROM {table_name} WHERE Book = ? AND Chapter = ? ORDER BY Chapter, Verse"
+"""
+        if old in text:
+            text = text.replace(old, new, 1)
+            with open(retriever, "w", encoding="utf-8") as f:
+                f.write(text)
+            log("Patched bible retriever to prefer VersesPlain")
+        elif 'name=\'VersesPlain\'' in text or 'name="VersesPlain"' in text:
+            log("Bible retriever already prefers VersesPlain")
+        else:
+            log("Warning: bible retriever layout changed; VersesPlain patch was not applied")
+    if os.path.isfile(skill_md):
+        with open(skill_md, "r", encoding="utf-8") as f:
+            skill = f.read()
+        note = "- The retriever reads Scripture from the `VersesPlain` table when that table exists, and from the `Verses` table otherwise.\n"
+        anchor = "- Pass the user's version and reference query exactly as given to the script.\n"
+        if note not in skill and anchor in skill:
+            skill = skill.replace(anchor, anchor + note, 1)
+            with open(skill_md, "w", encoding="utf-8") as f:
+                f.write(skill)
+            log("Noted VersesPlain fallback in bible/SKILL.md")
+
+
+def port_agent_bible_skills() -> None:
+    """Copy Bible file skills from `.agents/skills/` into `.cursor/skills/`."""
+    log("Porting .agents Bible file skills -> .cursor/skills")
+    for name in AGENT_BIBLE_SKILLS:
+        src = os.path.join(SRC_AGENTS_SKILLS, name)
+        dst = os.path.join(DST_SKILLS, name)
+        if not os.path.isdir(src):
+            log(f"Warning: missing {os.path.relpath(src, REPO_ROOT)}")
+            continue
+        if os.path.isdir(dst):
+            shutil.rmtree(dst)
+        for dirpath, dirnames, filenames in os.walk(src):
+            dirnames[:] = [d for d in dirnames if d not in SKIP_NAMES]
+            rel = os.path.relpath(dirpath, src)
+            out_dir = dst if rel == "." else os.path.join(dst, rel)
+            os.makedirs(out_dir, exist_ok=True)
+            for filename in filenames:
+                if filename in SKIP_NAMES:
+                    continue
+                spath = os.path.join(dirpath, filename)
+                dpath = os.path.join(out_dir, filename)
+                if filename.endswith(TEXT_EXTENSIONS):
+                    with open(spath, "r", encoding="utf-8") as f:
+                        content = rewrite_agent_paths(f.read())
+                    if filename == "SKILL.md":
+                        content = inject_cursor_section(content, name)
+                    with open(dpath, "w", encoding="utf-8") as f:
+                        f.write(content)
+                else:
+                    shutil.copy2(spath, dpath)
+        log(f"  {name}")
 
 
 def write_image_skill() -> None:
@@ -280,17 +432,17 @@ BibleMate workflows in this repository are Cursor project skills at `.cursor/ski
 
 Apply the matching skill when the user:
 
-- Invokes a BibleMate command such as `/bible`, `/sermon`, `/devotion`, `/biblemate`, `/biblemate-super`, or a book code such as `/Gen`
-- Asks for scripture retrieval, a study, devotion, sermon, prayer, commentary, lexicon, search, or another workflow named by a skill in `.cursor/skills/`
+- Invokes a BibleMate command such as `/bible`, `/sermon`, `/devotion`, `/biblemate`, `/biblemate-super`, `/export-bible`, `/copy-bible-notes`, `/covert-bible`, `/tag-bible`, or a book code such as `/Gen`
+- Asks for scripture retrieval, a study, devotion, sermon, prayer, commentary, lexicon, search, a Bible export, note copy, format conversion, word-ID tagging, or another workflow named by a skill in `.cursor/skills/`
 
-Use `.cursor/skills/`. Ignore the parallel copies in `.claude/skills/` and `.grok/skills/` for the same workflow.
+Use `.cursor/skills/`. Ignore the parallel copies in `.agents/skills/`, `.claude/skills/`, `.grok/skills/`, and `.codex/skills/` for the same workflow.
 
 ## How to follow a skill
 
 1. Read `.cursor/skills/<name>/SKILL.md` and do what it says.
 2. Run the Python helpers it names with the `Shell` tool, from the repository root.
 3. Quote scripture only from `bible` skill output: `python3 .cursor/skills/bible/bible_retriever.py "<query>"`.
-4. Save bible-related study output with the `Write` tool to `biblemate/YYYY-MM-DD-HH-MM-SS_<desc>.md`. Skip saving for `biblemate`, `biblemate-super`, `image`, `data`, `sync`, `md`, `docx`, and `zip`. Confirm the saved path.
+4. Save bible-related study output with the `Write` tool to `biblemate/YYYY-MM-DD-HH-MM-SS_<desc>.md`. Skip saving for `biblemate`, `biblemate-super`, `image`, `data`, `sync`, `md`, `docx`, `zip`, `export-bible`, `copy-bible-notes`, `covert-bible`, and `tag-bible`. Confirm the saved path.
 5. For a full multi-skill study, follow `biblemate` or `biblemate-super`. Adopt personas from `.cursor/agents.md`, or delegate with the `Task` tool using the persona slug.
 
 ## Tools
@@ -359,6 +511,8 @@ def main() -> int:
     copy_tree_transformed(SRC_SKILLS, DST_SKILLS)
     write_image_skill()
     write_update_skill()
+    port_agent_bible_skills()
+    patch_bible_retriever()
 
     log("Porting preferences and persona reference")
     reset_dir(DST_PREFERENCES)

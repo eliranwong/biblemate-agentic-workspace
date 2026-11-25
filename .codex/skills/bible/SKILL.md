@@ -13,6 +13,7 @@ When executing this skill:
 - Always run the python retriever script located at `.codex/skills/bible/bible_retriever.py` to retrieve the requested verses.
 - Execute the script using: `python3 .codex/skills/bible/bible_retriever.py "<query>"` where `<query>` is the input prompt or arguments.
 - Pass the user's version and reference query exactly as given to the script.
+- Retrieve Scripture from `VersesPlain` when that table exists in the selected `.bible` database; otherwise use `Verses`.
 - Present the exact output of the script to the user without summarizing, paraphrasing, or altering the biblical text, maintaining the absolute authority and accuracy of God's Word.
 
 ## Codex Runtime Notes

@@ -87,7 +87,7 @@ Or invoke the slash command:
 
 ### 2. Save study output
 
-For bible-related skills/commands **except** `biblemate`, `biblemate-super`, `image`, `data`, `sync`, `md`, `docx`, and `zip`, save the full study output under `biblemate/` with a timestamp prefix:
+For bible-related skills/commands **except** `biblemate`, `biblemate-super`, `image`, `data`, `sync`, `md`, `docx`, `zip`, `export-bible`, `copy-bible-notes`, `covert-bible`, and `tag-bible`, save the full study output under `biblemate/` with a timestamp prefix:
 
 ```text
 biblemate/YYYY-MM-DD-HH-MM-SS_short_description.md
@@ -273,6 +273,9 @@ See also [study_outputs.md](study_outputs.md).
 | Images | `images/` |
 | Markdown / Word exports | `export/md/`, `export/docx/` |
 | Manual setup archive | `manual_setup.zip` (repo root, via `/zip`) |
+| Exported Markdown Bibles | `bibles/<ABBR>/` (via `/export-bible`) |
+| Converted `.bible` files | `biblemate_bibles/<ABBR>.bible` (via `/covert-bible`) |
+| Tagged `.bible` files | `biblemate_tagged_bibles/<ABBR>.bible` (via `/tag-bible`) |
 
 Use **relative** links between study files (e.g. `[005-keywords.md](005-keywords.md)`), never `file:///Users/...` absolute URLs.
 
@@ -280,7 +283,7 @@ Use **relative** links between study files (e.g. `[005-keywords.md](005-keywords
 
 ## Regenerating the Grok ecosystem
 
-Content is generated from the Claude Code tree (which itself is generated from `.agents/`):
+Content is generated from the Claude Code tree (which itself is generated from `.agents/`). Four database utilities that are not in the Claude tree — `export-bible`, `copy-bible-notes`, `covert-bible`, and `tag-bible` — are imported directly from `.agents/skills/` and rewritten to `.grok/` paths and Grok tools:
 
 ```bash
 # Optional: refresh Claude from Antigravity sources

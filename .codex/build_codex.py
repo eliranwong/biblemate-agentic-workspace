@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """
-build_codex.py - Port the Cursor BibleMate skills into Codex-native project
+build_codex.py - Port the maintained BibleMate skills into Codex-native project
 skills under `.codex/`.
 
-Source of truth for content: `.cursor/skills/`, `.cursor/agents.md`, and
-`.cursor/preferences/`.
+Source of truth for the existing ecosystem: `.cursor/skills/`,
+`.cursor/agents.md`, and `.cursor/preferences/`. The four Bible database utility
+skills listed in ADDITIONAL_SKILLS are imported directly from `.agents/skills/`.
 
 Produces:
 
@@ -30,6 +31,13 @@ SRC_CURSOR = os.path.join(REPO_ROOT, ".cursor")
 SRC_SKILLS = os.path.join(SRC_CURSOR, "skills")
 SRC_AGENTS_MD = os.path.join(SRC_CURSOR, "agents.md")
 SRC_PREFERENCES = os.path.join(SRC_CURSOR, "preferences")
+SRC_AGENTS_SKILLS = os.path.join(REPO_ROOT, ".agents", "skills")
+ADDITIONAL_SKILLS = (
+    "export-bible",
+    "copy-bible-notes",
+    "covert-bible",
+    "tag-bible",
+)
 
 DST_CODEX = os.path.join(REPO_ROOT, ".codex")
 DST_SKILLS = os.path.join(DST_CODEX, "skills")
@@ -87,6 +95,8 @@ def reset_dir(path: str) -> None:
 
 def rewrite_paths(text: str) -> str:
     replacements = [
+        (".agents/skills/", ".codex/skills/"),
+        (".agents/agents.md", ".codex/agents.md"),
         (".cursor/skills/", ".codex/skills/"),
         (".cursor/agents.md", ".codex/agents.md"),
         (".cursor/preferences/", ".codex/preferences/"),
@@ -143,6 +153,13 @@ def add_codex_skill_footer(text: str, skill_name: str) -> str:
 
 def transform_skill_md(text: str, skill_name: str) -> str:
     text = transform_text(text)
+    if skill_name == "copy-bible-notes":
+        # Codex skill descriptions cannot contain angle brackets.
+        text = text.replace(
+            "description: Copy the Notes table and inline <sup> note links",
+            "description: Copy the Notes table and inline superscript note links",
+            1,
+        )
     if skill_name == "sync":
         # Two-way sync descriptions contain colons; quote them as YAML scalars.
         text = re.sub(
@@ -182,6 +199,14 @@ def copy_tree_transformed(src: str, dst: str) -> None:
                 handle.write(content)
         else:
             shutil.copy2(spath, dpath)
+
+
+def write_additional_skills() -> None:
+    """Port database utilities and their helpers without changing source trees."""
+    for name in ADDITIONAL_SKILLS:
+        dst = os.path.join(DST_SKILLS, name)
+        reset_dir(dst)
+        copy_tree_transformed(os.path.join(SRC_AGENTS_SKILLS, name), dst)
 
 
 def write_project_instructions() -> None:
@@ -426,7 +451,10 @@ def audit() -> int:
 
 
 def validate_inputs() -> int:
-    required = (SRC_SKILLS, SRC_AGENTS_MD, SRC_PREFERENCES)
+    required = (SRC_SKILLS, SRC_AGENTS_MD, SRC_PREFERENCES) + tuple(
+        os.path.join(SRC_AGENTS_SKILLS, name, "SKILL.md")
+        for name in ADDITIONAL_SKILLS
+    )
     missing = [path for path in required if not os.path.exists(path)]
     if missing:
         for path in missing:
@@ -442,6 +470,8 @@ def main() -> int:
     log("Porting .cursor skills -> .codex/skills")
     reset_dir(DST_SKILLS)
     copy_tree_transformed(SRC_SKILLS, DST_SKILLS)
+    log("Porting additional .agents database utility skills -> .codex/skills")
+    write_additional_skills()
     write_image_skill()
     write_update_skill()
     normalize_skill_names()

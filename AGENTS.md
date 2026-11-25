@@ -67,8 +67,9 @@ so you invoke them the same way: `/bible`, `/sermon`, `/devotion`, `/biblemate`,
    python3 .grok/skills/bible/bible_retriever.py "NET John 3:16"
    ```
 2. **Save study output.** For every bible-related skill/command except
-   `biblemate`, `biblemate-super`, `image`, `data`, `sync`, `md`, `docx`, and
-   `zip`, save the full study output to the `biblemate/` directory with a
+   `biblemate`, `biblemate-super`, `image`, `data`, `sync`, `md`, `docx`, `zip`,
+   `export-bible`, `copy-bible-notes`, `covert-bible`, and `tag-bible`, save the
+   full study output to the `biblemate/` directory with a
    timestamp prefix using the `write` tool:
    ```bash
    python3 -c "import datetime; print(datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S'))"
@@ -134,6 +135,10 @@ python3 .grok/build_grok.py
 
 The Grok generator is idempotent and only rewrites `skills/`, `commands/`,
 `agents/`, `personas/`, `preferences/`, and `agents.md` under `.grok/`.
+It also imports `export-bible`, `copy-bible-notes`, `covert-bible`, and
+`tag-bible` from `.agents/skills/` and rewrites them onto `.grok/` paths
+and Grok tools (`run_terminal_command`, `read_file`, `write`, `search_replace`).
+Those four are database utilities, so they are excluded from the study-file rule.
 
 ## Platform coexistence
 

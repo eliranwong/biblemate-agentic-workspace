@@ -11,17 +11,17 @@ BibleMate workflows in this repository are Cursor project skills at `.cursor/ski
 
 Apply the matching skill when the user:
 
-- Invokes a BibleMate command such as `/bible`, `/sermon`, `/devotion`, `/biblemate`, `/biblemate-super`, or a book code such as `/Gen`
-- Asks for scripture retrieval, a study, devotion, sermon, prayer, commentary, lexicon, search, or another workflow named by a skill in `.cursor/skills/`
+- Invokes a BibleMate command such as `/bible`, `/sermon`, `/devotion`, `/biblemate`, `/biblemate-super`, `/export-bible`, `/copy-bible-notes`, `/covert-bible`, `/tag-bible`, or a book code such as `/Gen`
+- Asks for scripture retrieval, a study, devotion, sermon, prayer, commentary, lexicon, search, a Bible export, note copy, format conversion, word-ID tagging, or another workflow named by a skill in `.cursor/skills/`
 
-Use `.cursor/skills/`. Ignore the parallel copies in `.claude/skills/` and `.grok/skills/` for the same workflow.
+Use `.cursor/skills/`. Ignore the parallel copies in `.agents/skills/`, `.claude/skills/`, `.grok/skills/`, and `.codex/skills/` for the same workflow.
 
 ## How to follow a skill
 
 1. Read `.cursor/skills/<name>/SKILL.md` and do what it says.
 2. Run the Python helpers it names with the `Shell` tool, from the repository root.
 3. Quote scripture only from `bible` skill output: `python3 .cursor/skills/bible/bible_retriever.py "<query>"`.
-4. Save bible-related study output with the `Write` tool to `biblemate/YYYY-MM-DD-HH-MM-SS_<desc>.md`. Skip saving for `biblemate`, `biblemate-super`, `image`, `data`, `sync`, `md`, `docx`, and `zip`. Confirm the saved path.
+4. Save bible-related study output with the `Write` tool to `biblemate/YYYY-MM-DD-HH-MM-SS_<desc>.md`. Skip saving for `biblemate`, `biblemate-super`, `image`, `data`, `sync`, `md`, `docx`, `zip`, `export-bible`, `copy-bible-notes`, `covert-bible`, and `tag-bible`. Confirm the saved path.
 5. For a full multi-skill study, follow `biblemate` or `biblemate-super`. Adopt personas from `.cursor/agents.md`, or delegate with the `Task` tool using the persona slug.
 
 ## Tools

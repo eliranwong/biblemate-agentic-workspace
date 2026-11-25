@@ -4,7 +4,7 @@
 > **Universal Scripture Retrieval Rule**: Whenever you or any agent persona configured in this file need to quote, reference, or compare Bible verse content in a response, you **MUST** run the local `bible` skill (or `/bible` command) to retrieve the exact verse text from the local SQLite databases. Do not quote scripture passages from memory. This ensures absolute accuracy and consistency.
 
 > [!IMPORTANT]
-> **Universal Study Output Saving Rule (MANDATORY)**: Whenever you execute any bible-related skill/slash command (except biblemate, biblemate-super, image, data, sync, md, docx, and zip), you **MUST** save the complete final study output (such as outlines, sermons, devotionals, analyses, etc.) to a file in the `biblemate/` subdirectory.
+> **Universal Study Output Saving Rule (MANDATORY)**: Whenever you execute any bible-related skill/slash command (except biblemate, biblemate-super, image, data, sync, md, docx, zip, export-bible, copy-bible-notes, covert-bible, and tag-bible), you **MUST** save the complete final study output (such as outlines, sermons, devotionals, analyses, etc.) to a file in the `biblemate/` subdirectory.
 > - The output file MUST be saved as a physical markdown file in the `biblemate/` directory using the `write` tool in the workspace.
 > - Every output filename MUST be prefixed with a timestamp in the format `YYYY-MM-DD-HH-MM-SS_` followed by a short descriptive name ending in `.md` (e.g., `biblemate/2026-06-23-00-15-30_romans_8_devotion.md`).
 > - Extract the current timestamp from the environment metadata, or run:

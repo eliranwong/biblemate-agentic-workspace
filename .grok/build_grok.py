@@ -24,11 +24,13 @@ Text transforms applied so the Grok Build copies work independently of
   * zip packages `.agents`, `.claude`, `.cursor`, `.grok`, and preferences
   * image skill uses Grok Imagine tools (not Antigravity)
   * data dir resolution keeps BIBLEMATE_DATA / ~/biblemate portability
+  * export-bible, copy-bible-notes, covert-bible, and tag-bible are imported
+    from `.agents/skills/` and rewritten onto `.grok/` paths and Grok tools
 
 This script is idempotent. It only rewrites the skills/commands/agents/
 personas/preferences subtrees and agents.md under `.grok/`. It never
 touches build_grok.py, AGENTS.md, or anything outside `.grok/` except
-reading from `.claude/`.
+reading from `.claude/` and those four skill directories under `.agents/skills/`.
 """
 from __future__ import annotations
 
@@ -53,6 +55,44 @@ DST_AGENTS_MD = os.path.join(DST_GROK, "agents.md")
 DST_PREFERENCES = os.path.join(DST_GROK, "preferences")
 
 SKIP_NAMES = {"__pycache__", ".DS_Store", "Thumbs.db"}
+
+# Database utilities maintained under .agents/skills (not part of the Claude tree).
+SRC_AGENTS_SKILLS = os.path.join(REPO_ROOT, ".agents", "skills")
+ADDITIONAL_BIBLE_SKILLS = (
+    "export-bible",
+    "copy-bible-notes",
+    "covert-bible",
+    "tag-bible",
+)
+ADDITIONAL_COMMANDS = {
+    "export-bible": (
+        "Export a Bible from the SQLite Bible table into Markdown files organized by book sub-folders and chapter files.",
+        "Use the **export-bible** skill to export the requested Bible version to Markdown under `bibles/<ABBR>/`.",
+        "Please export the Bible based on the following input:",
+    ),
+    "copy-bible-notes": (
+        "Copy the Notes table and inline note links from one .bible file to another.",
+        "Use the **copy-bible-notes** skill to copy Notes and inline `<sup>` note links between `.bible` files.",
+        "Please copy the Bible notes based on the following input:",
+    ),
+    "covert-bible": (
+        "Convert Bible source files (USFM, OSIS, TSV, EPUB/HTML, or text) into a BibleMate SQLite .bible file.",
+        "Use the **covert-bible** skill to convert the provided Bible sources into `biblemate_bibles/<ABBR>.bible`.",
+        "Please convert the Bible sources based on the following input:",
+    ),
+    "tag-bible": (
+        "Tag a .bible file with word IDs aligned to tagged_translations.sqlite.",
+        "Use the **tag-bible** skill to tag the requested `.bible` file and update `tagged_translations.sqlite`.",
+        "Please tag the Bible based on the following input:",
+    ),
+}
+STUDY_SAVE_EXCEPTIONS_OLD = (
+    "except biblemate, biblemate-super, image, data, sync, md, docx, and zip"
+)
+STUDY_SAVE_EXCEPTIONS_NEW = (
+    "except biblemate, biblemate-super, image, data, sync, md, docx, zip, "
+    "export-bible, copy-bible-notes, covert-bible, and tag-bible"
+)
 
 PERSONA_SLUGS = {
     "Passionate Evangelist": "passionate-evangelist",
@@ -214,9 +254,15 @@ def transform_command_md(text: str) -> str:
     return text
 
 
+def expand_study_save_exceptions(text: str) -> str:
+    """Keep database-utility skills out of the biblemate/ study-file rule."""
+    return text.replace(STUDY_SAVE_EXCEPTIONS_OLD, STUDY_SAVE_EXCEPTIONS_NEW)
+
+
 def transform_agents_md(text: str) -> str:
     text = rewrite_paths(text)
     text = rewrite_tools(text)
+    text = expand_study_save_exceptions(text)
     return text
 
 
@@ -310,7 +356,9 @@ def build_agent_md(name: str, body: str, universal: str) -> str:
     # Collapse multi-line desc to one line for frontmatter
     desc = " ".join(desc.split())
     prompt_body = rewrite_tools(rewrite_paths(body))
-    universal_t = rewrite_tools(rewrite_paths(universal)).strip()
+    universal_t = expand_study_save_exceptions(
+        rewrite_tools(rewrite_paths(universal))
+    ).strip()
 
     out = []
     out.append("---")
@@ -350,7 +398,9 @@ def build_persona_toml(name: str, body: str, universal: str) -> str:
     desc = first_sentence(body) or f"{name} persona."
     desc = " ".join(desc.split())
     prompt_body = rewrite_tools(rewrite_paths(body)).strip()
-    universal_t = rewrite_tools(rewrite_paths(universal)).strip()
+    universal_t = expand_study_save_exceptions(
+        rewrite_tools(rewrite_paths(universal))
+    ).strip()
 
     instructions = "\n".join(
         [
@@ -725,6 +775,95 @@ When executing this skill:
 
 
 # ---------------------------------------------------------------------------
+# Database-utility skills (maintained in .agents, ported for Grok Build)
+# ---------------------------------------------------------------------------
+
+def grok_runtime_footer(skill_name: str) -> str:
+    write_step = ""
+    if skill_name == "covert-bible":
+        write_step = (
+            "- Create or revise the converter with `write` and `search_replace`.\n"
+        )
+    return f"""
+
+## Grok Build Runtime
+
+Use this `.grok/skills/{skill_name}/` copy. Do not run sibling copies under
+`.agents/`, `.claude/`, `.codex/`, or `.cursor/`.
+
+- Run the commands in this skill with `run_terminal_command` from the repository root.
+- Inspect sources and outputs with `read_file`, `grep`, and `list_dir`.
+{write_step}- Do not save a `biblemate/` study file. Confirm the output path and the verification counts.
+"""
+
+
+def rewrite_agents_skill_paths(text: str) -> str:
+    text = text.replace(".agents/skills/", ".grok/skills/")
+    text = text.replace(".agents/agents.md", ".grok/agents.md")
+    return text
+
+
+def transform_agents_skill_md(text: str, skill_name: str) -> str:
+    text = rewrite_agents_skill_paths(text)
+    text = rewrite_tools(text)
+    if "## Grok Build Runtime" not in text:
+        text = text.rstrip() + grok_runtime_footer(skill_name)
+    if not text.endswith("\n"):
+        text += "\n"
+    return text
+
+
+def write_additional_bible_skills() -> int:
+    """Import database-utility skills from `.agents/skills/` into `.grok/skills/`."""
+    n = 0
+    for name in ADDITIONAL_BIBLE_SKILLS:
+        src = os.path.join(SRC_AGENTS_SKILLS, name)
+        if not os.path.isdir(src):
+            log(f"WARNING: additional skill not found: {src}")
+            continue
+        dst = os.path.join(DST_SKILLS, name)
+
+        def file_tf(content, filename, _spath, skill_name=name):
+            if filename == "SKILL.md":
+                return transform_agents_skill_md(content, skill_name)
+            if filename.endswith((".py", ".md")):
+                return rewrite_tools(rewrite_agents_skill_paths(content))
+            return content
+
+        reset_dir(dst)
+        copy_tree_transformed(src, dst, file_tf)
+        n += 1
+        log(f"  imported {name} from .agents/skills")
+    return n
+
+
+def write_additional_bible_commands() -> int:
+    """Slash-command wrappers for the imported database-utility skills."""
+    n = 0
+    for name, (description, use_line, ask_line) in ADDITIONAL_COMMANDS.items():
+        path = os.path.join(DST_COMMANDS, f"{name}.md")
+        body = (
+            "---\n"
+            f"description: {description}\n"
+            "---\n"
+            "\n"
+            "Adopt the **Verse Scripter** persona from `.grok/agents.md`.\n"
+            "\n"
+            f"{use_line}\n"
+            "\n"
+            f"{ask_line}\n"
+            "\n"
+            "# Input\n"
+            "\n"
+            "$ARGUMENTS\n"
+        )
+        with open(path, "w", encoding="utf-8") as handle:
+            handle.write(body)
+        n += 1
+    return n
+
+
+# ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
 
@@ -754,6 +893,7 @@ def main() -> None:
     _write_grok_update_skill()
     _write_grok_image_skill_overlay()
     _write_grok_zip_skill_overlay()
+    n_skills += write_additional_bible_skills()
 
     # 2. Commands (slash workflows)
     log("Building .grok/commands ...")
@@ -775,6 +915,7 @@ def main() -> None:
         with open(os.path.join(DST_COMMANDS, out_name), "w", encoding="utf-8") as f:
             f.write(content)
         n_cmds += 1
+    n_cmds += write_additional_bible_commands()
     log(f"  {n_cmds} commands")
 
     # 3. Preferences

@@ -13,4 +13,5 @@ When executing this skill:
 - Always run the python retriever script located at `.cursor/skills/bible/bible_retriever.py` to retrieve the requested verses.
 - Execute the script using: `python3 .cursor/skills/bible/bible_retriever.py "<query>"` where `<query>` is the input prompt or arguments.
 - Pass the user's version and reference query exactly as given to the script.
+- The retriever reads Scripture from the `VersesPlain` table when that table exists, and from the `Verses` table otherwise.
 - Present the exact output of the script to the user without summarizing, paraphrasing, or altering the biblical text, maintaining the absolute authority and accuracy of God's Word.
