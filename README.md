@@ -23,6 +23,9 @@
 
 *An integrated local workspace combining robust scripture databases, modular study skills, and specialized AI personas to streamline biblical research and writing across Google Antigravity, Claude Code, Codex, Grok Build, and Cursor.*
 
+> [!IMPORTANT]
+> **Seamless Integration with [BibleMate Web](https://github.com/eliranwong/biblemateweb) (Studio Mode):** **BibleMate Web** and **BibleMate Agentic Workspace** are the two flagship projects of the [BibleMate AI](https://github.com/eliranwong/biblemate) ecosystem—and they work together seamlessly on a **single server**. When this workspace is installed in `~/biblemate`, **BibleMate Web** automatically detects all installed `web_app_*.py` backends (`agy`, `claude`, `codex`, `grok`, `gemini_api`) and lets you launch **Studio Mode** directly in a tool tab or side-by-side inside **Multi-Tool Workspace** (`AI: Studio Mode`), combining BibleMate Web's rich Bible reader and study tools with this workspace's autonomous agents, skills, notes, and DOCX/Markdown export. See the [Studio Mode Guide](https://github.com/eliranwong/biblemateweb/blob/main/docs/english/ai_features/studio_mode.md).
+
 > [!NOTE]
 > **Where Rigorous Scholarship Meets Agentic Power:** This repository unites advanced agentic workflow capability (originally built for the **Google Antigravity Platform**, now also available for **Claude Code**, **Codex**, **Grok Build**, and **Cursor**) with the reliable, time-tested databases of the **[UniqueBible Project](https://github.com/eliranwong/UniqueBible)** and the modular AI exegesis tools of **[BibleMate AI](https://github.com/eliranwong/biblemate)**.
 

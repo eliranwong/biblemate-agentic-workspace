@@ -26,11 +26,17 @@ AGY_DATA_DIRS = (
 # Antigravity stream-json writes each tool result as one line. A file read can
 # exceed asyncio's default 64 KiB StreamReader limit and abort the turn.
 AGY_STREAM_LIMIT = 8 * 1024 * 1024
+BACKEND_ERROR = None
 if not AGY_BIN or not os.path.isfile(AGY_BIN) or not os.access(AGY_BIN, os.X_OK):
+    BACKEND_ERROR = (
+        "The `agy` CLI was not found. Install Antigravity CLI, sign in with your "
+        "Google subscription, then try again. Expected `agy` on PATH or at ~/.local/bin/agy."
+    )
     print("Error: the agy CLI was not found.")
     print("Install Antigravity CLI, sign in with your Google subscription, then re-run this app.")
     print("Expected the `agy` executable on PATH or at ~/.local/bin/agy.")
-    sys.exit(1)
+    if __name__ == '__main__':
+        sys.exit(1)
 
 DEFAULT_READER_FONT_SIZE = 14
 READER_FONT_SIZES = tuple(range(12, 33, 2))
@@ -38,15 +44,14 @@ DEFAULT_CHAT_FONT_SIZE = 14
 CHAT_FONT_SIZES = READER_FONT_SIZES
 
 # Ensure working directory is workspace root to auto-discover .agents/
-WORKSPACE_DIR = os.path.dirname(os.path.abspath(__file__))
-if WORKSPACE_DIR:
+WORKSPACE_DIR = os.path.dirname(os.path.abspath(__file__)) or os.getcwd()
+if __name__ == '__main__':
     os.chdir(WORKSPACE_DIR)
-else:
-    WORKSPACE_DIR = os.getcwd()
 
-# Ensure images directory exists and serve statically
+# Ensure images directory exists and serve statically when run standalone
 os.makedirs(os.path.join(WORKSPACE_DIR, 'images'), exist_ok=True)
-app.add_static_files('/images', os.path.join(WORKSPACE_DIR, 'images'))
+if __name__ == '__main__':
+    app.add_static_files('/images', os.path.join(WORKSPACE_DIR, 'images'))
 
 # ---------------------------------------------------------
 # Dynamic Discovery Helpers
@@ -54,7 +59,7 @@ app.add_static_files('/images', os.path.join(WORKSPACE_DIR, 'images'))
 
 def parse_personas():
     """Parses .agents/agents.md to extract all available personas and descriptions."""
-    path = '.agents/agents.md'
+    path = os.path.join(WORKSPACE_DIR, '.agents', 'agents.md')
     personas = {'Auto': 'Perform the task by dynamically rotating or choosing the best persona.'}
     if os.path.exists(path):
         try:
@@ -82,7 +87,7 @@ def parse_personas():
 def get_skills():
     """Dynamically lists the available exegesis skills from .agents/skills/."""
     skills = ['Auto']
-    skills_dir = '.agents/skills'
+    skills_dir = os.path.join(WORKSPACE_DIR, '.agents', 'skills')
     if os.path.exists(skills_dir):
         try:
             for d in os.listdir(skills_dir):
@@ -616,7 +621,7 @@ class BibleMateApp:
     def get_slash_commands(self) -> list:
         """Lists slash commands from .agents/workflows and .agents/skills."""
         commands = set()
-        workflows_dir = '.agents/workflows'
+        workflows_dir = os.path.join(WORKSPACE_DIR, '.agents', 'workflows')
         if os.path.isdir(workflows_dir):
             try:
                 for name in os.listdir(workflows_dir):
@@ -624,7 +629,7 @@ class BibleMateApp:
                         commands.add('/' + name[:-3])
             except Exception:
                 pass
-        skills_dir = '.agents/skills'
+        skills_dir = os.path.join(WORKSPACE_DIR, '.agents', 'skills')
         if os.path.isdir(skills_dir):
             try:
                 for name in os.listdir(skills_dir):
@@ -1076,7 +1081,7 @@ class BibleMateApp:
 
         nodes = []
         for folder in ['biblemate', 'bibles', 'images', 'export', 'docs', 'notes']:
-            if os.path.exists(folder):
+            if os.path.exists(os.path.join(WORKSPACE_DIR, folder)):
                 node = build_node(folder)
                 if node:
                     nodes.append(node)
@@ -2110,9 +2115,11 @@ class BibleMateApp:
             """
         )
 
-    def build_ui(self):
+    def build_ui(self, dark_mode=True, initial_ref='', embedded=False):
         # Premium dark mode configuration (Default to Dark)
-        dark = ui.dark_mode(value=True)
+        self.initial_ref = initial_ref
+        self.embedded = embedded
+        dark = ui.dark_mode(value=dark_mode)
         self._install_theme()
         self._install_reading_focus_control()
 
@@ -2123,7 +2130,7 @@ class BibleMateApp:
             with ui.row().classes('items-center gap-3'):
                 ui.button(icon='menu', on_click=lambda: self.left_drawer.toggle()).props('flat round').classes('theme-text')
                 ui.icon('menu_book', size='md').classes('theme-muted')
-                ui.label('BibleMate Antigravity').classes('max-sm:hidden text-lg font-bold tracking-wide theme-text')
+                ui.label('BibleMate Studio' if embedded else 'BibleMate Antigravity').classes('max-sm:hidden text-lg font-bold tracking-wide theme-text')
 
             with ui.row().classes('items-center gap-4'):
                 # New Conversation button
@@ -2299,7 +2306,7 @@ class BibleMateApp:
 
                         # Multi-line textarea for entry requests
                         self.message_input = message_input = ui.textarea(
-                            label='Ask BibleMate Antigravity',
+                            label='Ask BibleMate AI' if embedded else 'Ask BibleMate Antigravity',
                             placeholder='Enter your study request (e.g., Write a devotion on Romans 8:28)...',
                             on_change=handle_input_change
                         ).props('outlined autogrow rows=2 input-class="theme-text"').classes("chat-input w-full rounded-xl theme-text").style(
