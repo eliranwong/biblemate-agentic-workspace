@@ -37,3 +37,4 @@ Thumbs.db
 
 biblemate_bibles/*.bible
 biblemate_tagged_bibles/*.bible
+bibles/**
