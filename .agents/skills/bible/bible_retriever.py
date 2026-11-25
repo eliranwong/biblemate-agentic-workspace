@@ -209,18 +209,21 @@ def fetch_verses(db_path, book_num, ref_info):
         print(f"Error connecting to database {db_path}: {e}")
         return []
         
+    cursor.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='VersesPlain'")
+    table_name = "VersesPlain" if cursor.fetchone() else "Verses"
+
     ref_type = ref_info['type']
     if ref_type == 'verse_range':
-        query = "SELECT Chapter, Verse, Scripture FROM Verses WHERE Book = ? AND Chapter = ? AND Verse >= ? AND Verse <= ? ORDER BY Chapter, Verse"
+        query = f"SELECT Chapter, Verse, Scripture FROM {table_name} WHERE Book = ? AND Chapter = ? AND Verse >= ? AND Verse <= ? ORDER BY Chapter, Verse"
         params = (book_num, ref_info['chapter'], ref_info['verse_start'], ref_info['verse_end'])
     elif ref_type == 'single_verse':
-        query = "SELECT Chapter, Verse, Scripture FROM Verses WHERE Book = ? AND Chapter = ? AND Verse = ? ORDER BY Chapter, Verse"
+        query = f"SELECT Chapter, Verse, Scripture FROM {table_name} WHERE Book = ? AND Chapter = ? AND Verse = ? ORDER BY Chapter, Verse"
         params = (book_num, ref_info['chapter'], ref_info['verse'])
     elif ref_type == 'chapter_range':
-        query = "SELECT Chapter, Verse, Scripture FROM Verses WHERE Book = ? AND Chapter >= ? AND Chapter <= ? ORDER BY Chapter, Verse"
+        query = f"SELECT Chapter, Verse, Scripture FROM {table_name} WHERE Book = ? AND Chapter >= ? AND Chapter <= ? ORDER BY Chapter, Verse"
         params = (book_num, ref_info['chapter_start'], ref_info['chapter_end'])
     elif ref_type == 'single_chapter':
-        query = "SELECT Chapter, Verse, Scripture FROM Verses WHERE Book = ? AND Chapter = ? ORDER BY Chapter, Verse"
+        query = f"SELECT Chapter, Verse, Scripture FROM {table_name} WHERE Book = ? AND Chapter = ? ORDER BY Chapter, Verse"
         params = (book_num, ref_info['chapter'])
     else:
         conn.close()

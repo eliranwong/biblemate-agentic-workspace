@@ -587,6 +587,21 @@ def tag_bible_table(bible_db: str, tag_name: str):
     print(f"Tagged {len(updates)} chapters in Bible table in {time.time() - t0:.2f}s (mismatches={mismatches}).")
 
 
+def create_verses_plain(bible_db: str):
+    """Duplicate Verses into VersesPlain and strip all tags from Scripture."""
+    t0 = time.time()
+    conn = sqlite3.connect(bible_db)
+    cur = conn.cursor()
+    cur.execute("DROP TABLE IF EXISTS VersesPlain")
+    cur.execute("CREATE TABLE VersesPlain AS SELECT * FROM Verses")
+    rows = cur.execute("SELECT rowid, Scripture FROM VersesPlain").fetchall()
+    updates = [(HTML_TAG_RE.sub("", s) if s else s, rowid) for rowid, s in rows]
+    cur.executemany("UPDATE VersesPlain SET Scripture = ? WHERE rowid = ?", updates)
+    conn.commit()
+    conn.close()
+    print(f"Created VersesPlain table with {len(updates)} tag-stripped rows in {time.time() - t0:.2f}s.")
+
+
 def resolve_default_morph_path(morph_arg: str) -> str:
     if morph_arg:
         return os.path.expanduser(morph_arg)
@@ -624,6 +639,7 @@ def main():
 
     if args.only_bible_table:
         tag_bible_table(out_bible, tag_name)
+        create_verses_plain(out_bible)
         return
 
     t0 = time.time()
@@ -1236,6 +1252,7 @@ def main():
 
     if not args.skip_bible_table:
         tag_bible_table(out_bible, tag_name)
+    create_verses_plain(out_bible)
     print(f"Total elapsed: {time.time() - t0:.2f}s (output: {out_bible})")
 
 

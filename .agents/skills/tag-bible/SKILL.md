@@ -29,6 +29,7 @@ Helper script: `.agents/skills/tag-bible/tag_bible.py`
    2. Tag the **`Verses` table first** and verify `0` text mismatches when stripping tags.
    3. Always update `~/biblemate/data/tagged_translations.sqlite` (using `--col` if provided, otherwise the Bible filename without `.bible`, double-quoted safely for Unicode/special characters) **strictly by `rowid`**—never run unindexed `UPDATE morphology SET ... WHERE Book ... AND WordID = ?` (which causes 2+ hour full-table scans on 564,594 rows).
    4. Tag the **`Bible` table last** by projecting the `Verses` tags onto each `<verse>` body while preserving all headings, `<vid>`, `<ref>`, `<br>`, `&emsp;`, and inline HTML tags (`<span class="smcaps">`, `<i>`, etc.) without creating crossed tags.
+   5. Duplicate the **`Verses` table** into **`VersesPlain`** and strip all tags from `VersesPlain.Scripture`.
 
 ---
 
@@ -84,5 +85,6 @@ python3 .agents/skills/tag-bible/tag_bible.py --bible data/WEB.bible --lang en -
 ## Verification Checklist
 - Confirm `0` text mismatches on `Verses` when stripping tags.
 - Confirm `0` text mismatches on `Bible` when stripping `<en>`/`<zh>` tags.
+- Confirm `VersesPlain` exists and contains the same row count as `Verses` with all tags stripped.
 - Inspect sample verses (`Gen 1:1`, `Gen 1:2`, `Ps 23:1`, `Mat 1:1`, `John 3:16`) in `tagged_translations.sqlite` and both tables of the `.bible` file before reporting completion.
 
