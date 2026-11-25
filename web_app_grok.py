@@ -157,7 +157,7 @@ DEFAULT_MODEL = (
 
 async def run_local_retriever(skill_name: str, query: str, on_process=None) -> str:
     """Runs a Python database retriever script under .grok/skills directly and returns output."""
-    script_path = f".grok/skills/{skill_name}/{skill_name}_retriever.py"
+    script_path = os.path.join(WORKSPACE_DIR, '.grok', 'skills', skill_name, f'{skill_name}_retriever.py')
     if not os.path.exists(script_path):
         return f"Error: Local retriever script not found at {script_path}"
     
