@@ -692,7 +692,7 @@ Download the agents and setup the workspace folder:
 # Navigate to your workspace directory
 cd <workspace_directory_name>
 # Download and import into your workspace directory
-curl -L -O https://github.com/eliranwong/antigravity-biblemate-workspace/raw/main/manual_setup.zip && tar -xf manual_setup.zip && rm manual_setup.zip && mkdir -p biblemate notes images export
+curl -L -O https://github.com/eliranwong/antigravity-biblemate-workspace/raw/main/manual_setup.zip && tar -xf manual_setup.zip && rm manual_setup.zip && mkdir -p biblemate notes images export bibles
 ```
 
 ### on Linux:
@@ -701,7 +701,7 @@ curl -L -O https://github.com/eliranwong/antigravity-biblemate-workspace/raw/mai
 # Navigate to your workspace directory
 cd <workspace_directory_name>
 # Download and import into your workspace directory
-curl -L -O https://github.com/eliranwong/antigravity-biblemate-workspace/raw/main/manual_setup.zip && unzip -o manual_setup.zip && rm manual_setup.zip && mkdir -p biblemate notes images export
+curl -L -O https://github.com/eliranwong/antigravity-biblemate-workspace/raw/main/manual_setup.zip && unzip -o manual_setup.zip && rm manual_setup.zip && mkdir -p biblemate notes images export bibles
 ```
 
 Launch your platform of choice, for example:

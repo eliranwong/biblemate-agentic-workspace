@@ -604,7 +604,7 @@ class BibleMateApp:
                     is_valid = basename.lower().endswith(('.png', '.jpg', '.jpeg', '.md'))
                 elif top_folder == 'export':
                     is_valid = basename.lower().endswith(('.md', '.docx'))
-                elif top_folder in ('docs', 'biblemate', 'notes'):
+                elif top_folder in ('docs', 'biblemate', 'notes', 'bibles'):
                     is_valid = basename.endswith('.md')
 
                 if is_valid:
@@ -615,7 +615,7 @@ class BibleMateApp:
                 return None
 
         nodes = []
-        for folder in ['biblemate', 'images', 'export', 'docs', 'notes']:
+        for folder in ['biblemate', 'bibles', 'images', 'export', 'docs', 'notes']:
             if os.path.exists(folder):
                 node = build_node(folder)
                 if node:
@@ -688,14 +688,14 @@ class BibleMateApp:
 
         # Explicitly protect root and direct parent folders
         protected = {
-            '.', '', 'biblemate', 'export', 'export/md', 'export/docx', 'images',
+            '.', '', 'biblemate', 'bibles', 'export', 'export/md', 'export/docx', 'images',
             'images/readme.md', 'images/readme', 'notes'
         }
         if clean_path.lower() in protected or clean_path.startswith(('.', '..')):
             return False
 
         # Must be strictly nested inside allowed directories
-        allowed_roots = ('biblemate/', 'export/', 'images/', 'notes/')
+        allowed_roots = ('biblemate/', 'bibles/', 'export/', 'images/', 'notes/')
         return any(clean_path.startswith(root) for root in allowed_roots)
 
     def confirm_delete(self):
