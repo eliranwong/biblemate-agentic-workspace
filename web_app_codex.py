@@ -1150,12 +1150,12 @@ class BibleMateApp:
             if effort != DEFAULT_EFFORT:
                 cmd.extend(['-c', f'model_reasoning_effort={json.dumps(effort)}'])
             if self.codex_session_id:
-                cmd.extend(["exec", "resume", "--json", "-o", final_message_path])
+                cmd.extend(["exec", "resume", "--skip-git-repo-check", "--trust", "--json", "-o", final_message_path])
                 if sdk_model:
                     cmd.extend(["-m", sdk_model])
                 cmd.extend([self.codex_session_id, "-"])
             else:
-                cmd.extend(["exec", "--json", "-o", final_message_path])
+                cmd.extend(["exec", "--skip-git-repo-check", "--trust", "--json", "-o", final_message_path])
                 if sdk_model:
                     cmd.extend(["-m", sdk_model])
                 cmd.append("-")
